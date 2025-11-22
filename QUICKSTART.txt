@@ -1,0 +1,155 @@
+Tetris AI with AlphaEvolve - Quick Start Guide
+================================================
+
+What You Have
+-------------
+A complete system for evolving Tetris AI using the AlphaEvolve approach, where actual 
+code (not neural networks) is evolved to play better.
+
+Files
+-----
+- tetris_env.py         : Gymnasium Tetris environment (20x10 board)
+- tetris_agent.py       : Agent with evolvable code (marked with EVOLVE-BLOCK)
+- tetris_evaluator.py   : Scores agents across multiple games
+- tetris_pufferlib.py   : PufferLib wrapper for parallel execution
+- run_tetris_evolution.py : Evolution runner (with/without OpenEvolve)
+- demo.py               : Interactive demos
+- README.md             : Full documentation
+
+Quick Test (30 seconds)
+-----------------------
+1. Install dependencies:
+   pip install gymnasium numpy
+
+2. Test the environment:
+   python tetris_env.py
+
+3. Test the agent:
+   python tetris_agent.py
+
+4. Evaluate performance:
+   python tetris_evaluator.py
+
+5. Run demos:
+   python demo.py
+
+What Gets Evolved
+-----------------
+The code between EVOLVE-BLOCK-START and EVOLVE-BLOCK-END in tetris_agent.py:
+- compute_heuristics() - Feature extraction
+- decide_action() - Decision logic  
+- evaluate_position() - Placement scoring
+
+Current Performance
+-------------------
+Baseline agent: ~36 points (survives ~3000 steps, places ~7 pieces, clears 0 lines)
+
+This is intentionally weak! Evolution should improve it significantly.
+
+Expected Improvements
+---------------------
+Good evolved agents typically achieve:
+- 200+ points
+- 20+ lines cleared
+- 50+ pieces placed
+- Better hole avoidance
+- Strategic piece placement
+
+How to Run Evolution
+--------------------
+
+Option 1: With OpenEvolve (Recommended)
+   pip install openevolve
+   export OPENAI_API_KEY="your-api-key"
+   python run_tetris_evolution.py --with-openevolve --iterations 50
+
+Option 2: Without OpenEvolve (Manual)
+   - Read tetris_agent.py
+   - Have your LLM modify the EVOLVE-BLOCK code
+   - Save to new file
+   - Run: python tetris_evaluator.py new_file.py
+   - Keep best version, repeat
+
+Option 3: Simple Demo
+   python run_tetris_evolution.py
+   # Shows how evolution would work
+
+Visualization
+-------------
+Watch your evolved agent play:
+   python run_tetris_evolution.py --visualize-only tetris_agent.py
+
+Or edit demo.py and run:
+   python demo.py 2
+
+Evaluation Metrics
+------------------
+Primary Score = avg_game_score + (10 * avg_lines) + avg_pieces + (0.01 * avg_steps)
+
+This prioritizes:
+1. Lines cleared (10x weight)
+2. Game score
+3. Pieces placed
+4. Survival time
+
+Tips for Better Evolution
+--------------------------
+1. Start with small changes to heuristics
+2. Test each modification across multiple games (5+)
+3. Save good intermediate versions
+4. Try different weights in evaluate_position()
+5. Add new heuristics (well depth, column variance, etc.)
+
+Example Improvements to Try
+----------------------------
+1. Change hole threshold: holes > 3 → holes > 7
+2. Add column height consideration
+3. Weight evaluation differently per piece type
+4. Implement lookahead to next piece
+5. Add T-spin detection
+6. Optimize for clearing 4 lines (Tetris)
+
+Advanced: PufferLib
+-------------------
+For faster evaluation with parallel games:
+   pip install pufferlib
+   python tetris_pufferlib.py
+
+Then modify tetris_evaluator.py to use vectorized envs.
+
+Troubleshooting
+---------------
+Q: Agent crashes or gets 0 score
+A: Check for syntax errors in evolved code, verify heuristics return numbers
+
+Q: Evolution is slow
+A: Reduce num_games in evaluator (default: 5)
+   Reduce max_steps (default: 3000)
+
+Q: Scores don't improve
+A: Try smaller changes, ensure evaluator runs multiple games
+   Check if modifications are actually being applied
+
+Q: Want to see what's happening
+A: Set render=True in evaluator, watch games play out
+
+Next Steps
+----------
+1. ✓ Test baseline agent
+2. → Run first evolution (10 iterations)
+3. → Analyze what improved
+4. → Run longer evolution (50-100 iterations)
+5. → Visualize best agent
+6. → Document discovered strategies
+7. → Try multi-objective optimization
+
+Resources
+---------
+AlphaEvolve Paper: https://arxiv.org/abs/2506.13131
+OpenEvolve: https://github.com/codelion/openevolve
+PufferLib: https://puffer.ai/docs.html
+
+Have Fun!
+---------
+The goal is to discover clever Tetris strategies through code evolution.
+Watch what emerges - it's often surprising!

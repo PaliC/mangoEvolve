@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tetris-evolve"
+version = "0.1.0"
+description = "Tetris AI evolution using AlphaEvolve approach - evolving code-based agents"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Tetris Evolve Contributors"}
+]
+keywords = ["tetris", "evolution", "ai", "gymnasium", "openevolve", "alphaevolve"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Games/Entertainment :: Arcade",
+]
+
+dependencies = [
+    "numpy>=1.20.0",
+    "gymnasium>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+pufferlib = [
+    "pufferlib>=0.1.0",
+]
+openevolve = [
+    "openevolve>=0.1.0",
+]
+all = [
+    "tetris-evolve[pufferlib,openevolve,dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/tetris_evolve"
+Documentation = "https://github.com/yourusername/tetris_evolve#readme"
+Repository = "https://github.com/yourusername/tetris_evolve"
+Issues = "https://github.com/yourusername/tetris_evolve/issues"
+
+[tool.setuptools]
+# Project uses flat structure with modules at root level
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=tetris_evolve --cov-report=html --cov-report=term"
+
