@@ -352,6 +352,44 @@ def evaluate_player(player_code, num_games=100):
 
 **NOTE: Each phase follows Test-Driven Development (TDD). Write tests first, then implement to pass tests.**
 
+### Phase 0: Project Setup
+**Setup Tasks:**
+- [ ] Create project directory structure (src, tests, configs, etc.)
+- [ ] Set up `pyproject.toml` with dependencies
+- [ ] Install PufferLib and verify installation
+- [ ] Research PufferLib Tetris environment availability
+- [ ] Set up pytest configuration and test structure
+- [ ] Create initial configuration files (config.yaml)
+- [ ] Set up logging configuration
+- [ ] Initialize git repository structure
+- [ ] Create README with setup instructions
+
+**Directory Structure:**
+```
+tetris_evolve/
+├── src/
+│   ├── tetris_evolve/
+│   │   ├── __init__.py
+│   │   ├── environment/       # Tetris environment wrapper
+│   │   ├── evaluation/        # Player evaluation framework
+│   │   ├── database/          # Program database
+│   │   ├── rlm/               # Recursive LLM framework
+│   │   ├── root_llm/          # Root LLM logic
+│   │   ├── child_llm/         # Child RLLM logic
+│   │   └── evolution/         # Evolution loop
+├── tests/
+│   ├── test_environment/
+│   ├── test_evaluation/
+│   ├── test_database/
+│   ├── test_rlm/
+│   └── test_evolution/
+├── configs/
+│   └── config.yaml
+├── pyproject.toml
+├── DESIGN.md
+└── README.md
+```
+
 ### Phase 1: Core Infrastructure
 **Tests First:**
 - [ ] Write tests for PufferLib Tetris environment wrapper
@@ -365,6 +403,13 @@ def evaluate_player(player_code, num_games=100):
 - [ ] Create program database (SQLite schema + API)
 - [ ] Build basic RLM framework (REPL environment)
 - [ ] Verify all tests pass
+
+**Deliverables:**
+- Working Tetris environment wrapper with tests
+- Evaluation framework that can run games and collect metrics
+- Program database with CRUD operations
+- Basic REPL execution environment
+- All tests passing
 
 ### Phase 2: Root LLM Integration
 **Tests First:**
@@ -380,6 +425,14 @@ def evaluate_player(player_code, num_games=100):
 - [ ] Create prompt templates emphasizing dynamic decisions
 - [ ] Test Root's ability to select N programs and assign multiple RLLMs
 - [ ] Verify all tests pass
+
+**Deliverables:**
+- Root LLM REPL environment with function injection
+- Performance analysis and metrics functions
+- Generation management system
+- Dynamic selection working (variable N programs)
+- Multi-RLLM assignment capability
+- All tests passing
 
 ### Phase 3: Recursive Child LLM Integration
 **Tests First:**
@@ -397,6 +450,13 @@ def evaluate_player(player_code, num_games=100):
 - [ ] Implement parallel RLLM generation
 - [ ] Verify all tests pass
 
+**Deliverables:**
+- RLLM spawning system with focus_area parameter
+- Mutation directive templates
+- Code generation and validation pipeline
+- Parallel RLLM execution
+- All tests passing
+
 ### Phase 4: Evolution Loop
 **Tests First:**
 - [ ] Write tests for full generation lifecycle
@@ -412,6 +472,14 @@ def evaluate_player(player_code, num_games=100):
 - [ ] Run initial evolution experiments
 - [ ] Verify all tests pass
 
+**Deliverables:**
+- Complete end-to-end evolution system
+- Full generation lifecycle working
+- Logging and visualization
+- Checkpoint/resume functionality
+- Initial evolution experiments completed
+- All tests passing
+
 ### Phase 5: Optimization & Scaling
 **Tests First:**
 - [ ] Write tests for parallel evaluation
@@ -425,6 +493,14 @@ def evaluate_player(player_code, num_games=100):
 - [ ] Implement diversity preservation mechanisms
 - [ ] Performance profiling and optimization
 - [ ] Verify all tests pass
+
+**Deliverables:**
+- Parallel evaluation system
+- Evaluation caching
+- Diversity preservation mechanisms
+- Performance profiling results
+- Optimized token usage
+- All tests passing
 
 ## Technical Stack
 
