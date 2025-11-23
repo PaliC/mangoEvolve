@@ -15,8 +15,9 @@ This system combines **AlphaEvolve's evolutionary coding approach** with **Recur
 ### 2. Recursive LLM Integration
 - **Root LLM (Depth=0)**: Strategic decision-maker that:
   - Analyzes performance data across all candidates in current generation
-  - Selects which programs advance to next generation
-  - Decides mutation strategies (e.g., "improve hole management", "optimize piece placement scoring")
+  - **Dynamically decides how many programs advance to next generation** (not hardcoded)
+  - **Assigns same solution to multiple RLLMs to explore different improvement directions**
+  - **Decides specific focus areas for each Recursive LLM** (e.g., "improve hole management", "optimize piece placement scoring", "increase lookahead depth")
   - Provides rich context to Child LLMs about what to optimize
 - **Child LLMs (Depth=1+)**: Code generators that:
   - Receive parent programs + strategic guidance from Root
@@ -35,9 +36,10 @@ This system combines **AlphaEvolve's evolutionary coding approach** with **Recur
 │                                                          │
 │  Responsibilities:                                       │
 │  • Analyze generation performance metrics               │
-│  • Select top K candidates for next generation          │
+│  • Dynamically decide N candidates for next generation  │
+│  • Assign same solution to multiple RLLMs               │
+│  • Craft specific focus areas for each RLLM             │
 │  • Identify improvement strategies                      │
-│  • Craft mutation directives for Child LLMs             │
 │  • Maintain evolutionary memory/insights                │
 └─────────────┬───────────────────────────────────────────┘
               │
@@ -52,9 +54,10 @@ This system combines **AlphaEvolve's evolutionary coding approach** with **Recur
 │              CHILD LLMs (Parallel)                      │
 │         (Code Generators - Depth 1)                      │
 │                                                          │
-│  Child 1         Child 2         Child N                │
-│  Mutate top #1   Mutate top #2   Explore new approach  │
+│  Child 1         Child 2         Child 3                │
+│  Parent: Prog A  Parent: Prog A  Parent: Prog B        │
 │  Focus: holes    Focus: speed    Focus: lookahead      │
+│  (Same parent, different improvement directions)        │
 └─────────────┬───────────────────────────────────────────┘
               │
               │ Return generated code variants
@@ -111,8 +114,17 @@ current_gen_programs = [...] # Programs from current generation only
 metrics_summary = {...} # Statistical analysis of current generation
 
 # Functions available to Root LLM
-def spawn_child_llm(parent_program, mutation_directive, context):
-    """Spawn a Child LLM to generate new code variant"""
+def spawn_rllm(parent_program, focus_area, mutation_directive, context):
+    """
+    Spawn a Recursive Child LLM to generate new code variant.
+    Can spawn multiple RLLMs for the same parent with different focus areas.
+
+    Args:
+        parent_program: The program to mutate
+        focus_area: Specific aspect to improve (e.g., "hole_management", "lookahead", "speed")
+        mutation_directive: Detailed guidance on how to improve
+        context: Additional context about generation and top performers
+    """
     pass
 
 def evaluate_program(code, num_games=100):
@@ -123,8 +135,11 @@ def get_performance_analysis(generation):
     """Get detailed analysis of a generation's performance"""
     pass
 
-def advance_generation(selected_programs, mutation_strategies):
-    """Move to next generation with selected programs"""
+def advance_generation(selected_programs):
+    """
+    Move to next generation with dynamically selected programs.
+    Number of programs is decided by Root LLM, not hardcoded.
+    """
     pass
 ```
 
@@ -186,25 +201,30 @@ Child LLM outputs:
 
 3. **Selection Phase (Root LLM Decision)**
    - Root LLM analyzes all metrics
-   - Identifies top K performers (e.g., top 10)
+   - **Dynamically decides N programs to advance** (not hardcoded K)
    - Discovers patterns in successful programs
    - Decides selection criteria (may vary by generation)
+   - **For promising programs, assigns multiple RLLMs with different focus areas**
    - Example Root reasoning:
      ```
      "Generation 5 shows that programs focusing on minimizing
      holes outperform greedy scorers by 40%. The top 3 programs
-     all use lookahead depth of 2. I'll select the top 10
-     performers and direct mutations to explore deeper lookahead
-     while maintaining hole management strategies."
+     all use lookahead depth of 2. I'll select the top 8
+     performers. For the best program, I'll spawn 3 RLLMs:
+     one to explore deeper lookahead, one to optimize hole
+     management further, and one to improve speed. For programs
+     ranked 2-5, I'll spawn 2 RLLMs each with different focuses."
      ```
 
-4. **Mutation Phase (Child LLMs)**
-   - Root spawns Child LLMs with specific directives:
+4. **Mutation Phase (Recursive Child LLMs)**
+   - Root spawns Recursive Child LLMs with specific focus areas:
+     - **Multiple RLLMs per promising solution**: Same parent, different improvement directions
      - **Exploitation**: Mutate top performers with targeted improvements
      - **Exploration**: Create novel variants with different approaches
      - **Crossover**: Combine features from multiple top performers
-   - Each Child LLM generates 1-3 variants
+   - Each Child RLLM generates 1-3 variants based on its specific focus
    - Parallel generation for efficiency
+   - Example: Best program → RLLM1 (focus: holes), RLLM2 (focus: lookahead), RLLM3 (focus: speed)
 
 5. **Population Assembly**
    - Root collects all Child outputs
@@ -242,21 +262,39 @@ The Root LLM can direct various mutation types:
 
 ## Tetris Environment
 
-### Game Interface
+### PufferLib Integration
+
+We use **PufferLib** for the Tetris environment, which provides a gymnasium-compatible interface optimized for RL environments. PufferLib handles vectorized environments and efficient parallelization.
 
 ```python
-class TetrisGame:
-    def __init__(self, width=10, height=20):
-        self.width = width
-        self.height = height
-        self.reset()
+import pufferlib
+import gymnasium as gym
+
+# PufferLib provides Tetris environment (or we create a custom one)
+# The environment follows gymnasium API: reset(), step(action), etc.
+
+class TetrisEnvironmentWrapper:
+    """Wrapper around PufferLib Tetris environment"""
+
+    def __init__(self, width=10, height=20, num_envs=1):
+        # Initialize PufferLib vectorized environment
+        self.env = pufferlib.vector.make(
+            "Tetris-v0",  # or custom Tetris environment
+            num_envs=num_envs,
+            # ... configuration
+        )
 
     def reset(self):
-        """Reset game state"""
-        pass
+        """Reset environment and return initial observation"""
+        obs, info = self.env.reset()
+        return obs, info
 
-    def get_state(self):
-        """Return current game state"""
+    def step(self, action):
+        """Execute action and return (obs, reward, terminated, truncated, info)"""
+        return self.env.step(action)
+
+    def get_state_dict(self, obs):
+        """Convert observation to human-readable state dict"""
         return {
             "board": np.array,  # 2D grid
             "current_piece": Piece,
@@ -265,15 +303,9 @@ class TetrisGame:
             "score": int,
             "lines_cleared": int
         }
-
-    def get_valid_actions(self):
-        """Return all valid placements for current piece"""
-        return [Action]  # rotation + column position
-
-    def step(self, action):
-        """Execute action, return new_state, reward, done"""
-        pass
 ```
+
+**Note**: If PufferLib doesn't have a built-in Tetris environment, we'll create a custom gymnasium-compatible Tetris environment and register it with PufferLib for vectorized execution.
 
 ### Player Interface (What Generated Code Implements)
 
@@ -318,59 +350,103 @@ def evaluate_player(player_code, num_games=100):
 
 ## Implementation Phases
 
-### Phase 1: Core Infrastructure (Week 1-2)
-- [ ] Implement Tetris game engine
-- [ ] Implement evaluation framework
-- [ ] Create program database (SQLite or JSON)
+**NOTE: Each phase follows Test-Driven Development (TDD). Write tests first, then implement to pass tests.**
+
+### Phase 1: Core Infrastructure
+**Tests First:**
+- [ ] Write tests for PufferLib Tetris environment wrapper
+- [ ] Write tests for player evaluation framework
+- [ ] Write tests for program database CRUD operations
+- [ ] Write tests for basic REPL environment execution
+
+**Implementation:**
+- [ ] Integrate PufferLib Tetris environment
+- [ ] Implement evaluation framework (runs games, collects metrics)
+- [ ] Create program database (SQLite schema + API)
 - [ ] Build basic RLM framework (REPL environment)
-- [ ] Test with manual code submissions
+- [ ] Verify all tests pass
 
-### Phase 2: Root LLM Integration (Week 2-3)
-- [ ] Implement Root LLM REPL environment
-- [ ] Add functions for program analysis
+### Phase 2: Root LLM Integration
+**Tests First:**
+- [ ] Write tests for Root LLM REPL function injection
+- [ ] Write tests for performance analysis functions
+- [ ] Write tests for dynamic selection (variable N programs)
+- [ ] Write tests for multi-RLLM assignment to same parent
+
+**Implementation:**
+- [ ] Implement Root LLM REPL environment with injected functions
+- [ ] Add functions for program analysis and metrics
 - [ ] Build generation management system
-- [ ] Create prompt templates for Root decision-making
-- [ ] Test Root's ability to analyze and select programs
+- [ ] Create prompt templates emphasizing dynamic decisions
+- [ ] Test Root's ability to select N programs and assign multiple RLLMs
+- [ ] Verify all tests pass
 
-### Phase 3: Child LLM Integration (Week 3-4)
-- [ ] Implement Child LLM spawning
+### Phase 3: Recursive Child LLM Integration
+**Tests First:**
+- [ ] Write tests for RLLM spawning with focus areas
+- [ ] Write tests for mutation directive creation
+- [ ] Write tests for code generation pipeline
+- [ ] Write tests for code validation and safety
+- [ ] Write tests for parallel RLLM execution
+
+**Implementation:**
+- [ ] Implement RLLM spawning with focus_area parameter
 - [ ] Create mutation directive templates
 - [ ] Build code generation pipeline
 - [ ] Add code validation and safety checks
-- [ ] Test parallel Child LLM generation
+- [ ] Implement parallel RLLM generation
+- [ ] Verify all tests pass
 
-### Phase 4: Evolution Loop (Week 4-5)
-- [ ] Connect all components
+### Phase 4: Evolution Loop
+**Tests First:**
+- [ ] Write tests for full generation lifecycle
+- [ ] Write tests for Root's dynamic decision-making
+- [ ] Write tests for checkpoint save/restore
+- [ ] Write tests for edge cases (no improvements, code errors, etc.)
+
+**Implementation:**
+- [ ] Connect all components into evolution loop
 - [ ] Implement full generation lifecycle
-- [ ] Add logging and visualization
+- [ ] Add comprehensive logging and visualization
 - [ ] Create checkpoint/resume functionality
 - [ ] Run initial evolution experiments
+- [ ] Verify all tests pass
 
-### Phase 5: Optimization & Scaling (Week 5-6)
+### Phase 5: Optimization & Scaling
+**Tests First:**
+- [ ] Write tests for parallel evaluation
+- [ ] Write tests for evaluation caching
+- [ ] Write tests for diversity metrics
+
+**Implementation:**
 - [ ] Parallelize game evaluation
 - [ ] Optimize LLM token usage
 - [ ] Add caching for repeated evaluations
 - [ ] Implement diversity preservation mechanisms
-- [ ] Tune population size and mutation rates
+- [ ] Performance profiling and optimization
+- [ ] Verify all tests pass
 
 ## Technical Stack
 
 ### Core Components
 - **Language**: Python 3.10+
 - **LLM API**: OpenAI API (GPT-4 for Root, GPT-3.5/4 for Children) or Anthropic Claude
-- **Game Engine**: NumPy for board state, custom Tetris implementation
+- **Game Engine**: PufferLib (gymnasium-compatible RL environment library)
 - **Database**: SQLite for program storage
 - **REPL**: Python `exec()` based sandbox (from RLM framework)
+- **Testing**: pytest with test-driven development (TDD) approach
 
 ### Libraries
 ```
-- numpy: Game state management
+- pufferlib: Tetris game environment (gymnasium-compatible)
+- numpy: Array operations and state management
 - openai / anthropic: LLM API calls
 - sqlite3: Program database
 - multiprocessing: Parallel evaluation
 - matplotlib/plotly: Visualization
-- pytest: Testing
+- pytest: Test framework (TDD approach)
 - pydantic: Data validation
+- gymnasium: RL environment interface (used by PufferLib)
 ```
 
 ## Configuration
@@ -378,12 +454,16 @@ def evaluate_player(player_code, num_games=100):
 ### System Parameters
 ```yaml
 evolution:
-  population_size: 30
+  initial_population_size: 30
   num_generations: 100
   games_per_evaluation: 100
-  top_k_selection: 10
+  # Note: selection size is dynamic, decided by Root LLM each generation
 
-  mutation_distribution:
+  # Guidance for Root LLM (not strict constraints)
+  suggested_selection_range: [5, 15]  # Root can choose outside this range
+  suggested_rllms_per_top_program: [2, 4]  # Multiple RLLMs per promising solution
+
+  mutation_distribution_guidance:  # Suggestions, not requirements
     exploitation: 0.6  # Improve top performers
     exploration: 0.3   # Novel approaches
     crossover: 0.1     # Recombination
@@ -426,10 +506,10 @@ Your responsibilities:
 Current Generation: {generation}
 
 Available Functions:
-- spawn_child_llm(parent_program, mutation_directive, context)
+- spawn_rllm(parent_program, focus_area, mutation_directive, context)
 - evaluate_program(code, num_games)
 - get_performance_analysis(generation)
-- advance_generation(selected_programs, strategies)
+- advance_generation(selected_programs)
 
 Current Generation Data:
 {program_data}
@@ -438,17 +518,22 @@ Performance Summary:
 {metrics_summary}
 
 Please analyze this generation and decide:
-1. Which programs should advance?
-2. What mutation strategies should be applied?
-3. How many new variants to create?
+1. How many programs should advance to the next generation?
+2. Which specific programs should advance?
+3. For each selected program, which focus areas should RLLMs explore?
+4. Should any program have multiple RLLMs working on different improvements?
 
 Think step-by-step and use the available functions to implement your strategy.
+You have full control over selection size and RLLM assignments.
 ```
 
-### Child LLM Prompt Template
+### Recursive Child LLM Prompt Template
 ```
-You are a Child LLM specialized in generating Tetris-playing code. You have
-been given a parent program and specific mutation directive from the Root LLM.
+You are a Recursive Child LLM specialized in generating Tetris-playing code.
+You have been assigned a specific focus area by the Root LLM.
+
+**IMPORTANT**: You may be one of multiple RLLMs working on the SAME parent program.
+Each RLLM has a different focus area. Your job is to explore YOUR specific focus.
 
 Parent Program (Generation {gen}, Score: {score}):
 {parent_code}
@@ -456,7 +541,10 @@ Parent Program (Generation {gen}, Score: {score}):
 Parent Performance:
 {parent_metrics}
 
-Mutation Directive:
+Your Focus Area: {focus_area}
+Examples: "hole_management", "lookahead_depth", "speed_optimization", "piece_placement_scoring"
+
+Mutation Directive for YOUR focus:
 Strategy: {strategy}
 Guidance: {guidance}
 Constraints: {constraints}
@@ -465,14 +553,13 @@ Context:
 {context}
 
 Your task:
-Generate an improved version of the parent program following the mutation
-directive. Focus on the specific improvements requested while maintaining
-code quality and correctness.
+Generate an improved version of the parent program focusing SPECIFICALLY on {focus_area}.
+Other RLLMs may be exploring different aspects of the same parent.
 
 Your code must implement the TetrisPlayer interface:
 - select_action(game_state) -> action
 
-Return your generated code and a brief explanation of changes.
+Return your generated code and a brief explanation of changes related to your focus area.
 ```
 
 ## Success Metrics
