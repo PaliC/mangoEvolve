@@ -13,11 +13,14 @@ This system combines **AlphaEvolve's evolutionary coding approach** with **Recur
 - **Dual Strategy**: Use both exploration (many diverse ideas) and exploitation (refine best candidates)
 
 ### 2. Recursive LLM Integration
-- **Root LLM (Depth=0)**: Strategic decision-maker that:
+- **Root LLM (Depth=0)**: Autonomous evolutionary orchestrator that:
+  - **Full control over evolution lifecycle**: Decides when to continue, pivot, or terminate
   - Analyzes performance data across all candidates in current generation
   - **Dynamically decides how many programs advance to next generation** (not hardcoded)
   - **Assigns same solution to multiple RLLMs to explore different improvement directions**
   - **Decides specific focus areas for each Recursive LLM** (e.g., "improve hole management", "optimize piece placement scoring", "increase lookahead depth")
+  - **Determines termination criteria**: Stops evolution when satisfied (convergence, time limits, performance targets)
+  - **Adapts strategy mid-evolution**: Can change approach based on what's working
   - Provides rich context to Child LLMs about what to optimize
 - **Child LLMs (Depth=1+)**: Code generators that:
   - Receive parent programs + strategic guidance from Root
@@ -35,11 +38,13 @@ This system combines **AlphaEvolve's evolutionary coding approach** with **Recur
 │  (Strategic Decision Maker - Depth 0)                   │
 │                                                          │
 │  Responsibilities:                                       │
+│  • Control entire evolution process autonomously        │
+│  • Decide whether to continue or terminate evolution    │
 │  • Analyze generation performance metrics               │
 │  • Dynamically decide N candidates for next generation  │
 │  • Assign same solution to multiple RLLMs               │
 │  • Craft specific focus areas for each RLLM             │
-│  • Identify improvement strategies                      │
+│  • Adapt strategies based on progress                   │
 │  • Maintain evolutionary memory/insights                │
 └─────────────┬───────────────────────────────────────────┘
               │
@@ -124,31 +129,82 @@ def spawn_rllm(parent_program, focus_area, mutation_directive, context):
         focus_area: Specific aspect to improve (e.g., "hole_management", "lookahead", "speed")
         mutation_directive: Detailed guidance on how to improve
         context: Additional context about generation and top performers
+
+    Returns:
+        Generated code variant
     """
     pass
 
 def evaluate_program(code, num_games=100):
-    """Run Tetris simulations and return metrics"""
+    """
+    Run Tetris simulations and return metrics.
+
+    Returns:
+        Metrics dict with performance data
+    """
     pass
 
-def get_performance_analysis(generation):
-    """Get detailed analysis of a generation's performance"""
+def get_performance_analysis(generation=None):
+    """
+    Get detailed analysis of a generation's performance.
+    If generation is None, analyzes current generation.
+
+    Returns:
+        Analysis dict with statistics, trends, insights
+    """
+    pass
+
+def get_historical_trends():
+    """
+    Get performance trends across all generations.
+
+    Returns:
+        Trend data: improvement rate, convergence indicators, etc.
+    """
     pass
 
 def advance_generation(selected_programs):
     """
     Move to next generation with dynamically selected programs.
     Number of programs is decided by Root LLM, not hardcoded.
+
+    Returns:
+        New generation number
+    """
+    pass
+
+def terminate_evolution(reason, best_program):
+    """
+    Terminate the evolution process.
+
+    Args:
+        reason: Explanation for termination (convergence, target reached, etc.)
+        best_program: The final best program to save
+
+    Returns:
+        Summary of evolution results
+    """
+    pass
+
+def modify_parameters(param_updates):
+    """
+    Dynamically modify evolution parameters mid-run.
+
+    Args:
+        param_updates: Dict of parameter changes (e.g., {'games_per_evaluation': 200})
     """
     pass
 ```
 
 The Root LLM can:
-- Inspect performance data
+- **Control the evolution loop**: Decide when to continue or stop
+- Inspect performance data and historical trends
 - Identify patterns in successful programs
 - Decide selection criteria dynamically (not hardcoded)
 - Craft contextual mutation directives
 - Spawn multiple Child LLMs in parallel
+- Modify parameters mid-evolution (e.g., increase games_per_eval for closer races)
+- Terminate evolution when satisfied with results
 
 #### 3. Child LLM Interface
 
@@ -187,55 +243,85 @@ Child LLM outputs:
 
 ## Evolutionary Strategy
 
-### Generation Lifecycle
+### Evolution Lifecycle (Root LLM Controlled)
+
+The Root LLM has complete autonomy over the evolution process. There is no hardcoded loop - the Root decides what to do at each step.
+
+**Root LLM Decision Flow:**
+
+```
+1. Initialize →
+2. Loop: Analyze Current State →
+   - Should I continue evolution?
+     - If NO → Terminate with best program
+     - If YES → Continue to next decision
+   - What programs should advance?
+   - How many RLLMs per program?
+   - What focus areas for each RLLM?
+   - Should I modify any parameters?
+   - Spawn RLLMs → Evaluate results → Store in DB
+   - Go to step 2
+```
+
+**Example Root LLM Reasoning (Generation 5):**
+
+```python
+# Root's internal reasoning (pseudocode)
+current_analysis = get_performance_analysis()
+trends = get_historical_trends()
+
+# Decision: Should I continue?
+if trends['improvement_rate'] < 0.01 and current_analysis['top_score'] > 10000:
+    terminate_evolution(
+        reason="Convergence achieved: improvement rate < 1% and top score > 10k",
+        best_program=current_analysis['best_program']
+    )
+else:
+    # Decision: This generation shows promise, continue
+    # Top 3 programs use lookahead depth 2 and score 40% better
+    # Strategy: Focus on lookahead optimization
+
+    selected = current_analysis['programs'][0:8]  # Dynamic selection
+
+    # Decision: Assign multiple RLLMs to best program
+    spawn_rllm(selected[0], "lookahead_depth", "Increase to depth 3", context)
+    spawn_rllm(selected[0], "hole_management", "Minimize holes during lookahead", context)
+    spawn_rllm(selected[0], "speed_optimization", "Cache lookahead computations", context)
+
+    # Decision: Single RLLM for programs 2-5
+    for prog in selected[1:5]:
+        spawn_rllm(prog, "exploit_best_strategy", "Incorporate top program's approach", context)
+
+    # Decision: Exploration for remaining
+    spawn_rllm(selected[5], "novel_approach", "Try beam search instead of greedy", context)
+
+    advance_generation(selected)
+    # Loop continues...
+```
+
+**Key Phases (Root-Controlled):**
 
 1. **Initialization (Generation 0)**
-   - Root LLM generates initial diverse population of Tetris players
-   - Strategies: random placement, greedy scoring, hole minimization, etc.
-   - Population size: 20-50 programs
+   - Root LLM generates initial diverse population
+   - Strategies: random, greedy, hole minimization, etc.
+   - Population size decided by Root
 
-2. **Evaluation Phase**
-   - Run each program through N Tetris games (e.g., 100 games)
-   - Collect comprehensive metrics
-   - Store in Program Database
+2. **Continuous Decision Loop**
+   - **Termination Check**: Root decides whether to continue based on:
+     - Performance convergence
+     - Target metrics achieved
+     - Time/cost budgets
+     - Diminishing returns
+   - **Analysis**: Root analyzes current generation metrics and historical trends
+   - **Selection**: Root dynamically decides which programs advance (N varies)
+   - **RLLM Assignment**: Root assigns focus areas and spawns RLLMs (multiple per promising program)
+   - **Parameter Adjustment**: Root can modify parameters (e.g., more games for evaluation if scores are close)
+   - **Generation Advancement**: Root decides when to advance to next generation
 
-3. **Selection Phase (Root LLM Decision)**
-   - Root LLM analyzes all metrics
-   - **Dynamically decides N programs to advance** (not hardcoded K)
-   - Discovers patterns in successful programs
-   - Decides selection criteria (may vary by generation)
-   - **For promising programs, assigns multiple RLLMs with different focus areas**
-   - Example Root reasoning:
-     ```
-     "Generation 5 shows that programs focusing on minimizing
-     holes outperform greedy scorers by 40%. The top 3 programs
-     all use lookahead depth of 2. I'll select the top 8
-     performers. For the best program, I'll spawn 3 RLLMs:
-     one to explore deeper lookahead, one to optimize hole
-     management further, and one to improve speed. For programs
-     ranked 2-5, I'll spawn 2 RLLMs each with different focuses."
-     ```
-
-4. **Mutation Phase (Recursive Child LLMs)**
-   - Root spawns Recursive Child LLMs with specific focus areas:
-     - **Multiple RLLMs per promising solution**: Same parent, different improvement directions
-     - **Exploitation**: Mutate top performers with targeted improvements
-     - **Exploration**: Create novel variants with different approaches
-     - **Crossover**: Combine features from multiple top performers
-   - Each Child RLLM generates 1-3 variants based on its specific focus
-   - Parallel generation for efficiency
-   - Example: Best program → RLLM1 (focus: holes), RLLM2 (focus: lookahead), RLLM3 (focus: speed)
-
-5. **Population Assembly**
-   - Root collects all Child outputs
-   - Optionally filters obviously broken code
-   - Combines: selected parents + new children
-   - Population maintained at ~20-50 programs
-
-6. **Iteration**
-   - Increment generation counter
-   - Return to Evaluation Phase
-   - Continue until convergence or iteration limit
+3. **Termination**
+   - Root terminates when satisfied with results
+   - No hardcoded generation limit
+   - Root provides termination reasoning and final best program
 
 ### Mutation Strategies
 
@@ -531,13 +617,22 @@ tetris_evolve/
 ```yaml
 evolution:
   initial_population_size: 30
-  num_generations: 100
-  games_per_evaluation: 100
-  # Note: selection size is dynamic, decided by Root LLM each generation
+  max_generations: 100  # Safety limit (Root can terminate earlier)
+  games_per_evaluation: 100  # Root can modify this dynamically
 
-  # Guidance for Root LLM (not strict constraints)
+  # Note: Root LLM has full control over evolution parameters
+  # These are starting values only - Root can modify them at any time
+
+  # Guidance for Root LLM (suggestions, not constraints)
   suggested_selection_range: [5, 15]  # Root can choose outside this range
   suggested_rllms_per_top_program: [2, 4]  # Multiple RLLMs per promising solution
+
+  # Termination criteria guidance (Root decides when to stop)
+  termination_guidance:
+    min_improvement_rate: 0.01  # Consider stopping if improvement < 1%
+    target_score: 15000  # Consider stopping if this score is achieved
+    max_time_minutes: 240  # Safety limit (4 hours)
+    convergence_window: 3  # Generations with no improvement before considering termination
 
   mutation_distribution_guidance:  # Suggestions, not requirements
     exploitation: 0.6  # Improve top performers
@@ -568,24 +663,33 @@ evaluation:
 
 ### Initial Prompt Template
 ```
-You are the Root LLM in an evolutionary system designed to evolve optimal
-Tetris-playing code. You have access to a program database containing all
-programs from previous generations, their performance metrics, and metadata.
+You are the Root LLM - an autonomous agent controlling the evolution of optimal
+Tetris-playing code. You have complete authority over the evolution process.
 
-Your responsibilities:
-1. Analyze the current generation's performance
-2. Select the best programs to advance
-3. Identify patterns in successful programs
-4. Design mutation strategies for the next generation
-5. Spawn Child LLMs with specific directives to generate new code
+**Your Mission:**
+Evolve the best possible Tetris-playing program. You decide strategy, timing, and termination.
 
-Current Generation: {generation}
+**Your Authority:**
+- Full control over evolution lifecycle (continue or terminate)
+- Dynamic parameter adjustment
+- Selection strategy (how many programs, which ones)
+- RLLM assignment (how many per program, focus areas)
+- Evaluation depth (how many games to run)
+- Termination criteria (decide when you're satisfied)
 
-Available Functions:
-- spawn_rllm(parent_program, focus_area, mutation_directive, context)
-- evaluate_program(code, num_games)
-- get_performance_analysis(generation)
-- advance_generation(selected_programs)
+**Available Functions:**
+- spawn_rllm(parent_program, focus_area, mutation_directive, context) → code
+- evaluate_program(code, num_games) → metrics
+- get_performance_analysis(generation=None) → analysis
+- get_historical_trends() → trends
+- advance_generation(selected_programs) → new_generation_number
+- terminate_evolution(reason, best_program) → summary
+- modify_parameters(param_updates) → None
+
+**Current State:**
+Generation: {generation}
+Time Elapsed: {time_elapsed}
+Budget Used: {budget_used}
 
 Current Generation Data:
 {program_data}
@@ -593,14 +697,38 @@ Current Generation Data:
 Performance Summary:
 {metrics_summary}
 
-Please analyze this generation and decide:
-1. How many programs should advance to the next generation?
-2. Which specific programs should advance?
-3. For each selected program, which focus areas should RLLMs explore?
-4. Should any program have multiple RLLMs working on different improvements?
+Historical Trends:
+{historical_trends}
 
-Think step-by-step and use the available functions to implement your strategy.
-You have full control over selection size and RLLM assignments.
+**Your Decision Process:**
+
+1. **Should evolution continue?**
+   - Have we converged? (improvement rate < threshold)
+   - Have we hit performance targets?
+   - Are we making progress or stuck?
+   - Is there potential for more improvement?
+
+   If NO: Call terminate_evolution(reason, best_program)
+   If YES: Continue to step 2
+
+2. **What's the strategy for next generation?**
+   - How many programs should advance?
+   - Which programs are most promising?
+   - Should any get multiple RLLMs? With what focus areas?
+   - Should I modify parameters? (e.g., more games_per_eval?)
+
+3. **Execute your strategy**
+   - Spawn RLLMs with specific directives
+   - Advance generation
+   - The system will evaluate and return control to you
+
+**Important:**
+- You are NOT bound by suggested ranges or guidelines
+- Trust your analysis over heuristics
+- Terminate when satisfied, not after N generations
+- Be bold in strategy changes if data suggests it
+
+Think step-by-step and make your decision.
 ```
 
 ### Recursive Child LLM Prompt Template
