@@ -1,16 +1,19 @@
-# LLM Tetris AlphaEvolve Design Document
+# LLM Environment Evolution Design Document
 
 ## Executive Summary
 
-This system combines **AlphaEvolve's evolutionary coding approach** with **Recursive LLM (RLM) hierarchical decision-making** to evolve code that plays Tetris optimally. The Root LLM acts as an evolutionary strategist, selecting promising candidates and guiding evolution, while Recursive Child LLMs generate code mutations and implement new variants.
+This system combines **AlphaEvolve's evolutionary coding approach** with **Recursive LLM (RLM) hierarchical decision-making** to evolve code that plays PufferLib environments optimally. While initially targeting Tetris, the architecture is **environment-agnostic** and can be applied to any PufferLib/Gymnasium-compatible game or task.
+
+The Root LLM acts as an evolutionary strategist, selecting promising candidates and guiding evolution, while Recursive Child LLMs generate code mutations and implement new variants.
 
 ## Core Concepts
 
 ### 1. AlphaEvolve Integration
-- **Evolutionary Framework**: Maintain a program database with generations of Tetris-playing algorithms
-- **Automated Evaluation**: Each candidate is scored by running Tetris simulations (lines cleared, survival time, score)
+- **Evolutionary Framework**: Maintain a program database with generations of environment-playing algorithms
+- **Automated Evaluation**: Each candidate is scored by running environment simulations with environment-specific metrics
 - **Iterative Improvement**: High-performing programs inform future generations
 - **Dual Strategy**: Use both exploration (many diverse ideas) and exploitation (refine best candidates)
+- **Environment Agnostic**: Works with any PufferLib/Gymnasium environment
 
 ### 2. Recursive LLM Integration
 - **Root LLM (Depth=0)**: Autonomous evolutionary orchestrator that:
@@ -364,29 +367,79 @@ The Root LLM can direct various mutation types:
    - "Create a completely new approach using genetic algorithms"
    - "Try a reinforcement learning-inspired value function"
 
-## Tetris Environment
+## Environment Abstraction (Generic Design)
 
-### PufferLib Integration
+### Environment Interface
 
-We use **PufferLib** for the Tetris environment, which provides a gymnasium-compatible interface optimized for RL environments. PufferLib handles vectorized environments and efficient parallelization.
+The system is designed to work with **any PufferLib/Gymnasium environment**. This abstraction allows applying the same evolution framework to Tetris, Atari, board games, or custom environments.
 
 ```python
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Tuple
 import pufferlib
 import gymnasium as gym
 
-# PufferLib provides Tetris environment (or we create a custom one)
-# The environment follows gymnasium API: reset(), step(action), etc.
+class EnvironmentConfig(ABC):
+    """
+    Abstract base class for environment configuration.
+    Each environment (Tetris, Atari, etc.) implements this interface.
+    """
 
-class TetrisEnvironmentWrapper:
-    """Wrapper around PufferLib Tetris environment"""
+    @abstractmethod
+    def get_env_id(self) -> str:
+        """Return PufferLib/Gymnasium environment ID"""
+        pass
 
-    def __init__(self, width=10, height=20, num_envs=1):
+    @abstractmethod
+    def get_env_kwargs(self) -> Dict[str, Any]:
+        """Return environment-specific configuration"""
+        pass
+
+    @abstractmethod
+    def get_observation_description(self) -> str:
+        """Return human-readable description of observations for LLM"""
+        pass
+
+    @abstractmethod
+    def get_action_description(self) -> str:
+        """Return human-readable description of action space for LLM"""
+        pass
+
+    @abstractmethod
+    def get_reward_description(self) -> str:
+        """Return description of reward structure for LLM"""
+        pass
+
+    @abstractmethod
+    def extract_episode_metrics(self, info: Dict) -> Dict[str, float]:
+        """Extract environment-specific metrics from episode info"""
+        pass
+
+    @abstractmethod
+    def get_player_interface_template(self) -> str:
+        """Return code template for player interface"""
+        pass
+
+
+class GenericEnvironmentWrapper:
+    """
+    Generic wrapper around any PufferLib/Gymnasium environment.
+    Works with Tetris, Atari, custom environments, etc.
+    """
+
+    def __init__(self, env_config: EnvironmentConfig, num_envs: int = 1):
+        self.env_config = env_config
+        self.num_envs = num_envs
+
         # Initialize PufferLib vectorized environment
         self.env = pufferlib.vector.make(
-            "Tetris-v0",  # or custom Tetris environment
+            env_config.get_env_id(),
             num_envs=num_envs,
-            # ... configuration
+            **env_config.get_env_kwargs()
         )
+
+        self.observation_space = self.env.observation_space
+        self.action_space = self.env.action_space
 
     def reset(self):
         """Reset environment and return initial observation"""
@@ -397,60 +450,250 @@ class TetrisEnvironmentWrapper:
         """Execute action and return (obs, reward, terminated, truncated, info)"""
         return self.env.step(action)
 
-    def get_state_dict(self, obs):
-        """Convert observation to human-readable state dict"""
-        return {
-            "board": np.array,  # 2D grid
-            "current_piece": Piece,
-            "next_pieces": [Piece],  # lookahead
-            "hold_piece": Piece | None,
-            "score": int,
-            "lines_cleared": int
-        }
+    def get_observation_description(self) -> str:
+        """Get human-readable observation description for LLM"""
+        return self.env_config.get_observation_description()
+
+    def get_action_description(self) -> str:
+        """Get human-readable action description for LLM"""
+        return self.env_config.get_action_description()
+
+    def extract_metrics(self, info: Dict) -> Dict[str, float]:
+        """Extract environment-specific metrics"""
+        return self.env_config.extract_episode_metrics(info)
 ```
 
-**Note**: If PufferLib doesn't have a built-in Tetris environment, we'll create a custom gymnasium-compatible Tetris environment and register it with PufferLib for vectorized execution.
-
-### Player Interface (What Generated Code Implements)
+### Example: Tetris Environment Configuration
 
 ```python
-class TetrisPlayer:
-    def select_action(self, game_state):
+class TetrisConfig(EnvironmentConfig):
+    """Tetris-specific environment configuration"""
+
+    def get_env_id(self) -> str:
+        return "Tetris-v0"  # or custom Tetris environment ID
+
+    def get_env_kwargs(self) -> Dict[str, Any]:
+        return {
+            "width": 10,
+            "height": 20,
+            "preview_pieces": 5,
+            "enable_hold": True
+        }
+
+    def get_observation_description(self) -> str:
+        return """
+        Observation: dict with keys:
+        - board: (height, width) array, 0=empty, 1=filled
+        - current_piece: dict with type, rotation, position
+        - next_pieces: list of upcoming pieces (for lookahead)
+        - hold_piece: held piece or None
+        - score: current score
+        - lines_cleared: total lines cleared
         """
-        Given current game state, return best action.
+
+    def get_action_description(self) -> str:
+        return """
+        Action: dict with keys:
+        - rotation: 0-3 (piece rotation)
+        - column: 0-9 (target column)
+        - use_hold: bool (whether to use hold piece)
+        """
+
+    def get_reward_description(self) -> str:
+        return """
+        Reward structure:
+        - Line clears: +100 * lines_cleared^2
+        - Game over: -1000
+        - Each move: -0.01 (encourages efficiency)
+        """
+
+    def extract_episode_metrics(self, info: Dict) -> Dict[str, float]:
+        """Extract Tetris-specific metrics"""
+        return {
+            "score": info.get("score", 0),
+            "lines_cleared": info.get("lines_cleared", 0),
+            "survival_time": info.get("moves", 0),
+            "max_height": info.get("max_height", 0),
+            "holes": info.get("holes", 0)
+        }
+
+    def get_player_interface_template(self) -> str:
+        return """
+class TetrisPlayer:
+    def select_action(self, observation):
+        '''
+        Given observation, return action.
 
         Args:
-            game_state: dict with board, current_piece, next_pieces, etc.
+            observation: dict from environment
 
         Returns:
-            action: dict with rotation and column
+            action: dict with rotation, column, use_hold
+        '''
+        # Your code here
+        pass
+"""
+```
+
+### Example: Atari Environment Configuration
+
+```python
+class AtariConfig(EnvironmentConfig):
+    """Atari-specific environment configuration"""
+
+    def __init__(self, game: str = "Pong-v5"):
+        self.game = game
+
+    def get_env_id(self) -> str:
+        return self.game
+
+    def get_env_kwargs(self) -> Dict[str, Any]:
+        return {
+            "frameskip": 4,
+            "repeat_action_probability": 0.0
+        }
+
+    def get_observation_description(self) -> str:
+        return """
+        Observation: (210, 160, 3) RGB image array
+        - Pixel values in range [0, 255]
+        - Represents current game screen
+        """
+
+    def get_action_description(self) -> str:
+        return f"""
+        Action: integer from action space
+        - Depends on specific Atari game
+        - Typically: 0-5 (NOOP, FIRE, UP, DOWN, LEFT, RIGHT)
+        """
+
+    def extract_episode_metrics(self, info: Dict) -> Dict[str, float]:
+        """Extract Atari-specific metrics"""
+        return {
+            "score": info.get("episode_reward", 0),
+            "survival_time": info.get("episode_length", 0)
+        }
+
+    def get_player_interface_template(self) -> str:
+        return """
+class AtariPlayer:
+    def select_action(self, observation):
+        '''
+        Given observation (game screen), return action.
+
+        Args:
+            observation: (210, 160, 3) RGB array
+
+        Returns:
+            action: integer action
+        '''
+        # Your code here
+        pass
+"""
+```
+
+### Player Interface (Generic)
+
+Generated code implements a player that follows the environment's interface:
+
+```python
+class Player:
+    """
+    Generic player interface.
+    Environment-specific implementations follow this pattern.
+    """
+
+    def select_action(self, observation):
+        """
+        Given current observation, return action.
+
+        Args:
+            observation: Environment-specific observation
+
+        Returns:
+            action: Environment-specific action
         """
         # Generated code implements this logic
         pass
 ```
 
-### Evaluation Metrics
+### Adding New Environments
+
+To add support for a new environment (e.g., Chess, StarCraft, custom game):
+
+1. **Create Environment Config** (`src/env_evolve/environment/your_game.py`):
+```python
+class YourGameConfig(EnvironmentConfig):
+    def get_env_id(self) -> str:
+        return "YourGame-v0"
+
+    def get_env_kwargs(self) -> Dict[str, Any]:
+        return {"param": "value"}
+
+    # Implement all abstract methods (observations, actions, rewards, metrics, template)
+```
+
+2. **Create Configuration File** (`configs/your_game.yaml`):
+```yaml
+environment:
+  type: "your_game"
+  config:
+    env_id: "YourGame-v0"
+    # Your game-specific parameters
+
+evolution:
+  initial_population_size: 30
+  # ... other evolution parameters
+```
+
+3. **Run Evolution**:
+```bash
+python -m env_evolve.main --config configs/your_game.yaml
+```
+
+That's it! The entire evolution system (Root LLM, Child RLLMs, evaluation, logging) works automatically with your new environment.
+
+### Evaluation Framework (Generic)
 
 ```python
-def evaluate_player(player_code, num_games=100):
+def evaluate_player(
+    player_code: str,
+    env_config: EnvironmentConfig,
+    num_episodes: int = 100
+) -> Dict[str, Any]:
     """
-    Run player through multiple games and collect metrics.
+    Run player through multiple episodes and collect metrics.
+    Works with any environment that implements EnvironmentConfig.
+
+    Args:
+        player_code: Generated player code as string
+        env_config: Environment configuration (Tetris, Atari, etc.)
+        num_episodes: Number of episodes to run
 
     Returns:
         {
-            "avg_score": float,
-            "avg_lines_cleared": float,
-            "avg_survival_time": float,
-            "max_score": int,
-            "max_lines": int,
-            "std_dev_score": float,
-            "std_dev_lines": float,
-            "success_rate": float,  # games lasting > threshold
-            "code_errors": int  # runtime errors
+            "env_metrics": {
+                # Environment-specific metrics from extract_episode_metrics()
+                "metric_name": {"mean": float, "std": float, "min": float, "max": float},
+                ...
+            },
+            "generic_metrics": {
+                "total_reward": {"mean": float, "std": float, "min": float, "max": float},
+                "episode_length": {"mean": float, "std": float, "min": float, "max": float},
+            },
+            "code_errors": int,
+            "episode_results": [
+                {"episode_id": 0, "reward": float, "length": int, "env_metrics": {...}},
+                ...
+            ]
         }
     """
     pass
 ```
+
+**Key Insight**: The evaluation framework extracts both:
+1. **Generic metrics** (reward, episode length) - work for all environments
+2. **Environment-specific metrics** (lines cleared, holes, etc.) - defined by EnvironmentConfig
 
 ## Implementation Phases
 
@@ -460,27 +703,33 @@ def evaluate_player(player_code, num_games=100):
 **Setup Tasks:**
 - [ ] Create project directory structure (src, tests, configs, etc.)
 - [ ] Set up `pyproject.toml` with dependencies
-- [ ] Install PufferLib and verify installation
-- [ ] Research PufferLib Tetris environment availability
+- [ ] Install PufferLib, Gymnasium and verify installation
+- [ ] Research available PufferLib/Gymnasium environments (Tetris, Atari, etc.)
 - [ ] Set up pytest configuration and test structure
-- [ ] Create initial configuration files (config.yaml)
+- [ ] Create initial configuration files (tetris.yaml, atari_pong.yaml templates)
 - [ ] Set up logging configuration
 - [ ] Initialize git repository structure
-- [ ] Create README with setup instructions
+- [ ] Create README with setup instructions and environment extensibility guide
 
 **Directory Structure:**
 ```
-tetris_evolve/
+env_evolve/                       # Generic name (not tetris-specific)
 ├── src/
-│   ├── tetris_evolve/
+│   ├── env_evolve/
 │   │   ├── __init__.py
-│   │   ├── environment/       # Tetris environment wrapper
-│   │   ├── evaluation/        # Player evaluation framework
-│   │   ├── database/          # Program database
-│   │   ├── rlm/               # Recursive LLM framework
-│   │   ├── root_llm/          # Root LLM logic
-│   │   ├── child_llm/         # Child RLLM logic
-│   │   └── evolution/         # Evolution loop
+│   │   ├── environment/          # Generic environment wrapper + configs
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py           # EnvironmentConfig ABC
+│   │   │   ├── wrapper.py        # GenericEnvironmentWrapper
+│   │   │   ├── tetris.py         # TetrisConfig
+│   │   │   ├── atari.py          # AtariConfig
+│   │   │   └── ...               # Other environment configs
+│   │   ├── evaluation/           # Player evaluation framework
+│   │   ├── database/             # Program database
+│   │   ├── rlm/                  # Recursive LLM framework
+│   │   ├── root_llm/             # Root LLM logic
+│   │   ├── child_llm/            # Child RLLM logic
+│   │   └── evolution/            # Evolution loop
 ├── tests/
 │   ├── test_environment/
 │   ├── test_evaluation/
@@ -488,7 +737,9 @@ tetris_evolve/
 │   ├── test_rlm/
 │   └── test_evolution/
 ├── configs/
-│   └── config.yaml
+│   ├── tetris.yaml               # Tetris-specific config
+│   ├── atari_pong.yaml           # Atari Pong config
+│   └── ...                       # Other environment configs
 ├── pyproject.toml
 ├── DESIGN.md
 └── README.md
@@ -496,21 +747,24 @@ tetris_evolve/
 
 ### Phase 1: Core Infrastructure
 **Tests First:**
-- [ ] Write tests for PufferLib Tetris environment wrapper
-- [ ] Write tests for player evaluation framework
+- [ ] Write tests for generic environment wrapper (test with mock environment)
+- [ ] Write tests for Tetris environment config
+- [ ] Write tests for player evaluation framework (generic)
 - [ ] Write tests for program database CRUD operations
 - [ ] Write tests for basic REPL environment execution
 
 **Implementation:**
-- [ ] Integrate PufferLib Tetris environment
-- [ ] Implement evaluation framework (runs games, collects metrics)
+- [ ] Implement EnvironmentConfig ABC and GenericEnvironmentWrapper
+- [ ] Implement TetrisConfig (and optionally another env for testing generality)
+- [ ] Implement evaluation framework (environment-agnostic)
 - [ ] Create program database (SQLite schema + API)
 - [ ] Build basic RLM framework (REPL environment)
 - [ ] Verify all tests pass
 
 **Deliverables:**
-- Working Tetris environment wrapper with tests
-- Evaluation framework that can run games and collect metrics
+- Generic environment wrapper that works with any PufferLib environment
+- At least one environment config (Tetris) fully implemented
+- Evaluation framework that works with any environment
 - Program database with CRUD operations
 - Basic REPL execution environment
 - All tests passing
@@ -618,7 +872,8 @@ tetris_evolve/
 
 ### Libraries
 ```
-- pufferlib: Tetris game environment (gymnasium-compatible)
+- pufferlib: Environment library (gymnasium-compatible, vectorized)
+- gymnasium: RL environment interface (base for PufferLib)
 - numpy: Array operations and state management
 - openai / anthropic: LLM API calls
 - sqlite3: Program database
@@ -626,7 +881,7 @@ tetris_evolve/
 - matplotlib/plotly: Visualization
 - pytest: Test framework (TDD approach)
 - pydantic: Data validation
-- gymnasium: RL environment interface (used by PufferLib)
+- PyYAML: Configuration parsing
 ```
 
 ## Data Persistence & Logging
@@ -934,9 +1189,24 @@ class EvolutionLogger:
 
 ### System Parameters
 ```yaml
+# Environment configuration (supports any PufferLib environment)
+environment:
+  type: "tetris"  # or "atari", "custom", etc.
+  config:
+    # Tetris-specific (if type: tetris)
+    env_id: "Tetris-v0"
+    width: 10
+    height: 20
+    preview_pieces: 5
+    enable_hold: true
+
+    # Atari-specific (if type: atari)
+    # game: "Pong-v5"
+    # frameskip: 4
+
 evolution:
   initial_population_size: 30
-  games_per_evaluation: 100  # Root can modify this dynamically
+  episodes_per_evaluation: 100  # Root can modify this dynamically
 
   # Hard limits (Root CANNOT exceed these)
   max_generations: 100  # Maximum generations allowed (Root can terminate earlier)
@@ -968,17 +1238,11 @@ llm:
   temperature_child: 0.8
   max_tokens: 4000
 
-tetris:
-  board_width: 10
-  board_height: 20
-  preview_pieces: 5  # Number of next pieces visible
-  enable_hold: true
-
 evaluation:
-  num_games: 100
-  parallel_games: 10
-  timeout_per_game: 300  # seconds
-  max_moves_per_game: 10000
+  num_episodes: 100
+  parallel_episodes: 10
+  timeout_per_episode: 300  # seconds
+  max_steps_per_episode: 10000
 ```
 
 ## Root LLM Prompting Strategy
