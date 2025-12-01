@@ -303,46 +303,74 @@ terminating.
 
 ## Core Components (Testable Chunks)
 
-### Component 1: Tetris Environment
+### Component 1: PufferLib Tetris Environment (External)
 
-A Gymnasium-compatible Tetris environment for evaluation.
+We use **PufferLib's built-in Tetris environment** rather than building our own.
+
+```bash
+pip install pufferlib
+```
+
+#### PufferLib Tetris Specifications
 
 ```python
-# src/tetris_evolve/tetris/environment.py
+from pufferlib.ocean.tetris import Tetris
 
-class TetrisEnv(gym.Env):
-    """
-    Standard Tetris game:
-    - 20x10 board
-    - 7 tetromino pieces (I, O, T, S, Z, J, L)
-    - Actions: left, right, rotate_cw, rotate_ccw, soft_drop, hard_drop
-    """
-
-    def __init__(self):
-        self.board = np.zeros((20, 10), dtype=np.int8)
-        self.action_space = gym.spaces.Discrete(6)
-        self.observation_space = gym.spaces.Dict({
-            "board": gym.spaces.Box(0, 1, (20, 10), dtype=np.int8),
-            "current_piece": gym.spaces.Discrete(7),
-            "next_piece": gym.spaces.Discrete(7),
-        })
-
-    def reset(self) -> tuple[dict, dict]:
-        """Reset to empty board with new piece."""
-        pass
-
-    def step(self, action: int) -> tuple[dict, float, bool, bool, dict]:
-        """Execute action, return (obs, reward, terminated, truncated, info)."""
-        pass
-
-    def _check_lines(self) -> int:
-        """Check and clear completed lines, return count."""
-        pass
-
-    def _spawn_piece(self) -> bool:
-        """Spawn new piece, return False if game over."""
-        pass
+# Create environment
+env = Tetris(
+    num_envs=1,           # Vectorized environments
+    n_cols=10,            # Board width
+    n_rows=20,            # Board height
+    use_deck_obs=True,    # Include piece preview in observations
+    n_noise_obs=10,       # Noise bits for curriculum learning
+    n_init_garbage=4,     # Initial garbage lines
+    render_mode=None,     # Set to enable rendering
+)
 ```
+
+#### Observation Space
+- **Shape**: `(244,)` = 200 (board) + 6 (floats) + 28 (deck one-hot) + 10 (noise)
+- **Type**: `float32`, values in [0, 2]
+
+| Index Range | Content | Description |
+|-------------|---------|-------------|
+| 0-199 | Board state | 20x10 grid: 0=empty, 1=placed, 2=current piece |
+| 200 | tick/10000 | Normalized game tick |
+| 201 | tick_fall/ticks_per_fall | Fall timer progress |
+| 202 | row/20 | Normalized current piece row |
+| 203 | col/10 | Normalized current piece column |
+| 204 | rotation | Current piece rotation (0-3) |
+| 205 | can_swap | Can use hold (0 or 1) |
+| 206-233 | Deck one-hot | 4 pieces × 7 types (current, 2 preview, hold) |
+| 234-243 | Noise bits | Curriculum learning noise |
+
+#### Action Space
+- **Type**: `Discrete(7)`
+
+| Action | Description |
+|--------|-------------|
+| 0 | No-op |
+| 1 | Move left |
+| 2 | Move right |
+| 3 | Rotate clockwise |
+| 4 | Soft drop |
+| 5 | Hard drop |
+| 6 | Hold piece |
+
+#### Reward Structure
+- Hard drop: +0.02 per row dropped
+- Rotate: +0.01
+- Line clears: +0.1 (1 line), +0.3 (2), +0.5 (3), +1.0 (4/Tetris)
+- Invalid actions: 0 (no penalty)
+
+#### Episode Termination
+- Board overflow (can't spawn new piece)
+- Max ticks reached (10,000)
+
+#### Logging Info
+Every `log_interval` steps (default 32), returns aggregated stats:
+- `score`, `ep_length`, `ep_return`, `lines_deleted`
+- `avg_combo`, `game_level`, action fractions
 
 ### Component 2: Program Evaluator
 
@@ -797,89 +825,37 @@ class EvolutionController:
 
 Each component is built using TDD: write tests first, then implement.
 
+**Note**: We use **PufferLib's Tetris** (no custom environment needed), reducing Phase 1.
+
 ### Phase 1: Core Infrastructure
 
 | # | Component | Test File | Key Tests |
 |---|-----------|-----------|-----------|
-| 1 | Tetris Environment | `tests/test_tetris_env.py` | reset, step, line_clear, game_over, all_pieces |
-| 2 | Program Evaluator | `tests/test_evaluator.py` | valid_code, syntax_error, runtime_error, timeout, unsafe_code |
-| 3 | Cost Tracker | `tests/test_cost_tracker.py` | record_call, total_cost, budget_check, save/load |
-| 4 | Experiment Tracker | `tests/test_experiment_tracker.py` | create_experiment, save_trial, complete_generation |
+| 1 | Program Evaluator | `tests/test_evaluator.py` | valid_code, syntax_error, runtime_error, timeout, unsafe_code |
+| 2 | Cost Tracker | `tests/test_cost_tracker.py` | record_call, total_cost, budget_check, save/load |
+| 3 | Experiment Tracker | `tests/test_experiment_tracker.py` | create_experiment, save_trial, complete_generation |
 
 ### Phase 2: LLM Integration
 
 | # | Component | Test File | Key Tests |
 |---|-----------|-----------|-----------|
-| 5 | LLM Client | `tests/test_llm_client.py` | send_message, token_counting, error_handling |
-| 6 | Child LLM Executor | `tests/test_child_llm.py` | generate_code, extract_code, extract_reasoning |
-| 7 | Root LLM Interface | `tests/test_root_llm.py` | spawn_child, get_population, advance_gen, terminate |
+| 4 | LLM Client | `tests/test_llm_client.py` | send_message, token_counting, error_handling |
+| 5 | Child LLM Executor | `tests/test_child_llm.py` | generate_code, extract_code, extract_reasoning |
+| 6 | Root LLM Interface | `tests/test_root_llm.py` | spawn_child, get_population, advance_gen, terminate |
 
 ### Phase 3: Evolution Loop
 
 | # | Component | Test File | Key Tests |
 |---|-----------|-----------|-----------|
-| 8 | Evolution Controller | `tests/test_controller.py` | init, generation_loop, hard_limits, termination |
-| 9 | Integration | `tests/test_integration.py` | child_to_eval_pipeline, root_spawns_children |
-| 10 | E2E | `tests/test_e2e.py` | mock_evolution_run, resume_experiment |
+| 7 | Evolution Controller | `tests/test_controller.py` | init, generation_loop, hard_limits, termination |
+| 8 | Integration | `tests/test_integration.py` | child_to_eval_pipeline, root_spawns_children |
+| 9 | E2E | `tests/test_e2e.py` | mock_evolution_run, resume_experiment |
 
 ---
 
 ## Detailed Test Specifications
 
-### Chunk 1: Tetris Environment Tests
-
-```python
-# tests/test_tetris_env.py
-
-def test_env_reset_returns_valid_observation():
-    """Reset returns observation with correct structure."""
-    env = TetrisEnv()
-    obs, info = env.reset()
-    assert "board" in obs
-    assert obs["board"].shape == (20, 10)
-    assert "current_piece" in obs
-    assert 0 <= obs["current_piece"] < 7
-
-def test_env_step_valid_action():
-    """Step with valid action returns proper tuple."""
-    env = TetrisEnv()
-    env.reset()
-    obs, reward, terminated, truncated, info = env.step(0)  # Move left
-    assert isinstance(reward, (int, float))
-    assert isinstance(terminated, bool)
-
-def test_env_line_clear():
-    """Clearing a line increases score and updates board."""
-    env = TetrisEnv()
-    # Set up board with almost-complete line
-    env.reset()
-    env.board[19, :9] = 1  # Fill bottom row except last cell
-    # Place I piece to complete line
-    # ... (detailed setup)
-    obs, reward, _, _, info = env.step(5)  # Hard drop
-    assert reward > 0
-    assert info["lines_cleared"] >= 1
-
-def test_env_game_over_detection():
-    """Game ends when pieces overflow."""
-    env = TetrisEnv()
-    env.reset()
-    # Fill top rows
-    env.board[:4, :] = 1
-    _, _, terminated, _, _ = env.step(5)
-    assert terminated is True
-
-def test_env_all_seven_pieces():
-    """All 7 tetromino types can be spawned."""
-    env = TetrisEnv()
-    pieces_seen = set()
-    for _ in range(100):
-        obs, _ = env.reset()
-        pieces_seen.add(obs["current_piece"])
-    assert len(pieces_seen) == 7
-```
-
-### Chunk 2: Program Evaluator Tests
+### Chunk 1: Program Evaluator Tests
 
 ```python
 # tests/test_evaluator.py
@@ -1049,21 +1025,22 @@ Build in this order to minimize dependencies:
 
 ```
 Phase 1: Core Infrastructure (No LLM dependencies)
-├── 1. Tetris Environment (standalone)
-├── 2. Program Evaluator (depends on: Tetris)
-├── 3. Cost Tracker (standalone)
-└── 4. Experiment Tracker (standalone)
+├── 1. Program Evaluator (depends on: PufferLib Tetris)
+├── 2. Cost Tracker (standalone)
+└── 3. Experiment Tracker (standalone)
 
 Phase 2: LLM Integration (Mocked for unit tests)
-├── 5. LLM Client (standalone, easily mocked)
-├── 6. Child LLM Executor (depends on: LLM Client, Evaluator)
-└── 7. Root LLM Interface (depends on: Child Executor, Trackers)
+├── 4. LLM Client (standalone, easily mocked)
+├── 5. Child LLM Executor (depends on: LLM Client, Evaluator)
+└── 6. Root LLM Interface (depends on: Child Executor, Trackers)
 
 Phase 3: Integration
-├── 8. Evolution Controller (depends on: all above)
-├── 9. Integration Tests (full pipeline)
-└── 10. E2E Tests (mock LLM, full evolution)
+├── 7. Evolution Controller (depends on: all above)
+├── 8. Integration Tests (full pipeline)
+└── 9. E2E Tests (mock LLM, full evolution)
 ```
+
+**Dependency**: `pip install pufferlib` (provides Tetris environment)
 
 ---
 
@@ -1203,24 +1180,56 @@ You are generating a Tetris-playing program.
 Your code must implement:
 
 ```python
-def choose_action(observation: dict) -> int:
+def choose_action(observation: np.ndarray) -> int:
     """
+    PufferLib Tetris observation format.
+
     Args:
-        observation: {
-            "board": np.ndarray,      # (20, 10), 0=empty, 1=filled
-            "current_piece": int,      # 0-6 for I,O,T,S,Z,J,L
-            "next_piece": int          # 0-6
-        }
+        observation: np.ndarray of shape (244,), dtype float32
+            - [0:200]   Board state (20x10 flattened): 0=empty, 1=placed, 2=current piece
+            - [200]     tick / 10000 (normalized game progress)
+            - [201]     tick_fall / ticks_per_fall (fall timer)
+            - [202]     current_row / 20 (normalized piece row)
+            - [203]     current_col / 10 (normalized piece column)
+            - [204]     rotation (0-3)
+            - [205]     can_swap (0 or 1, whether hold is available)
+            - [206:234] Deck one-hot (4 pieces × 7 types)
+            - [234:244] Noise bits (ignore for decision making)
 
     Returns:
-        action: int
-            0 = move left
-            1 = move right
-            2 = rotate clockwise
-            3 = rotate counter-clockwise
+        action: int (0-6)
+            0 = no-op
+            1 = move left
+            2 = move right
+            3 = rotate clockwise
             4 = soft drop
             5 = hard drop
+            6 = hold piece
     """
+```
+
+## Helper Functions (provided to all generated code)
+
+```python
+import numpy as np
+
+def parse_observation(obs: np.ndarray) -> dict:
+    """Parse PufferLib observation into readable components."""
+    return {
+        "board": obs[0:200].reshape(20, 10),  # 0=empty, 1=placed, 2=current
+        "tick_progress": obs[200],
+        "fall_timer": obs[201],
+        "piece_row": int(obs[202] * 20),
+        "piece_col": int(obs[203] * 10),
+        "rotation": int(obs[204]),
+        "can_hold": bool(obs[205]),
+        "current_piece": np.argmax(obs[206:213]),  # One-hot to index
+        "next_pieces": [np.argmax(obs[213+i*7:220+i*7]) for i in range(2)],
+        "hold_piece": np.argmax(obs[227:234]) if obs[227:234].sum() > 0 else None,
+    }
+
+# Piece names for reference
+PIECES = ["O", "I", "S", "Z", "T", "L", "J"]
 ```
 
 ## Output Format
@@ -1231,7 +1240,10 @@ Explain your approach...
 </reasoning>
 
 <code>
+import numpy as np
+
 def choose_action(observation):
+    # Your implementation here
     ...
 </code>
 ```
@@ -1246,6 +1258,7 @@ This design implements an LLM-driven evolution system where:
 2. **All decisions are recorded** with reasoning at trial and generation levels
 3. **Cost is tracked** per-call with budget enforcement
 4. **Data is organized** as Experiment → Generation → Trial
-5. **Built with TDD** in 10 testable chunks
+5. **Built with TDD** in 9 testable chunks
+6. **Uses PufferLib's Tetris** for fast, vectorized evaluation
 
 The system combines AlphaEvolve's evolutionary approach with Recursive LLM's hierarchical control to evolve increasingly better Tetris-playing code.
