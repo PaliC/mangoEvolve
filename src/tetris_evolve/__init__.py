@@ -21,6 +21,7 @@ from .config import (
     EvaluationConfig,
     load_config,
     config_from_dict,
+    load_evaluator,
 )
 from .cost_tracker import CostTracker, TokenUsage, CostSummary
 from .logger import ExperimentLogger
@@ -42,6 +43,7 @@ __all__ = [
     "EvaluationConfig",
     "load_config",
     "config_from_dict",
+    "load_evaluator",
     # Cost tracking
     "CostTracker",
     "TokenUsage",

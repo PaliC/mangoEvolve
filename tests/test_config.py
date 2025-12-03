@@ -15,6 +15,7 @@ from tetris_evolve import (
     EvaluationConfig,
     load_config,
     config_from_dict,
+    load_evaluator,
     ConfigValidationError,
 )
 
@@ -31,13 +32,13 @@ class TestConfigFromDict:
         assert config.root_llm.model == "claude-sonnet-4-20250514"
         assert config.child_llm.model == "claude-sonnet-4-20250514"
         assert config.budget.max_total_cost == 10.0
+        assert config.evaluation.evaluator_fn == "tetris_evolve.evaluation.circle_packing:CirclePackingEvaluator"
 
     def test_load_with_defaults(self, sample_config_dict):
         """Load config with missing optional fields uses defaults."""
         # Remove optional sections
         del sample_config_dict["evolution"]
         del sample_config_dict["budget"]
-        del sample_config_dict["evaluation"]
 
         config = config_from_dict(sample_config_dict)
 
@@ -45,9 +46,6 @@ class TestConfigFromDict:
         assert config.evolution.max_generations == 10
         assert config.evolution.max_children_per_generation == 10
         assert config.budget.max_total_cost == 20.0
-        assert config.evaluation.n_circles == 26
-        assert config.evaluation.target_sum == 2.635
-        assert config.evaluation.timeout_seconds == 30
 
     def test_validation_missing_required(self, sample_config_dict):
         """Raise on missing required fields."""
@@ -57,6 +55,24 @@ class TestConfigFromDict:
             config_from_dict(sample_config_dict)
 
         assert "experiment" in str(exc_info.value)
+
+    def test_validation_missing_evaluation(self, sample_config_dict):
+        """Raise on missing evaluation section."""
+        del sample_config_dict["evaluation"]
+
+        with pytest.raises(ConfigValidationError) as exc_info:
+            config_from_dict(sample_config_dict)
+
+        assert "evaluation" in str(exc_info.value)
+
+    def test_validation_missing_evaluator_fn(self, sample_config_dict):
+        """Raise on missing evaluator_fn in evaluation section."""
+        del sample_config_dict["evaluation"]["evaluator_fn"]
+
+        with pytest.raises(ConfigValidationError) as exc_info:
+            config_from_dict(sample_config_dict)
+
+        assert "evaluator_fn" in str(exc_info.value)
 
     def test_validation_missing_required_nested(self, sample_config_dict):
         """Raise on missing required nested fields."""
@@ -105,6 +121,7 @@ class TestConfigToDict:
         assert config.experiment.name == config2.experiment.name
         assert config.root_llm.model == config2.root_llm.model
         assert config.budget.max_total_cost == config2.budget.max_total_cost
+        assert config.evaluation.evaluator_fn == config2.evaluation.evaluator_fn
 
 
 class TestLoadConfig:
@@ -153,3 +170,65 @@ class TestNumericTypeHandling:
 
         assert config.budget.max_total_cost == 10.0
         assert isinstance(config.budget.max_total_cost, float)
+
+
+class TestLoadEvaluator:
+    """Tests for load_evaluator function."""
+
+    def test_load_circle_packing_evaluator(self, sample_config):
+        """Load the CirclePackingEvaluator."""
+        evaluator = load_evaluator(sample_config.evaluation)
+
+        # Should be a CirclePackingEvaluator instance
+        assert hasattr(evaluator, "evaluate")
+        assert evaluator.n_circles == 26
+        assert evaluator.target == 2.635
+
+    def test_load_evaluator_invalid_format(self):
+        """Raise on invalid evaluator_fn format."""
+        config = EvaluationConfig(
+            evaluator_fn="invalid_format_no_colon",
+            evaluator_kwargs={},
+        )
+
+        with pytest.raises(ConfigValidationError) as exc_info:
+            load_evaluator(config)
+
+        assert "Invalid evaluator_fn format" in str(exc_info.value)
+
+    def test_load_evaluator_module_not_found(self):
+        """Raise on non-existent module."""
+        config = EvaluationConfig(
+            evaluator_fn="nonexistent.module:SomeClass",
+            evaluator_kwargs={},
+        )
+
+        with pytest.raises(ConfigValidationError) as exc_info:
+            load_evaluator(config)
+
+        assert "Cannot import" in str(exc_info.value)
+
+    def test_load_evaluator_attribute_not_found(self):
+        """Raise on non-existent attribute."""
+        config = EvaluationConfig(
+            evaluator_fn="tetris_evolve.evaluation.circle_packing:NonExistentClass",
+            evaluator_kwargs={},
+        )
+
+        with pytest.raises(ConfigValidationError) as exc_info:
+            load_evaluator(config)
+
+        assert "no attribute" in str(exc_info.value)
+
+    def test_load_evaluator_with_kwargs(self):
+        """Load evaluator with custom kwargs."""
+        config = EvaluationConfig(
+            evaluator_fn="tetris_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+            evaluator_kwargs={"n_circles": 10, "target": 1.5, "timeout_seconds": 5},
+        )
+
+        evaluator = load_evaluator(config)
+
+        assert evaluator.n_circles == 10
+        assert evaluator.target == 1.5
+        assert evaluator.timeout_seconds == 5

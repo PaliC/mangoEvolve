@@ -6,7 +6,8 @@ Loads and validates YAML configuration files into typed dataclasses.
 
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
+import importlib
 import yaml
 
 from .exceptions import ConfigValidationError
@@ -48,11 +49,16 @@ class BudgetConfig:
 
 @dataclass
 class EvaluationConfig:
-    """Evaluation configuration."""
+    """Evaluation configuration.
 
-    n_circles: int = 26
-    target_sum: float = 2.635
-    timeout_seconds: int = 30
+    The evaluator_fn should be a module path to an evaluator function or class,
+    e.g., "tetris_evolve.evaluation.circle_packing:CirclePackingEvaluator"
+
+    The evaluator_kwargs are passed to the evaluator function/class constructor.
+    """
+
+    evaluator_fn: str  # Module path like "module.path:ClassName" or "module.path:function_name"
+    evaluator_kwargs: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -62,9 +68,9 @@ class Config:
     experiment: ExperimentConfig
     root_llm: LLMConfig
     child_llm: LLMConfig
+    evaluation: EvaluationConfig
     evolution: EvolutionConfig = field(default_factory=EvolutionConfig)
     budget: BudgetConfig = field(default_factory=BudgetConfig)
-    evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize config to dictionary."""
@@ -164,20 +170,57 @@ def _parse_budget_config(data: Optional[Dict[str, Any]]) -> BudgetConfig:
     )
 
 
-def _parse_evaluation_config(data: Optional[Dict[str, Any]]) -> EvaluationConfig:
+def _parse_evaluation_config(data: Dict[str, Any]) -> EvaluationConfig:
     """Parse evaluation configuration section."""
-    if data is None:
-        return EvaluationConfig()
+    _validate_required_fields(data, ["evaluator_fn"], "evaluation")
     _validate_types(
         data,
-        {"n_circles": int, "target_sum": float, "timeout_seconds": int},
+        {"evaluator_fn": str, "evaluator_kwargs": dict},
         "evaluation",
     )
     return EvaluationConfig(
-        n_circles=data.get("n_circles", 26),
-        target_sum=float(data.get("target_sum", 2.635)),
-        timeout_seconds=data.get("timeout_seconds", 30),
+        evaluator_fn=data["evaluator_fn"],
+        evaluator_kwargs=data.get("evaluator_kwargs", {}),
     )
+
+
+def load_evaluator(config: EvaluationConfig) -> Any:
+    """
+    Load an evaluator from its module path.
+
+    Args:
+        config: EvaluationConfig with evaluator_fn like "module.path:ClassName"
+
+    Returns:
+        Instantiated evaluator object
+
+    Raises:
+        ConfigValidationError: If the evaluator cannot be loaded
+    """
+    try:
+        module_path, obj_name = config.evaluator_fn.rsplit(":", 1)
+    except ValueError:
+        raise ConfigValidationError(
+            f"Invalid evaluator_fn format: {config.evaluator_fn}. "
+            "Expected 'module.path:ClassName' or 'module.path:function_name'"
+        )
+
+    try:
+        module = importlib.import_module(module_path)
+    except ImportError as e:
+        raise ConfigValidationError(f"Cannot import evaluator module: {e}")
+
+    try:
+        evaluator_class_or_fn = getattr(module, obj_name)
+    except AttributeError:
+        raise ConfigValidationError(
+            f"Module '{module_path}' has no attribute '{obj_name}'"
+        )
+
+    try:
+        return evaluator_class_or_fn(**config.evaluator_kwargs)
+    except TypeError as e:
+        raise ConfigValidationError(f"Cannot instantiate evaluator: {e}")
 
 
 def load_config(path: str | Path) -> Config:
@@ -221,7 +264,7 @@ def config_from_dict(data: Dict[str, Any]) -> Config:
         raise ConfigValidationError("Configuration must be a dictionary")
 
     # Validate required top-level sections
-    for section in ["experiment", "root_llm", "child_llm"]:
+    for section in ["experiment", "root_llm", "child_llm", "evaluation"]:
         if section not in data:
             raise ConfigValidationError(f"Missing required section '{section}'")
 
@@ -229,7 +272,7 @@ def config_from_dict(data: Dict[str, Any]) -> Config:
         experiment=_parse_experiment_config(data["experiment"]),
         root_llm=_parse_llm_config(data["root_llm"], "root_llm"),
         child_llm=_parse_llm_config(data["child_llm"], "child_llm"),
+        evaluation=_parse_evaluation_config(data["evaluation"]),
         evolution=_parse_evolution_config(data.get("evolution")),
         budget=_parse_budget_config(data.get("budget")),
-        evaluation=_parse_evaluation_config(data.get("evaluation")),
     )

@@ -36,17 +36,20 @@ def sample_config_dict():
             "cost_per_input_token": 0.000003,
             "cost_per_output_token": 0.000015,
         },
+        "evaluation": {
+            "evaluator_fn": "tetris_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+            "evaluator_kwargs": {
+                "n_circles": 26,
+                "target": 2.635,
+                "timeout_seconds": 30,
+            },
+        },
         "evolution": {
             "max_generations": 5,
             "max_children_per_generation": 3,
         },
         "budget": {
             "max_total_cost": 10.0,
-        },
-        "evaluation": {
-            "n_circles": 26,
-            "target_sum": 2.635,
-            "timeout_seconds": 30,
         },
     }
 
