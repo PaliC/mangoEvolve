@@ -167,16 +167,16 @@ budget:
 
 ---
 
-### Task 1.4: Cost Tracker
+### Task 1.4: Cost Tracker ✅ DONE
 **Description**: Implement token usage tracking and budget enforcement.
 
 **Dependencies**: [1.2, 1.3]
 
 **Files**:
-- `src/tetris_evolve/cost_tracker.py`
+- `src/tetris_evolve/cost_tracker.py` ✅ Implemented
 
 **Tests**:
-- `tests/test_cost_tracker.py`
+- `tests/test_cost_tracker.py` ✅ Implemented
 
 **Test Cases**:
 1. `test_record_usage_basic`: Record a single usage
@@ -189,22 +189,22 @@ budget:
 8. `test_remaining_budget`: Remaining budget decreases correctly
 
 **Acceptance Criteria**:
-- [ ] All tests pass
-- [ ] Cost computation matches expected values for known inputs
-- [ ] Budget enforcement works correctly
+- [x] All tests pass
+- [x] Cost computation matches expected values for known inputs
+- [x] Budget enforcement works correctly
 
 ---
 
-### Task 1.5: Experiment Logger
+### Task 1.5: Experiment Logger ✅ DONE
 **Description**: Implement structured logging for experiments, generations, and trials.
 
 **Dependencies**: [1.2, 1.3, 1.4]
 
 **Files**:
-- `src/tetris_evolve/logger.py`
+- `src/tetris_evolve/logger.py` ✅ Implemented
 
 **Tests**:
-- `tests/test_logger.py`
+- `tests/test_logger.py` ✅ Implemented
 
 **Test Cases**:
 1. `test_create_experiment_directory`: Directory structure created correctly
@@ -216,22 +216,22 @@ budget:
 7. `test_log_cost_tracking`: Cost data saved correctly
 
 **Acceptance Criteria**:
-- [ ] All tests pass
-- [ ] Log files are valid JSON/JSONL
-- [ ] Experiment can be saved and reloaded
+- [x] All tests pass
+- [x] Log files are valid JSON/JSONL
+- [x] Experiment can be saved and reloaded
 
 ---
 
-### Task 1.6: REPL Environment (Basic)
+### Task 1.6: REPL Environment (Basic) ✅ DONE
 **Description**: Implement Python code execution environment without Evolution API.
 
 **Dependencies**: [1.1, 1.2]
 
 **Files**:
-- `src/tetris_evolve/repl.py`
+- `src/tetris_evolve/repl.py` ✅ Implemented
 
 **Tests**:
-- `tests/test_repl.py`
+- `tests/test_repl.py` ✅ Implemented
 
 **Test Cases**:
 1. `test_basic_execution`: Execute simple Python code
@@ -244,10 +244,10 @@ budget:
 8. `test_custom_functions`: Can define functions in REPL
 
 **Acceptance Criteria**:
-- [ ] All tests pass
-- [ ] Code executes in isolated namespace
-- [ ] stdout/stderr captured correctly
-- [ ] State persists between calls
+- [x] All tests pass
+- [x] Code executes in isolated namespace
+- [x] stdout/stderr captured correctly
+- [x] State persists between calls
 
 ---
 
@@ -348,16 +348,16 @@ def run_packing():
 
 ## Phase 2: LLM Integration
 
-### Task 2.1: LLM Client
+### Task 2.1: LLM Client ✅ DONE
 **Description**: Implement Anthropic API wrapper with cost tracking integration.
 
 **Dependencies**: [1.4]
 
 **Files**:
-- `src/tetris_evolve/llm/client.py`
+- `src/tetris_evolve/llm/client.py` ✅ Implemented
 
 **Tests**:
-- `tests/test_llm_client.py`
+- `tests/test_llm_client.py` ✅ Implemented
 
 **Test Cases**:
 1. `test_generate_with_mock`: Generate with mocked API
@@ -367,13 +367,13 @@ def run_packing():
 5. `test_retry_on_transient_error`: Handles rate limits gracefully
 
 **Acceptance Criteria**:
-- [ ] All tests pass
-- [ ] Integrates with Anthropic API
-- [ ] Token usage tracked correctly
+- [x] All tests pass
+- [x] Integrates with Anthropic API
+- [x] Token usage tracked correctly
 
 ---
 
-### Task 2.2: Root LLM System Prompt
+### Task 2.2: Root LLM System Prompt ✅ DONE
 **Description**: Define the system prompt for the Root LLM that documents available functions.
 
 **Note**: There is NO child LLM prompt template. The Root LLM is responsible for crafting
@@ -386,31 +386,31 @@ all prompts sent to child LLMs. This gives the Root LLM full control over:
 **Dependencies**: [1.1]
 
 **Files**:
-- Root LLM system prompt can be defined in `root_llm.py` or a constants file
+- `src/tetris_evolve/llm/prompts.py` ✅ Implemented
 
 **Tests**:
-- `tests/test_root_llm.py` (system prompt construction tests)
+- `tests/test_prompts.py` ✅ Implemented
 
 **Test Cases**:
 1. `test_root_system_prompt_complete`: System prompt documents all API functions
 2. `test_root_system_prompt_repl_usage`: Explains how to use ```repl``` blocks
 
 **Acceptance Criteria**:
-- [ ] Root LLM system prompt documents all Evolution API functions
-- [ ] Explains REPL usage with ```repl``` blocks
+- [x] Root LLM system prompt documents all Evolution API functions
+- [x] Explains REPL usage with ```repl``` blocks
 
 ---
 
-### Task 2.3: Evolution API
+### Task 2.3: Evolution API ✅ DONE
 **Description**: Core API exposed to Root LLM for evolution control.
 
 **Dependencies**: [1.4, 1.5, 1.7, 1.8, 2.1]
 
 **Files**:
-- `src/tetris_evolve/evolution_api.py`
+- `src/tetris_evolve/evolution_api.py` ✅ Implemented
 
 **Tests**:
-- `tests/test_evolution_api.py`
+- `tests/test_evolution_api.py` ✅ Implemented
 
 **Test Cases**:
 1. `test_spawn_child_llm`: Spawns child and returns result
@@ -424,22 +424,23 @@ all prompts sent to child LLMs. This gives the Root LLM full control over:
 9. `test_trial_logging`: Trials logged correctly
 
 **Acceptance Criteria**:
-- [ ] All tests pass
-- [ ] All API functions work as documented
-- [ ] State tracked correctly across calls
+- [x] All tests pass
+- [x] All API functions work as documented
+- [x] State tracked correctly across calls
 
 ---
 
-### Task 2.4: REPL + Evolution API Integration
+### Task 2.4: REPL + Evolution API Integration ✅ DONE
 **Description**: Inject Evolution API functions into REPL environment.
 
 **Dependencies**: [1.6, 2.3]
 
 **Files**:
-- `src/tetris_evolve/repl.py` (modify)
+- `src/tetris_evolve/repl.py` ✅ Modified (supports api_functions injection)
+- `src/tetris_evolve/evolution_api.py` ✅ Provides get_api_functions()
 
 **Tests**:
-- `tests/test_repl_integration.py`
+- `tests/test_evolution_api.py` ✅ Tests API integration
 
 **Test Cases**:
 1. `test_spawn_from_repl`: spawn_child_llm callable from REPL
@@ -450,9 +451,9 @@ all prompts sent to child LLMs. This gives the Root LLM full control over:
 6. `test_complex_workflow`: Multi-step workflow works
 
 **Acceptance Criteria**:
-- [ ] All tests pass
-- [ ] All Evolution API functions available in REPL
-- [ ] State shared correctly
+- [x] All tests pass
+- [x] All Evolution API functions available in REPL
+- [x] State shared correctly
 
 ---
 
@@ -674,11 +675,17 @@ Phase 4 (Polish):
 | 1.6 REPL | ✅ DONE | `src/tetris_evolve/repl.py` |
 | 1.7 Code Extraction | ✅ DONE | `src/tetris_evolve/utils/code_extraction.py` - repl blocks only |
 | 1.8 CirclePackingEvaluator | ✅ DONE | `src/tetris_evolve/evaluation/circle_packing.py` |
+| 2.1 LLM Client | ✅ DONE | `src/tetris_evolve/llm/client.py` |
+| 2.2 Root LLM System Prompt | ✅ DONE | `src/tetris_evolve/llm/prompts.py` |
+| 2.3 Evolution API | ✅ DONE | `src/tetris_evolve/evolution_api.py` |
+| 2.4 REPL + Evolution API | ✅ DONE | API injection via `get_api_functions()` |
 | PoC: REPL | ✅ Validated | `experiments/poc_repl.py` |
 | PoC: Cost Tracker | ✅ Validated | `experiments/poc_cost_tracker.py` |
 | PoC: Integration | ✅ Validated | `experiments/poc_circle_packing_integration.py` |
 
 **Phase 1 Complete**: 89 tests passing
+
+**Phase 2 Complete**: LLM integration implemented
 
 **PoC Results**: Hexagonal packing achieved 2.08 sum (79% of 2.635 benchmark)
 
