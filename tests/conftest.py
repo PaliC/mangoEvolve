@@ -2,17 +2,12 @@
 Pytest configuration and fixtures for tetris_evolve tests.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from tetris_evolve import (
-    Config,
-    ExperimentConfig,
-    LLMConfig,
-    EvolutionConfig,
-    BudgetConfig,
-    EvaluationConfig,
     config_from_dict,
 )
 

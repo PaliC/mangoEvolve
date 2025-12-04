@@ -2,12 +2,11 @@
 Tests for the prompts module.
 """
 
-import pytest
 
 from tetris_evolve.llm.prompts import (
     ROOT_LLM_SYSTEM_PROMPT,
-    get_root_system_prompt,
     format_child_mutation_prompt,
+    get_root_system_prompt,
 )
 
 
@@ -116,7 +115,7 @@ class TestRootLLMSystemPromptConstant:
 
     def test_constant_equals_function_result(self):
         """Test that constant matches function return."""
-        assert ROOT_LLM_SYSTEM_PROMPT == get_root_system_prompt()
+        assert get_root_system_prompt() == ROOT_LLM_SYSTEM_PROMPT
 
     def test_constant_is_not_empty(self):
         """Test that constant is not empty."""

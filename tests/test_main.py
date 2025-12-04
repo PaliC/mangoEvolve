@@ -2,10 +2,9 @@
 Tests for the CLI entry point.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-import sys
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 from tetris_evolve.main import main, parse_args
 

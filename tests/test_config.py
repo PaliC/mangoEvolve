@@ -2,21 +2,16 @@
 Tests for tetris_evolve.config module.
 """
 
-import pytest
-import tempfile
 from pathlib import Path
 
+import pytest
+
 from tetris_evolve import (
-    Config,
-    ExperimentConfig,
-    LLMConfig,
-    EvolutionConfig,
-    BudgetConfig,
-    EvaluationConfig,
-    load_config,
-    config_from_dict,
-    load_evaluator,
     ConfigValidationError,
+    EvaluationConfig,
+    config_from_dict,
+    load_config,
+    load_evaluator,
 )
 
 

@@ -7,7 +7,6 @@ code blocks to indicate Python code that should be executed in the REPL.
 
 import re
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
 
 @dataclass
@@ -15,7 +14,7 @@ class CodeBlock:
     """A code block extracted from text."""
 
     code: str
-    language: Optional[str]
+    language: str | None
     start_pos: int
     end_pos: int
 
@@ -23,7 +22,7 @@ class CodeBlock:
 def extract_code_blocks(
     text: str,
     language: str = "repl",
-) -> List[CodeBlock]:
+) -> list[CodeBlock]:
     """
     Extract code blocks with a specific language tag from markdown-formatted text.
 
@@ -34,7 +33,7 @@ def extract_code_blocks(
     Returns:
         List of CodeBlock objects
     """
-    blocks: List[CodeBlock] = []
+    blocks: list[CodeBlock] = []
 
     # Pattern for fenced code blocks: ```language ... ```
     fenced_pattern = r"```(\w*)\s*\n(.*?)```"
@@ -59,7 +58,7 @@ def extract_code_blocks(
     return blocks
 
 
-def extract_repl_blocks(text: str) -> List[str]:
+def extract_repl_blocks(text: str) -> list[str]:
     """
     Extract all REPL code blocks from text.
 
@@ -96,7 +95,7 @@ def extract_reasoning(text: str) -> str:
     return reasoning.strip()
 
 
-def extract_python_code(text: str) -> Optional[str]:
+def extract_python_code(text: str) -> str | None:
     """
     Extract Python code from LLM response.
 

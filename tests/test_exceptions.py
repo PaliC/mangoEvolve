@@ -5,11 +5,11 @@ Tests for tetris_evolve.exceptions module.
 import pytest
 
 from tetris_evolve.exceptions import (
-    LLMEvolveError,
     BudgetExceededError,
-    ConfigValidationError,
     CodeExtractionError,
+    ConfigValidationError,
     EvaluationError,
+    LLMEvolveError,
 )
 
 
@@ -58,11 +58,8 @@ class TestExceptions:
     def test_import_from_package(self):
         """Exceptions can be imported from main package."""
         from tetris_evolve import (
-            LLMEvolveError,
             BudgetExceededError,
-            ConfigValidationError,
-            CodeExtractionError,
-            EvaluationError,
+            LLMEvolveError,
         )
 
         assert LLMEvolveError is not None

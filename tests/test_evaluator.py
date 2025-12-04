@@ -2,13 +2,12 @@
 Tests for tetris_evolve.evaluation.circle_packing module.
 """
 
-import pytest
 import numpy as np
+import pytest
 
 from tetris_evolve.evaluation import (
     CirclePackingEvaluator,
     validate_packing,
-    evaluate_code,
 )
 
 

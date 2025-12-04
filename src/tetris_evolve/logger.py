@@ -5,10 +5,9 @@ Handles structured logging for experiments, generations, and trials.
 """
 
 import json
-from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .config import Config
 
@@ -31,7 +30,7 @@ class ExperimentLogger:
                 └── ...
     """
 
-    def __init__(self, config: Config, run_id: Optional[str] = None):
+    def __init__(self, config: Config, run_id: str | None = None):
         """
         Initialize the experiment logger.
 
@@ -48,7 +47,7 @@ class ExperimentLogger:
         )
         self.generations_dir = self.base_dir / "generations"
 
-        self._experiment_data: Dict[str, Any] = {
+        self._experiment_data: dict[str, Any] = {
             "experiment_id": f"{config.experiment.name}_{self.run_id}",
             "config": config.to_dict(),
             "start_time": datetime.now().isoformat(),
@@ -59,7 +58,7 @@ class ExperimentLogger:
             "best_trial": None,
         }
 
-        self._generation_data: List[Dict[str, Any]] = []
+        self._generation_data: list[dict[str, Any]] = []
         self._initialized = False
 
     def create_experiment_directory(self) -> Path:
@@ -96,12 +95,12 @@ class ExperimentLogger:
         trial_id: str,
         generation: int,
         code: str,
-        metrics: Dict[str, Any],
+        metrics: dict[str, Any],
         prompt: str,
         response: str,
         reasoning: str,
-        parent_id: Optional[str] = None,
-        cost_data: Optional[Dict[str, Any]] = None,
+        parent_id: str | None = None,
+        cost_data: dict[str, Any] | None = None,
     ) -> Path:
         """
         Log a trial result.
@@ -148,10 +147,10 @@ class ExperimentLogger:
     def log_generation(
         self,
         generation: int,
-        trials: List[Dict[str, Any]],
-        selected_trial_ids: List[str],
+        trials: list[dict[str, Any]],
+        selected_trial_ids: list[str],
         selection_reasoning: str,
-        best_trial_id: Optional[str] = None,
+        best_trial_id: str | None = None,
         best_sum_radii: float = 0.0,
     ) -> Path:
         """
@@ -208,8 +207,8 @@ class ExperimentLogger:
         turn_number: int,
         role: str,
         content: str,
-        code_executed: Optional[str] = None,
-        execution_result: Optional[str] = None,
+        code_executed: str | None = None,
+        execution_result: str | None = None,
     ) -> None:
         """
         Append a root LLM conversation turn to the log.
@@ -236,7 +235,7 @@ class ExperimentLogger:
         with open(log_path, "a") as f:
             f.write(json.dumps(turn_data) + "\n")
 
-    def log_cost_tracking(self, cost_data: Dict[str, Any]) -> Path:
+    def log_cost_tracking(self, cost_data: dict[str, Any]) -> Path:
         """
         Save cost tracking data.
 
@@ -254,7 +253,7 @@ class ExperimentLogger:
 
         return cost_path
 
-    def save_experiment(self, termination_reason: Optional[str] = None) -> Path:
+    def save_experiment(self, termination_reason: str | None = None) -> Path:
         """
         Save the full experiment state.
 
@@ -276,7 +275,7 @@ class ExperimentLogger:
 
         return experiment_path
 
-    def load_experiment(self) -> Dict[str, Any]:
+    def load_experiment(self) -> dict[str, Any]:
         """
         Load experiment state from disk.
 

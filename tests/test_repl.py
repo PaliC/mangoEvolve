@@ -2,9 +2,8 @@
 Tests for tetris_evolve.repl module.
 """
 
-import pytest
 
-from tetris_evolve import REPLEnvironment, REPLResult
+from tetris_evolve import REPLEnvironment
 
 
 class TestREPLEnvironment:
@@ -81,7 +80,7 @@ class TestREPLEnvironment:
         repl = REPLEnvironment()
 
         # input() should be blocked/None
-        result = repl.execute("x = input")
+        _result = repl.execute("x = input")
         assert repl.locals["x"] is None
 
     def test_blocked_imports(self):

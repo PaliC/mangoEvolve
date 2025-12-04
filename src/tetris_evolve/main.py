@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from .config import load_config
-from .exceptions import ConfigValidationError, BudgetExceededError
+from .exceptions import BudgetExceededError, ConfigValidationError
 from .root_llm import RootLLMOrchestrator
 
 

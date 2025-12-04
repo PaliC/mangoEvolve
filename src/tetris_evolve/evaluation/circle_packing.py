@@ -8,16 +8,16 @@ Based on the evaluator from:
 https://github.com/algorithmicsuperintelligence/openevolve/blob/main/examples/circle_packing/evaluator.py
 """
 
-import numpy as np
-import tempfile
-import subprocess
-import sys
 import os
 import pickle
+import subprocess
+import sys
+import tempfile
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
+import numpy as np
 
 # Default target: AlphaEvolve result for n=26
 DEFAULT_TARGET = 2.635
@@ -33,14 +33,14 @@ class PackingResult:
     target_ratio: float
     combined_score: float
     eval_time: float
-    error: Optional[str] = None
-    centers: Optional[np.ndarray] = None
-    radii: Optional[np.ndarray] = None
+    error: str | None = None
+    centers: np.ndarray | None = None
+    radii: np.ndarray | None = None
 
 
 def validate_packing(
     centers: np.ndarray, radii: np.ndarray, n_circles: int = DEFAULT_N_CIRCLES
-) -> Tuple[bool, Optional[str]]:
+) -> tuple[bool, str | None]:
     """
     Validate that circles don't overlap and are inside the unit square.
 
@@ -96,8 +96,8 @@ def validate_packing(
 
 
 def run_code_with_timeout(
-    code: str, timeout_seconds: int = 30, n_circles: int = DEFAULT_N_CIRCLES
-) -> Tuple[Optional[np.ndarray], Optional[np.ndarray], Optional[float], Optional[str]]:
+    code: str, timeout_seconds: int = 30, n_circles: int = DEFAULT_N_CIRCLES  # noqa: ARG001
+) -> tuple[np.ndarray | None, np.ndarray | None, float | None, str | None]:
     """
     Run circle packing code in a separate process with timeout.
 
@@ -209,12 +209,12 @@ with open("{results_path}", "wb") as f:
 
     finally:
         # Cleanup
+        import contextlib
+
         for path in [code_path, runner_path, results_path]:
             if os.path.exists(path):
-                try:
+                with contextlib.suppress(Exception):
                     os.unlink(path)
-                except Exception:
-                    pass
 
 
 def evaluate_code(
@@ -222,7 +222,7 @@ def evaluate_code(
     target: float = DEFAULT_TARGET,
     n_circles: int = DEFAULT_N_CIRCLES,
     timeout_seconds: int = 30,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Evaluate circle packing code.
 
@@ -252,14 +252,14 @@ def evaluate_code(
         code, timeout_seconds=timeout_seconds, n_circles=n_circles
     )
 
-    if error:
+    if error or centers is None or radii is None or reported_sum is None:
         return {
             "valid": False,
             "sum_radii": 0.0,
             "target_ratio": 0.0,
             "combined_score": 0.0,
             "eval_time": time.time() - start_time,
-            "error": error,
+            "error": error or "Invalid result from code execution",
         }
 
     # Validate the packing
@@ -320,7 +320,7 @@ class CirclePackingEvaluator:
         self.n_circles = n_circles
         self.timeout_seconds = timeout_seconds
 
-    def evaluate(self, code: str) -> Dict[str, Any]:
+    def evaluate(self, code: str) -> dict[str, Any]:
         """
         Evaluate circle packing code.
 

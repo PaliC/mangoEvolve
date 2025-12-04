@@ -4,10 +4,11 @@ Configuration system for tetris_evolve.
 Loads and validates YAML configuration files into typed dataclasses.
 """
 
-from dataclasses import dataclass, field, asdict
-from pathlib import Path
-from typing import Any, Callable, Dict, Optional
 import importlib
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any
+
 import yaml
 
 from .exceptions import ConfigValidationError
@@ -19,7 +20,7 @@ class ExperimentConfig:
 
     name: str
     output_dir: str = "./experiments"
-    seed: Optional[int] = None
+    seed: int | None = None
 
 
 @dataclass
@@ -29,7 +30,7 @@ class LLMConfig:
     model: str
     cost_per_input_token: float
     cost_per_output_token: float
-    max_iterations: Optional[int] = None  # Only used for root LLM
+    max_iterations: int | None = None  # Only used for root LLM
 
 
 @dataclass
@@ -58,7 +59,7 @@ class EvaluationConfig:
     """
 
     evaluator_fn: str  # Module path like "module.path:ClassName" or "module.path:function_name"
-    evaluator_kwargs: Dict[str, Any] = field(default_factory=dict)
+    evaluator_kwargs: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -72,13 +73,13 @@ class Config:
     evolution: EvolutionConfig = field(default_factory=EvolutionConfig)
     budget: BudgetConfig = field(default_factory=BudgetConfig)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize config to dictionary."""
         return asdict(self)
 
 
 def _validate_required_fields(
-    data: Dict[str, Any], required: list[str], section: str
+    data: dict[str, Any], required: list[str], section: str
 ) -> None:
     """Validate that required fields are present."""
     for field_name in required:
@@ -89,14 +90,14 @@ def _validate_required_fields(
 
 
 def _validate_types(
-    data: Dict[str, Any], type_map: Dict[str, type], section: str
+    data: dict[str, Any], type_map: dict[str, type], section: str
 ) -> None:
     """Validate field types."""
     for field_name, expected_type in type_map.items():
         if field_name in data and data[field_name] is not None:
             value = data[field_name]
             # Handle numeric types - allow int where float is expected
-            if expected_type == float and isinstance(value, int):
+            if expected_type is float and isinstance(value, int):
                 continue
             if not isinstance(value, expected_type):
                 raise ConfigValidationError(
@@ -105,7 +106,7 @@ def _validate_types(
                 )
 
 
-def _parse_experiment_config(data: Dict[str, Any]) -> ExperimentConfig:
+def _parse_experiment_config(data: dict[str, Any]) -> ExperimentConfig:
     """Parse experiment configuration section."""
     _validate_required_fields(data, ["name"], "experiment")
     _validate_types(
@@ -120,7 +121,7 @@ def _parse_experiment_config(data: Dict[str, Any]) -> ExperimentConfig:
     )
 
 
-def _parse_llm_config(data: Dict[str, Any], section: str) -> LLMConfig:
+def _parse_llm_config(data: dict[str, Any], section: str) -> LLMConfig:
     """Parse LLM configuration section."""
     _validate_required_fields(
         data,
@@ -145,7 +146,7 @@ def _parse_llm_config(data: Dict[str, Any], section: str) -> LLMConfig:
     )
 
 
-def _parse_evolution_config(data: Optional[Dict[str, Any]]) -> EvolutionConfig:
+def _parse_evolution_config(data: dict[str, Any] | None) -> EvolutionConfig:
     """Parse evolution configuration section."""
     if data is None:
         return EvolutionConfig()
@@ -160,7 +161,7 @@ def _parse_evolution_config(data: Optional[Dict[str, Any]]) -> EvolutionConfig:
     )
 
 
-def _parse_budget_config(data: Optional[Dict[str, Any]]) -> BudgetConfig:
+def _parse_budget_config(data: dict[str, Any] | None) -> BudgetConfig:
     """Parse budget configuration section."""
     if data is None:
         return BudgetConfig()
@@ -170,7 +171,7 @@ def _parse_budget_config(data: Optional[Dict[str, Any]]) -> BudgetConfig:
     )
 
 
-def _parse_evaluation_config(data: Dict[str, Any]) -> EvaluationConfig:
+def _parse_evaluation_config(data: dict[str, Any]) -> EvaluationConfig:
     """Parse evaluation configuration section."""
     _validate_required_fields(data, ["evaluator_fn"], "evaluation")
     _validate_types(
@@ -203,24 +204,24 @@ def load_evaluator(config: EvaluationConfig) -> Any:
         raise ConfigValidationError(
             f"Invalid evaluator_fn format: {config.evaluator_fn}. "
             "Expected 'module.path:ClassName' or 'module.path:function_name'"
-        )
+        ) from None
 
     try:
         module = importlib.import_module(module_path)
     except ImportError as e:
-        raise ConfigValidationError(f"Cannot import evaluator module: {e}")
+        raise ConfigValidationError(f"Cannot import evaluator module: {e}") from e
 
     try:
         evaluator_class_or_fn = getattr(module, obj_name)
     except AttributeError:
         raise ConfigValidationError(
             f"Module '{module_path}' has no attribute '{obj_name}'"
-        )
+        ) from None
 
     try:
         return evaluator_class_or_fn(**config.evaluator_kwargs)
     except TypeError as e:
-        raise ConfigValidationError(f"Cannot instantiate evaluator: {e}")
+        raise ConfigValidationError(f"Cannot instantiate evaluator: {e}") from e
 
 
 def load_config(path: str | Path) -> Config:
@@ -247,7 +248,7 @@ def load_config(path: str | Path) -> Config:
     return config_from_dict(data)
 
 
-def config_from_dict(data: Dict[str, Any]) -> Config:
+def config_from_dict(data: dict[str, Any]) -> Config:
     """
     Create a Config from a dictionary.
 

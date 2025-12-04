@@ -2,12 +2,13 @@
 Tests for the LLM Client module.
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from tetris_evolve import (
-    CostTracker,
     BudgetExceededError,
+    CostTracker,
 )
 from tetris_evolve.llm import LLMClient, LLMResponse, MockLLMClient
 
