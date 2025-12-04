@@ -4,10 +4,9 @@ Cost tracking system for tetris_evolve.
 Tracks token usage and enforces budget limits.
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Dict, List, Optional
 import uuid
+from dataclasses import dataclass
+from datetime import datetime
 
 from .config import Config
 from .exceptions import BudgetExceededError
@@ -54,7 +53,7 @@ class CostTracker:
             config: Configuration containing LLM pricing and budget info
         """
         self.config = config
-        self.usage_log: List[TokenUsage] = []
+        self.usage_log: list[TokenUsage] = []
         self.total_cost: float = 0.0
 
         # Cache pricing info
@@ -75,7 +74,7 @@ class CostTracker:
         input_tokens: int,
         output_tokens: int,
         llm_type: str,
-        call_id: Optional[str] = None,
+        call_id: str | None = None,
     ) -> TokenUsage:
         """
         Record token usage and compute cost.
@@ -160,7 +159,7 @@ class CostTracker:
             child_calls=len(child_usage),
         )
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Serialize cost tracker state to dictionary.
 

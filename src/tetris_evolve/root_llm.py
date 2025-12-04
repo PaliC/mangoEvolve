@@ -5,8 +5,8 @@ Main orchestrator that runs the Root LLM evolution loop, executing REPL
 code blocks and managing the conversation with the Root LLM.
 """
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass
+from typing import Any
 
 from .config import Config, load_evaluator
 from .cost_tracker import CostTracker
@@ -26,11 +26,11 @@ class OrchestratorResult:
     terminated: bool
     reason: str
     num_iterations: int
-    best_program: Optional[str] = None
+    best_program: str | None = None
     best_score: float = 0.0
     total_trials: int = 0
     successful_trials: int = 0
-    cost_summary: Optional[Dict[str, Any]] = None
+    cost_summary: dict[str, Any] | None = None
 
 
 class RootLLMOrchestrator:
@@ -51,9 +51,9 @@ class RootLLMOrchestrator:
     def __init__(
         self,
         config: Config,
-        root_llm: Optional[Union[LLMClient, MockLLMClient]] = None,
-        child_llm: Optional[Union[LLMClient, MockLLMClient]] = None,
-        logger: Optional[ExperimentLogger] = None,
+        root_llm: LLMClient | MockLLMClient | None = None,
+        child_llm: LLMClient | MockLLMClient | None = None,
+        logger: ExperimentLogger | None = None,
     ):
         """
         Initialize the orchestrator.
@@ -110,11 +110,11 @@ class RootLLMOrchestrator:
         self.repl = REPLEnvironment(api_functions=self.evolution_api.get_api_functions())
 
         # Conversation state
-        self.messages: List[Dict[str, str]] = []
+        self.messages: list[dict[str, str]] = []
         self.system_prompt = get_root_system_prompt()
         self.turn_number = 0
 
-    def build_initial_messages(self) -> List[Dict[str, str]]:
+    def build_initial_messages(self) -> list[dict[str, str]]:
         """
         Build the initial messages for the conversation.
 
@@ -133,7 +133,7 @@ class RootLLMOrchestrator:
         ]
         return self.messages
 
-    def extract_code_blocks(self, response: str) -> List[str]:
+    def extract_code_blocks(self, response: str) -> list[str]:
         """
         Extract REPL code blocks from the LLM response.
 
@@ -177,12 +177,12 @@ class RootLLMOrchestrator:
 
         return "\n".join(parts)
 
-    def check_termination(self, response: str) -> bool:
+    def check_termination(self, _response: str) -> bool:
         """
         Check if the evolution has been terminated.
 
         Args:
-            response: The LLM response text
+            _response: The LLM response text (unused, for interface compatibility)
 
         Returns:
             True if evolution was terminated
@@ -203,7 +203,8 @@ class RootLLMOrchestrator:
         iteration = 0
 
         try:
-            for iteration in range(self.max_iterations):
+            for _iteration in range(self.max_iterations):
+                iteration = _iteration  # Track iteration for result
                 # Check budget before LLM call
                 try:
                     self.cost_tracker.raise_if_over_budget()
@@ -242,7 +243,7 @@ class RootLLMOrchestrator:
                     self.logger.log_root_turn(
                         turn_number=self.turn_number,
                         role="system",
-                        content=f"REPL execution result",
+                        content="REPL execution result",
                         code_executed=code,
                         execution_result=result,
                     )

@@ -5,13 +5,12 @@ Provides a sandboxed Python execution environment for the Root LLM.
 """
 
 import io
-import sys
-import traceback
 import time
-from contextlib import redirect_stdout, redirect_stderr
+import traceback
+from collections.abc import Callable
+from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional
-
+from typing import Any
 
 # Safe subset of builtins allowed in the REPL
 SAFE_BUILTINS = {
@@ -116,7 +115,7 @@ class REPLResult:
     return_value: Any
     execution_time: float
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
 
 
 def _safe_import(name: str, globals_dict=None, locals_dict=None, fromlist=(), level=0):
@@ -147,7 +146,7 @@ class REPLEnvironment:
     - Optional Evolution API injection
     """
 
-    def __init__(self, api_functions: Optional[Dict[str, Callable]] = None):
+    def __init__(self, api_functions: dict[str, Callable] | None = None):
         """
         Initialize the REPL environment.
 
@@ -155,14 +154,14 @@ class REPLEnvironment:
             api_functions: Optional dictionary of functions to inject into the namespace
         """
         self.globals = self._create_safe_globals()
-        self.locals: Dict[str, Any] = {}
+        self.locals: dict[str, Any] = {}
         self._api_functions = api_functions or {}
 
         # Inject API functions into globals
         for name, func in self._api_functions.items():
             self.globals[name] = func
 
-    def _create_safe_globals(self) -> Dict[str, Any]:
+    def _create_safe_globals(self) -> dict[str, Any]:
         """Create the globals dictionary with safe builtins."""
         safe_builtins = SAFE_BUILTINS.copy()
         safe_builtins["__import__"] = _safe_import
@@ -250,7 +249,7 @@ class REPLEnvironment:
         for name, func in self._api_functions.items():
             self.globals[name] = func
 
-    def get_state(self) -> Dict[str, Any]:
+    def get_state(self) -> dict[str, Any]:
         """
         Get a snapshot of user-defined variables.
 

@@ -3,8 +3,6 @@ Tests for tetris_evolve.logger module.
 """
 
 import json
-import pytest
-from pathlib import Path
 
 from tetris_evolve import ExperimentLogger
 

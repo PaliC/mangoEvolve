@@ -6,19 +6,18 @@ All tests use mock LLMs for reproducibility and speed.
 """
 
 import json
+
 import pytest
-from pathlib import Path
 
 from tetris_evolve import (
-    Config,
     CostTracker,
     ExperimentLogger,
     MockLLMClient,
     config_from_dict,
 )
+from tetris_evolve.evaluation.circle_packing import CirclePackingEvaluator
 from tetris_evolve.evolution_api import EvolutionAPI
 from tetris_evolve.root_llm import RootLLMOrchestrator
-from tetris_evolve.evaluation.circle_packing import CirclePackingEvaluator
 
 
 @pytest.fixture
@@ -148,7 +147,7 @@ class TestMultiGenerationFlow:
 
         # Generation 0: spawn 2 children
         result1 = evolution_api.spawn_child_llm(prompt="Try approach 1")
-        result2 = evolution_api.spawn_child_llm(prompt="Try approach 2")
+        _result2 = evolution_api.spawn_child_llm(prompt="Try approach 2")
 
         assert evolution_api.current_generation == 0
         assert len(evolution_api.generations[0].trials) == 2
@@ -336,7 +335,7 @@ terminate_evolution("test complete")
         orchestrator.child_llm = mock_child
         orchestrator.evolution_api.child_llm = mock_child
 
-        result = orchestrator.run()
+        _result = orchestrator.run()
 
         # Check log files exist
         base_dir = orchestrator.logger.base_dir
@@ -445,7 +444,7 @@ class TestResumeExperiment:
 
         # Run some trials
         result1 = evolution_api.spawn_child_llm(prompt="Test 1")
-        result2 = evolution_api.spawn_child_llm(prompt="Test 2")
+        _result2 = evolution_api.spawn_child_llm(prompt="Test 2")
 
         # Advance generation
         evolution_api.advance_generation(

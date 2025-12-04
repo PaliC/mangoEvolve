@@ -2,19 +2,19 @@
 Tests for the Evolution API module.
 """
 
-import pytest
-from pathlib import Path
 from unittest.mock import MagicMock
 
+import pytest
+
 from tetris_evolve import (
-    CostTracker,
-    ExperimentLogger,
-    EvolutionAPI,
-    TrialResult,
     BudgetExceededError,
+    CostTracker,
+    EvolutionAPI,
+    ExperimentLogger,
+    TrialResult,
 )
-from tetris_evolve.llm import MockLLMClient
 from tetris_evolve.evaluation.circle_packing import CirclePackingEvaluator
+from tetris_evolve.llm import MockLLMClient
 
 
 @pytest.fixture

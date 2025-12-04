@@ -6,18 +6,17 @@ Wraps the Anthropic API with cost tracking and budget enforcement.
 
 import uuid
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import anthropic
 from tenacity import (
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
 )
 
 from ..cost_tracker import CostTracker
-from ..exceptions import BudgetExceededError
 
 
 @dataclass
@@ -29,7 +28,7 @@ class LLMResponse:
     output_tokens: int
     model: str
     call_id: str
-    stop_reason: Optional[str] = None
+    stop_reason: str | None = None
 
 
 class LLMClient:
@@ -63,8 +62,8 @@ class LLMClient:
 
     def generate(
         self,
-        messages: List[Dict[str, str]],
-        system: Optional[str] = None,
+        messages: list[dict[str, str]],
+        system: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -90,7 +89,7 @@ class LLMClient:
         call_id = str(uuid.uuid4())
 
         # Prepare API call kwargs
-        kwargs: Dict[str, Any] = {
+        kwargs: dict[str, Any] = {
             "model": self.model,
             "max_tokens": max_tokens,
             "messages": messages,
@@ -171,7 +170,7 @@ class MockLLMClient:
         model: str,
         cost_tracker: CostTracker,
         llm_type: str,
-        responses: Optional[List[str]] = None,
+        responses: list[str] | None = None,
     ):
         """
         Initialize the mock client.
@@ -187,9 +186,9 @@ class MockLLMClient:
         self.llm_type = llm_type
         self._responses = responses or []
         self._call_count = 0
-        self.call_history: List[Dict[str, Any]] = []
+        self.call_history: list[dict[str, Any]] = []
 
-    def set_responses(self, responses: List[str]) -> None:
+    def set_responses(self, responses: list[str]) -> None:
         """Set the list of responses to return."""
         self._responses = responses
         self._call_count = 0
@@ -200,8 +199,8 @@ class MockLLMClient:
 
     def generate(
         self,
-        messages: List[Dict[str, str]],
-        system: Optional[str] = None,
+        messages: list[dict[str, str]],
+        system: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:

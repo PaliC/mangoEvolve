@@ -12,16 +12,15 @@ Or with a specific budget:
 """
 
 import os
+
 import pytest
-from pathlib import Path
 
-from tetris_evolve import config_from_dict, CostTracker
-from tetris_evolve.llm.client import LLMClient
-from tetris_evolve.root_llm import RootLLMOrchestrator
-from tetris_evolve.evolution_api import EvolutionAPI
+from tetris_evolve import CostTracker, config_from_dict
 from tetris_evolve.evaluation.circle_packing import CirclePackingEvaluator
+from tetris_evolve.evolution_api import EvolutionAPI
+from tetris_evolve.llm.client import LLMClient
 from tetris_evolve.logger import ExperimentLogger
-
+from tetris_evolve.root_llm import RootLLMOrchestrator
 
 # Skip all tests in this module if no API key is set
 pytestmark = pytest.mark.skipif(
@@ -159,7 +158,7 @@ Return the complete code in a single Python code block."""
         assert summary.total_output_tokens > 0
 
         # Print results for manual inspection
-        print(f"\n--- E2E Single Trial Results ---")
+        print("\n--- E2E Single Trial Results ---")
         print(f"Trial ID: {result['trial_id']}")
         print(f"Success: {result['success']}")
         print(f"Valid: {result['metrics'].get('valid')}")
@@ -205,7 +204,7 @@ class TestBudgetLimitedRun:
         assert (orchestrator.logger.base_dir / "experiment.json").exists()
 
         # Print results for manual inspection
-        print(f"\n--- E2E Budget Limited Run Results ---")
+        print("\n--- E2E Budget Limited Run Results ---")
         print(f"Termination reason: {result.reason}")
         print(f"Iterations: {result.num_iterations}")
         print(f"Total trials: {result.total_trials}")

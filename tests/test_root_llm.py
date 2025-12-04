@@ -2,17 +2,15 @@
 Tests for the Root LLM Orchestrator.
 """
 
+
 import pytest
-from pathlib import Path
 
 from tetris_evolve import (
-    Config,
     CostTracker,
-    ExperimentLogger,
     MockLLMClient,
     config_from_dict,
 )
-from tetris_evolve.root_llm import RootLLMOrchestrator, OrchestratorResult
+from tetris_evolve.root_llm import OrchestratorResult, RootLLMOrchestrator
 
 
 @pytest.fixture
@@ -307,7 +305,7 @@ class TestConversationHistory:
         ])
         orchestrator.root_llm = mock_root
 
-        result = orchestrator.run()
+        _result = orchestrator.run()
 
         # Check that messages were accumulated
         # Initial user + assistant response + user (execution results) + assistant + terminate

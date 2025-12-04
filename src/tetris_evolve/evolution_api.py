@@ -4,8 +4,9 @@ Evolution API for tetris_evolve.
 Provides the core API exposed to the Root LLM for controlling the evolution process.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Protocol
+from typing import Any, Protocol
 
 from .cost_tracker import CostTracker
 from .logger import ExperimentLogger
@@ -15,7 +16,7 @@ from .utils.code_extraction import extract_python_code, extract_reasoning
 class Evaluator(Protocol):
     """Protocol for evaluators."""
 
-    def evaluate(self, code: str) -> Dict[str, Any]:
+    def evaluate(self, code: str) -> dict[str, Any]:
         """Evaluate code and return metrics."""
         ...
 
@@ -25,8 +26,8 @@ class LLMClientProtocol(Protocol):
 
     def generate(
         self,
-        messages: List[Dict[str, str]],
-        system: Optional[str] = None,
+        messages: list[dict[str, str]],
+        system: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> Any:
@@ -40,16 +41,16 @@ class TrialResult:
 
     trial_id: str
     code: str
-    metrics: Dict[str, Any]
+    metrics: dict[str, Any]
     prompt: str
     response: str
     reasoning: str
     success: bool
-    parent_id: Optional[str] = None
-    error: Optional[str] = None
+    parent_id: str | None = None
+    error: str | None = None
     generation: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "trial_id": self.trial_id,
@@ -70,13 +71,13 @@ class GenerationSummary:
     """Summary of a generation."""
 
     generation_num: int
-    trials: List[TrialResult]
-    selected_trial_ids: List[str] = field(default_factory=list)
+    trials: list[TrialResult]
+    selected_trial_ids: list[str] = field(default_factory=list)
     selection_reasoning: str = ""
-    best_trial_id: Optional[str] = None
+    best_trial_id: str | None = None
     best_score: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "generation_num": self.generation_num,
@@ -124,12 +125,12 @@ class EvolutionAPI:
         self.max_children_per_generation = max_children_per_generation
 
         self.current_generation = 0
-        self.generations: List[GenerationSummary] = [
+        self.generations: list[GenerationSummary] = [
             GenerationSummary(generation_num=0, trials=[])
         ]
-        self.all_trials: Dict[str, TrialResult] = {}
+        self.all_trials: dict[str, TrialResult] = {}
         self._terminated = False
-        self._termination_reason: Optional[str] = None
+        self._termination_reason: str | None = None
 
     @property
     def is_terminated(self) -> bool:
@@ -139,8 +140,8 @@ class EvolutionAPI:
     def spawn_child_llm(
         self,
         prompt: str,
-        parent_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        parent_id: str | None = None,
+    ) -> dict[str, Any]:
         """
         Spawn a child LLM to generate a program.
 
@@ -225,8 +226,9 @@ class EvolutionAPI:
             }
 
         # Determine success
-        success = metrics.get("valid", False)
-        error = metrics.get("error") if not success else None
+        success = bool(metrics.get("valid", False))
+        error_value = metrics.get("error") if not success else None
+        error_msg = str(error_value) if error_value is not None else None
 
         trial = TrialResult(
             trial_id=trial_id,
@@ -237,7 +239,7 @@ class EvolutionAPI:
             reasoning=reasoning,
             success=success,
             parent_id=parent_id,
-            error=error,
+            error=error_msg,
             generation=self.current_generation,
         )
 
@@ -268,7 +270,7 @@ class EvolutionAPI:
             parent_id=trial.parent_id,
         )
 
-    def evaluate_program(self, code: str) -> Dict[str, Any]:
+    def evaluate_program(self, code: str) -> dict[str, Any]:
         """
         Evaluate a program directly without spawning a child LLM.
 
@@ -291,7 +293,7 @@ class EvolutionAPI:
 
     def advance_generation(
         self,
-        selected_trial_ids: List[str],
+        selected_trial_ids: list[str],
         reasoning: str,
     ) -> int:
         """
@@ -327,7 +329,7 @@ class EvolutionAPI:
 
         return self.current_generation
 
-    def terminate_evolution(self, reason: str, best_program: Optional[str] = None) -> Dict[str, Any]:
+    def terminate_evolution(self, reason: str, best_program: str | None = None) -> dict[str, Any]:
         """
         End the evolution process and return final results.
 
@@ -366,7 +368,7 @@ class EvolutionAPI:
             "cost_summary": self.cost_tracker.get_summary().__dict__,
         }
 
-    def _get_best_trials(self, n: int = 5) -> List[Dict[str, Any]]:
+    def _get_best_trials(self, n: int = 5) -> list[dict[str, Any]]:
         """
         Get the top n trials by score (internal method).
 
@@ -390,7 +392,7 @@ class EvolutionAPI:
 
         return [t.to_dict() for t in sorted_trials[:n]]
 
-    def _get_generation_history(self) -> List[Dict[str, Any]]:
+    def _get_generation_history(self) -> list[dict[str, Any]]:
         """
         Get history of all generations (internal method).
 
@@ -408,7 +410,7 @@ class EvolutionAPI:
         """
         return self.cost_tracker.get_remaining_budget()
 
-    def _get_trial(self, trial_id: str) -> Optional[Dict[str, Any]]:
+    def _get_trial(self, trial_id: str) -> dict[str, Any] | None:
         """
         Get a specific trial by ID (internal method).
 
@@ -425,7 +427,7 @@ class EvolutionAPI:
         """Get the current generation number (internal method)."""
         return self.current_generation
 
-    def get_api_functions(self) -> Dict[str, Callable]:
+    def get_api_functions(self) -> dict[str, Callable]:
         """
         Get a dictionary of API functions to inject into the REPL.
 

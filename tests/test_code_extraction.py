@@ -2,14 +2,12 @@
 Tests for tetris_evolve.utils.code_extraction module.
 """
 
-import pytest
 
 from tetris_evolve.utils import (
     extract_code_blocks,
-    extract_repl_blocks,
-    extract_reasoning,
     extract_python_code,
-    CodeBlock,
+    extract_reasoning,
+    extract_repl_blocks,
 )
 
 
