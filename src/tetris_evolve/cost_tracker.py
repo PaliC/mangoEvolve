@@ -56,15 +56,15 @@ class CostTracker:
         self.usage_log: list[TokenUsage] = []
         self.total_cost: float = 0.0
 
-        # Cache pricing info
+        # Cache pricing info (convert from per-million to per-token)
         self._pricing = {
             "root": {
-                "input": config.root_llm.cost_per_input_token,
-                "output": config.root_llm.cost_per_output_token,
+                "input": config.root_llm.cost_per_million_input_tokens / 1_000_000,
+                "output": config.root_llm.cost_per_million_output_tokens / 1_000_000,
             },
             "child": {
-                "input": config.child_llm.cost_per_input_token,
-                "output": config.child_llm.cost_per_output_token,
+                "input": config.child_llm.cost_per_million_input_tokens / 1_000_000,
+                "output": config.child_llm.cost_per_million_output_tokens / 1_000_000,
             },
         }
         self._max_budget = config.budget.max_total_cost

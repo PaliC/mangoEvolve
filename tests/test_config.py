@@ -159,7 +159,7 @@ class TestNumericTypeHandling:
     def test_int_accepted_for_float_fields(self, sample_config_dict):
         """Integer values should be accepted for float fields."""
         sample_config_dict["budget"]["max_total_cost"] = 10  # int, not float
-        sample_config_dict["root_llm"]["cost_per_input_token"] = 0  # int
+        sample_config_dict["root_llm"]["cost_per_million_input_tokens"] = 0  # int
 
         config = config_from_dict(sample_config_dict)
 

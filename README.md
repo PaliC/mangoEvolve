@@ -120,15 +120,15 @@ experiment:
 # Root LLM configuration (orchestrator)
 root_llm:
   model: "claude-sonnet-4-20250514"
-  cost_per_input_token: 0.000003
-  cost_per_output_token: 0.000015
+  cost_per_million_input_tokens: 3.0
+  cost_per_million_output_tokens: 15.0
   max_iterations: 30            # Maximum conversation turns
 
 # Child LLM configuration (program generators)
 child_llm:
   model: "claude-sonnet-4-20250514"
-  cost_per_input_token: 0.000003
-  cost_per_output_token: 0.000015
+  cost_per_million_input_tokens: 3.0
+  cost_per_million_output_tokens: 15.0
 
 # Evaluation configuration
 evaluation:
@@ -155,12 +155,12 @@ budget:
 | experiment | name | string | Experiment identifier |
 | experiment | output_dir | string | Output directory for logs |
 | root_llm | model | string | Anthropic model ID |
-| root_llm | cost_per_input_token | float | Cost per input token (USD) |
-| root_llm | cost_per_output_token | float | Cost per output token (USD) |
+| root_llm | cost_per_million_input_tokens | float | Cost per million input tokens (USD) |
+| root_llm | cost_per_million_output_tokens | float | Cost per million output tokens (USD) |
 | root_llm | max_iterations | int | Max conversation turns |
 | child_llm | model | string | Anthropic model ID |
-| child_llm | cost_per_input_token | float | Cost per input token (USD) |
-| child_llm | cost_per_output_token | float | Cost per output token (USD) |
+| child_llm | cost_per_million_input_tokens | float | Cost per million input tokens (USD) |
+| child_llm | cost_per_million_output_tokens | float | Cost per million output tokens (USD) |
 | evaluation | evaluator_fn | string | Module path to evaluator class |
 | evaluation | evaluator_kwargs | dict | Arguments for evaluator constructor |
 | evolution | max_generations | int | Maximum evolution generations |

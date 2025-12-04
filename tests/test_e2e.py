@@ -39,14 +39,14 @@ def e2e_config_dict(temp_dir):
         },
         "root_llm": {
             "model": "claude-sonnet-4-20250514",
-            "cost_per_input_token": 0.000003,
-            "cost_per_output_token": 0.000015,
+            "cost_per_million_input_tokens": 3.0,
+            "cost_per_million_output_tokens": 15.0,
             "max_iterations": 5,
         },
         "child_llm": {
             "model": "claude-sonnet-4-20250514",
-            "cost_per_input_token": 0.000003,
-            "cost_per_output_token": 0.000015,
+            "cost_per_million_input_tokens": 3.0,
+            "cost_per_million_output_tokens": 15.0,
         },
         "evaluation": {
             "evaluator_fn": "tetris_evolve.evaluation.circle_packing:CirclePackingEvaluator",

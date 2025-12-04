@@ -8,6 +8,11 @@ import argparse
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env file before any other imports that might use env vars
+load_dotenv()
+
 from .config import load_config
 from .exceptions import BudgetExceededError, ConfigValidationError
 from .root_llm import RootLLMOrchestrator

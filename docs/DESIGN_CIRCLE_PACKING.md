@@ -191,14 +191,14 @@ experiment:
 
 root_llm:
   model: "claude-sonnet-4-20250514"
-  cost_per_input_token: 0.000003
-  cost_per_output_token: 0.000015
+  cost_per_million_input_tokens: 3.0
+  cost_per_million_output_tokens: 15.0
   max_iterations: 30
 
 child_llm:
   model: "claude-sonnet-4-20250514"
-  cost_per_input_token: 0.000003
-  cost_per_output_token: 0.000015
+  cost_per_million_input_tokens: 3.0
+  cost_per_million_output_tokens: 15.0
 
 evolution:
   max_generations: 10

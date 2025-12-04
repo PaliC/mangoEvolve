@@ -28,8 +28,8 @@ class LLMConfig:
     """Configuration for an LLM (root or child)."""
 
     model: str
-    cost_per_input_token: float
-    cost_per_output_token: float
+    cost_per_million_input_tokens: float
+    cost_per_million_output_tokens: float
     max_iterations: int | None = None  # Only used for root LLM
 
 
@@ -125,23 +125,23 @@ def _parse_llm_config(data: dict[str, Any], section: str) -> LLMConfig:
     """Parse LLM configuration section."""
     _validate_required_fields(
         data,
-        ["model", "cost_per_input_token", "cost_per_output_token"],
+        ["model", "cost_per_million_input_tokens", "cost_per_million_output_tokens"],
         section,
     )
     _validate_types(
         data,
         {
             "model": str,
-            "cost_per_input_token": float,
-            "cost_per_output_token": float,
+            "cost_per_million_input_tokens": float,
+            "cost_per_million_output_tokens": float,
             "max_iterations": int,
         },
         section,
     )
     return LLMConfig(
         model=data["model"],
-        cost_per_input_token=float(data["cost_per_input_token"]),
-        cost_per_output_token=float(data["cost_per_output_token"]),
+        cost_per_million_input_tokens=float(data["cost_per_million_input_tokens"]),
+        cost_per_million_output_tokens=float(data["cost_per_million_output_tokens"]),
         max_iterations=data.get("max_iterations"),
     )
 

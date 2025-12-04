@@ -31,7 +31,8 @@ class TestCostTracker:
         """Verify cost math is correct."""
         tracker = CostTracker(sample_config)
 
-        # Root LLM pricing: input=0.000003, output=0.000015
+        # Root LLM pricing: input=3.0 per million, output=15.0 per million
+        # Which is 0.000003 per token and 0.000015 per token
         usage = tracker.record_usage(
             input_tokens=1000,
             output_tokens=1000,
@@ -44,8 +45,8 @@ class TestCostTracker:
     def test_different_pricing_root_child(self, sample_config_dict):
         """Root and child use different pricing."""
         # Set different pricing for child
-        sample_config_dict["child_llm"]["cost_per_input_token"] = 0.000001
-        sample_config_dict["child_llm"]["cost_per_output_token"] = 0.000005
+        sample_config_dict["child_llm"]["cost_per_million_input_tokens"] = 1.0
+        sample_config_dict["child_llm"]["cost_per_million_output_tokens"] = 5.0
         config = config_from_dict(sample_config_dict)
 
         tracker = CostTracker(config)
