@@ -4,6 +4,7 @@ Evolution API for tetris_evolve.
 Provides the core API exposed to the Root LLM for controlling the evolution process.
 """
 
+import multiprocessing
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, Protocol
@@ -13,6 +14,7 @@ from tqdm import tqdm
 from .cost_tracker import CostTracker
 from .exceptions import ChildrenLimitError, GenerationLimitError
 from .logger import ExperimentLogger
+from .parallel_worker import child_worker
 from .utils.code_extraction import extract_python_code, extract_reasoning
 
 
@@ -108,6 +110,8 @@ class EvolutionAPI:
         logger: ExperimentLogger,
         max_generations: int = 10,
         max_children_per_generation: int = 10,
+        child_llm_model: str | None = None,
+        evaluator_kwargs: dict[str, Any] | None = None,
     ):
         """
         Initialize the Evolution API.
@@ -119,6 +123,8 @@ class EvolutionAPI:
             logger: ExperimentLogger for logging
             max_generations: Maximum number of generations
             max_children_per_generation: Maximum children per generation
+            child_llm_model: Model name for child LLM (for parallel spawning)
+            evaluator_kwargs: Kwargs for creating evaluator in worker processes
         """
         self.evaluator = evaluator
         self.child_llm = child_llm
@@ -126,6 +132,8 @@ class EvolutionAPI:
         self.logger = logger
         self.max_generations = max_generations
         self.max_children_per_generation = max_children_per_generation
+        self.child_llm_model = child_llm_model
+        self.evaluator_kwargs = evaluator_kwargs or {}
 
         self.current_generation = 0
         self.generations: list[GenerationSummary] = [
@@ -300,6 +308,112 @@ class EvolutionAPI:
             reasoning=trial.reasoning,
             parent_id=trial.parent_id,
         )
+
+    def spawn_children_parallel(
+        self,
+        children: list[dict[str, Any]],
+        num_workers: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Spawn multiple child LLMs in parallel using multiprocessing.
+
+        Each child LLM call and its evaluation runs in a separate process.
+        This significantly speeds up evolution when spawning multiple children.
+
+        Args:
+            children: List of dicts with keys:
+                - 'prompt': Complete prompt to send to the child LLM
+                - 'parent_id': Optional trial ID of parent (for mutation tracking)
+            num_workers: Number of parallel workers (defaults to number of children)
+
+        Returns:
+            List of dictionaries with trial results (same format as spawn_child_llm)
+
+        Raises:
+            ChildrenLimitError: If spawning would exceed max_children_per_generation
+            ValueError: If child_llm_model is not set (required for parallel spawning)
+        """
+        if not self.child_llm_model:
+            raise ValueError(
+                "child_llm_model must be set for parallel spawning. "
+                "Ensure the EvolutionAPI is initialized with child_llm_model."
+            )
+
+        # Check budget
+        self.cost_tracker.raise_if_over_budget()
+
+        # Check children limit
+        current_count = len(self.generations[self.current_generation].trials)
+        if current_count + len(children) > self.max_children_per_generation:
+            raise ChildrenLimitError(
+                f"Cannot spawn {len(children)} children in generation {self.current_generation}. "
+                f"Current count: {current_count}, limit: {self.max_children_per_generation}. "
+                f"Call advance_generation() to move to the next generation."
+            )
+
+        # Show progress
+        tqdm.write(
+            f"  └─ Spawning {len(children)} child LLMs in parallel: "
+            f"gen {self.current_generation}"
+        )
+
+        # Prepare worker arguments
+        # Each worker gets: (prompt, parent_id, model, evaluator_kwargs, max_tokens, temperature)
+        worker_args = []
+        for child in children:
+            prompt = child.get("prompt", "")
+            parent_id = child.get("parent_id")
+            worker_args.append((
+                prompt,
+                parent_id,
+                self.child_llm_model,
+                self.evaluator_kwargs,
+                4096,  # max_tokens
+                0.7,   # temperature
+            ))
+
+        # Determine number of workers
+        if num_workers is None:
+            num_workers = len(children)
+
+        # Run workers in parallel
+        results = []
+        with multiprocessing.Pool(processes=num_workers) as pool:
+            worker_results = pool.map(child_worker, worker_args)
+
+        # Process results and record trials
+        for worker_result in worker_results:
+            # Generate trial ID
+            trial_num = len(self.generations[self.current_generation].trials)
+            trial_id = f"trial_{self.current_generation}_{trial_num}"
+
+            # Record token usage in cost tracker
+            if worker_result["input_tokens"] > 0 or worker_result["output_tokens"] > 0:
+                self.cost_tracker.record_usage(
+                    input_tokens=worker_result["input_tokens"],
+                    output_tokens=worker_result["output_tokens"],
+                    llm_type="child",
+                    call_id=worker_result["call_id"],
+                )
+
+            # Create trial result
+            trial = TrialResult(
+                trial_id=trial_id,
+                code=worker_result["code"],
+                metrics=worker_result["metrics"],
+                prompt=worker_result["prompt"],
+                response=worker_result["response_text"],
+                reasoning=worker_result["reasoning"],
+                success=worker_result["success"],
+                parent_id=worker_result["parent_id"],
+                error=worker_result["error"],
+                generation=self.current_generation,
+            )
+
+            self._record_trial(trial)
+            results.append(trial.to_dict())
+
+        return results
 
     def evaluate_program(self, code: str) -> dict[str, Any]:
         """
@@ -495,8 +609,9 @@ class EvolutionAPI:
         """
         Get a dictionary of API functions to inject into the REPL.
 
-        Only the 4 core evolution functions are exposed:
-        - spawn_child_llm: Generate new programs via child LLM
+        The 5 core evolution functions are exposed:
+        - spawn_child_llm: Generate new programs via child LLM (sequential)
+        - spawn_children_parallel: Generate multiple programs in parallel
         - evaluate_program: Evaluate code directly
         - advance_generation: Move to next generation
         - terminate_evolution: End the evolution process
@@ -506,6 +621,7 @@ class EvolutionAPI:
         """
         return {
             "spawn_child_llm": self.spawn_child_llm,
+            "spawn_children_parallel": self.spawn_children_parallel,
             "evaluate_program": self.evaluate_program,
             "advance_generation": self.advance_generation,
             "terminate_evolution": self.terminate_evolution,

@@ -98,6 +98,9 @@ class RootLLMOrchestrator:
         # Load evaluator
         self.evaluator = load_evaluator(config.evaluation)
 
+        # Get evaluator kwargs for parallel workers
+        evaluator_kwargs = config.evaluation.evaluator_kwargs or {}
+
         # Initialize Evolution API
         self.evolution_api = EvolutionAPI(
             evaluator=self.evaluator,
@@ -106,6 +109,8 @@ class RootLLMOrchestrator:
             logger=self.logger,
             max_generations=config.evolution.max_generations,
             max_children_per_generation=config.evolution.max_children_per_generation,
+            child_llm_model=config.child_llm.model,
+            evaluator_kwargs=evaluator_kwargs,
         )
 
         # Initialize REPL with Evolution API functions
