@@ -50,10 +50,10 @@ export ANTHROPIC_API_KEY=your_api_key_here
 
 ```bash
 # Run the evolution with the example config
-uv run python -m tetris_evolve --config configs/example_config.yaml
+uv run python -m tetris_evolve --config configs/example_config_haiku.yaml
 
 # Run with verbose output
-uv run python -m tetris_evolve --config configs/example_config.yaml --verbose
+uv run python -m tetris_evolve --config configs/example_config_haiku.yaml --verbose
 ```
 
 ### Run PoC Examples (No API Key Required)

@@ -8,6 +8,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
+from tqdm import tqdm
+
 from .cost_tracker import CostTracker
 from .logger import ExperimentLogger
 from .utils.code_extraction import extract_python_code, extract_reasoning
@@ -168,7 +170,15 @@ class EvolutionAPI:
         self.cost_tracker.raise_if_over_budget()
 
         # Generate trial ID
-        trial_id = f"trial_{self.current_generation}_{len(self.generations[self.current_generation].trials)}"
+        trial_num = len(self.generations[self.current_generation].trials)
+        trial_id = f"trial_{self.current_generation}_{trial_num}"
+
+        # Show progress for child LLM spawn
+        tqdm.write(
+            f"  └─ Spawning child LLM: gen {self.current_generation}, "
+            f"trial {trial_num + 1}/{self.max_children_per_generation}"
+            + (f" (parent: {parent_id})" if parent_id else "")
+        )
 
         # Call child LLM
         try:
@@ -258,6 +268,15 @@ class EvolutionAPI:
             gen.best_score = score
             gen.best_trial_id = trial.trial_id
 
+        # Show trial result
+        if trial.success:
+            tqdm.write(
+                f"       ✓ {trial.trial_id}: score={score:.4f}"
+            )
+        else:
+            error_short = (trial.error or "unknown error")[:50]
+            tqdm.write(f"       ✗ {trial.trial_id}: {error_short}")
+
         # Log the trial
         self.logger.log_trial(
             trial_id=trial.trial_id,
@@ -321,6 +340,15 @@ class EvolutionAPI:
             best_sum_radii=gen.best_score,
         )
 
+        # Show generation progress
+        num_trials = len(gen.trials)
+        num_success = sum(1 for t in gen.trials if t.success)
+        tqdm.write(
+            f"\n  ═══ Generation {self.current_generation} complete: "
+            f"{num_success}/{num_trials} successful, best={gen.best_score:.4f} ═══"
+        )
+        tqdm.write(f"  → Advancing to generation {self.current_generation + 1}/{self.max_generations}\n")
+
         # Move to next generation
         self.current_generation += 1
         self.generations.append(
@@ -353,6 +381,18 @@ class EvolutionAPI:
         # If no best_program provided, use the best trial's code
         if best_program is None and best_trials:
             best_program = best_trials[0].get("code", "")
+
+        best_score = best_trials[0].get("metrics", {}).get("sum_radii", 0) if best_trials else 0
+
+        # Show termination message
+        tqdm.write(f"\n{'='*60}")
+        tqdm.write(f"  EVOLUTION TERMINATED: {reason}")
+        tqdm.write(f"  Total trials: {total_trials} ({successful_trials} successful)")
+        tqdm.write(f"  Generations: {self.current_generation + 1}")
+        tqdm.write(f"  Best score: {best_score:.4f}")
+        cost_summary = self.cost_tracker.get_summary()
+        tqdm.write(f"  Total cost: ${cost_summary.total_cost:.4f}")
+        tqdm.write(f"{'='*60}\n")
 
         # Save experiment
         self.logger.log_cost_tracking(self.cost_tracker.to_dict())

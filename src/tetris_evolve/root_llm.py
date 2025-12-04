@@ -8,6 +8,8 @@ code blocks and managing the conversation with the Root LLM.
 from dataclasses import dataclass
 from typing import Any
 
+from tqdm import tqdm
+
 from .config import Config, load_evaluator
 from .cost_tracker import CostTracker
 from .evolution_api import EvolutionAPI
@@ -202,9 +204,37 @@ class RootLLMOrchestrator:
         termination_reason = "max_iterations_reached"
         iteration = 0
 
+        # Create progress bar for root LLM iterations
+        pbar = tqdm(
+            total=self.max_iterations,
+            desc="Evolution",
+            unit="iter",
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+        )
+
+        def update_pbar_postfix() -> None:
+            """Update progress bar with current stats."""
+            cost_summary = self.cost_tracker.get_summary()
+            gen = self.evolution_api.current_generation
+            trials = len(self.evolution_api.all_trials)
+            successes = sum(1 for t in self.evolution_api.all_trials.values() if t.success)
+            best_score = max(
+                (t.metrics.get("sum_radii", 0) for t in self.evolution_api.all_trials.values() if t.success),
+                default=0,
+            )
+            pbar.set_postfix(
+                gen=gen,
+                trials=trials,
+                ok=successes,
+                best=f"{best_score:.3f}" if best_score else "N/A",
+                cost=f"${cost_summary.total_cost:.2f}",
+            )
+
         try:
             for _iteration in range(self.max_iterations):
                 iteration = _iteration  # Track iteration for result
+                update_pbar_postfix()
+
                 # Check budget before LLM call
                 try:
                     self.cost_tracker.raise_if_over_budget()
@@ -249,6 +279,10 @@ class RootLLMOrchestrator:
                     )
                     self.turn_number += 1
 
+                # Update progress bar after iteration
+                pbar.update(1)
+                update_pbar_postfix()
+
                 # Check if evolution was terminated
                 if self.check_termination(assistant_message):
                     termination_reason = (
@@ -279,6 +313,8 @@ class RootLLMOrchestrator:
 
         except BudgetExceededError as e:
             termination_reason = f"budget_exceeded: {str(e)}"
+        finally:
+            pbar.close()
 
         # Save experiment
         self.logger.log_cost_tracking(self.cost_tracker.to_dict())

@@ -103,6 +103,7 @@ ALLOWED_MODULES = {
     "datetime",
     "numpy",
     "np",  # alias
+    "scipy",
 }
 
 
