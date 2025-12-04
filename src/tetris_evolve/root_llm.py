@@ -203,27 +203,59 @@ class RootLLMOrchestrator:
 
         termination_reason = "max_iterations_reached"
         iteration = 0
+        max_generations = self.config.evolution.max_generations
+        max_children = self.config.evolution.max_children_per_generation
 
-        # Create progress bar for root LLM iterations
-        pbar = tqdm(
-            total=self.max_iterations,
-            desc="Evolution",
-            unit="iter",
+        # Create outer progress bar for generations
+        gen_pbar = tqdm(
+            total=max_generations,
+            desc="Generations",
+            unit="gen",
+            position=0,
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
         )
 
+        # Create inner progress bar for children in current generation
+        children_pbar = tqdm(
+            total=max_children,
+            desc="  Children",
+            unit="child",
+            position=1,
+            leave=False,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
+        )
+
+        last_generation = 0
+        last_children_count = 0
+
         def update_pbar_postfix() -> None:
-            """Update progress bar with current stats."""
+            """Update progress bars with current stats."""
+            nonlocal last_generation, last_children_count
             cost_summary = self.cost_tracker.get_summary()
-            gen = self.evolution_api.current_generation
+            current_gen = self.evolution_api.current_generation
             trials = len(self.evolution_api.all_trials)
             successes = sum(1 for t in self.evolution_api.all_trials.values() if t.success)
             best_score = max(
                 (t.metrics.get("sum_radii", 0) for t in self.evolution_api.all_trials.values() if t.success),
                 default=0,
             )
-            pbar.set_postfix(
-                gen=gen,
+
+            # Update generation progress bar if generation changed
+            if current_gen > last_generation:
+                gen_pbar.update(current_gen - last_generation)
+                last_generation = current_gen
+                # Reset children progress bar for new generation
+                children_pbar.reset()
+                children_pbar.set_description(f"  Gen {current_gen} children")
+                last_children_count = 0
+
+            # Update children progress bar
+            current_gen_trials = len(self.evolution_api.generations[current_gen].trials)
+            if current_gen_trials > last_children_count:
+                children_pbar.update(current_gen_trials - last_children_count)
+                last_children_count = current_gen_trials
+
+            gen_pbar.set_postfix(
                 trials=trials,
                 ok=successes,
                 best=f"{best_score:.3f}" if best_score else "N/A",
@@ -279,8 +311,7 @@ class RootLLMOrchestrator:
                     )
                     self.turn_number += 1
 
-                # Update progress bar after iteration
-                pbar.update(1)
+                # Update progress bars (children count is updated inside update_pbar_postfix)
                 update_pbar_postfix()
 
                 # Check if evolution was terminated
@@ -314,7 +345,12 @@ class RootLLMOrchestrator:
         except BudgetExceededError as e:
             termination_reason = f"budget_exceeded: {str(e)}"
         finally:
-            pbar.close()
+            # Update generation bar one final time to reflect completed generation
+            final_gen = self.evolution_api.current_generation
+            if final_gen >= last_generation:
+                gen_pbar.update(final_gen - last_generation + 1)
+            children_pbar.close()
+            gen_pbar.close()
 
         # Save experiment
         self.logger.log_cost_tracking(self.cost_tracker.to_dict())
