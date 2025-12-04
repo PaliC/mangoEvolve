@@ -47,10 +47,10 @@ def run_packing():
 
 ## Available Functions
 
-You have access to these 4 functions in the REPL:
+You have access to these 5 functions in the REPL:
 
 ### spawn_child_llm(prompt: str, parent_id: Optional[str] = None) -> dict
-Spawn a child LLM with the given prompt.
+Spawn a single child LLM with the given prompt (sequential).
 - **prompt**: The complete prompt to send to the child LLM. You control the full content.
 - **parent_id**: Optional trial ID to associate as parent (for tracking lineage).
 - **Returns**: `{trial_id, code, metrics, reasoning, success, error}`
@@ -64,6 +64,37 @@ Maximize the sum of radii while ensuring no overlaps and all circles stay within
 Return code with construct_packing() and run_packing() functions.
 """)
 print(f"Trial {result['trial_id']}: valid={result['metrics'].get('valid')}, sum={result['metrics'].get('sum_radii', 0):.4f}")
+```
+
+### spawn_children_parallel(children: list[dict], num_workers: Optional[int] = None) -> list[dict]
+Spawn multiple child LLMs in parallel using multiprocessing. **Use this for batch operations!**
+- **children**: List of dicts, each with `prompt` (str) and optional `parent_id` (str).
+- **num_workers**: Number of parallel workers (defaults to number of children).
+- **Returns**: List of results in same format as spawn_child_llm.
+
+Example:
+```repl
+# Spawn multiple children in parallel - much faster than sequential!
+children = [
+    {"prompt": "Write a hexagonal packing algorithm..."},
+    {"prompt": "Write a greedy packing algorithm..."},
+    {"prompt": "Write an optimization-based packing algorithm..."},
+]
+results = spawn_children_parallel(children)
+for r in results:
+    print(f"Trial {r['trial_id']}: valid={r['metrics'].get('valid')}, sum={r['metrics'].get('sum_radii', 0):.4f}")
+```
+
+Mutation example with parent_id:
+```repl
+# Mutate from a successful parent in parallel
+parent_code = best_trial['code']
+children = [
+    {"prompt": f"Improve this packing by adjusting radii:\\n{parent_code}", "parent_id": best_trial['trial_id']},
+    {"prompt": f"Improve this packing by moving centers:\\n{parent_code}", "parent_id": best_trial['trial_id']},
+    {"prompt": f"Improve this packing using optimization:\\n{parent_code}", "parent_id": best_trial['trial_id']},
+]
+results = spawn_children_parallel(children)
 ```
 
 ### evaluate_program(code: str) -> dict
@@ -120,28 +151,32 @@ print(f"Best so far: {best_score:.4f}")
 
 ## Guidelines
 
-1. **Craft effective prompts**: You are responsible for creating detailed prompts for child LLMs.
+1. **Use parallel spawning**: When spawning multiple children, ALWAYS use `spawn_children_parallel()`
+   instead of multiple `spawn_child_llm()` calls. This runs LLM calls and evaluations concurrently
+   for significant speedup.
+
+2. **Craft effective prompts**: You are responsible for creating detailed prompts for child LLMs.
    Include problem specifications, constraints, strategy guidance, and examples.
 
-2. **Mutate successful programs**: When you find a good approach, include its code in the
+3. **Mutate successful programs**: When you find a good approach, include its code in the
    prompt and ask the child to improve it.
 
-3. **Explore diverse strategies**: Try different algorithmic approaches:
+4. **Explore diverse strategies**: Try different algorithmic approaches:
    - Hexagonal/grid patterns
    - Greedy placement
    - Optimization-based (scipy)
    - Genetic algorithms
    - Simulated annealing
 
-4. **Track your progress**: Keep track of the best code and scores as you explore.
+5. **Track your progress**: Keep track of the best code and scores as you explore.
    Use Python variables in the REPL to maintain state across calls.
 
-5. **Advance generations**: After exploring, select the best trials and advance:
+6. **Advance generations**: After exploring, select the best trials and advance:
    ```repl
    advance_generation(["trial_0_0", "trial_0_2"], "Selected top performers")
    ```
 
-6. **Terminate with best program**: End evolution when improvement plateaus or you're satisfied:
+7. **Terminate with best program**: End evolution when improvement plateaus or you're satisfied:
    ```repl
    terminate_evolution("Reached satisfactory performance", best_program=best_code)
    ```
