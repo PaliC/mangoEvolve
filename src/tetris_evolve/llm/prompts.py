@@ -28,6 +28,40 @@ Pack 26 circles into a unit square [0,1] x [0,1] to maximize the sum of their ra
 - **Max generations**: {max_generations}
 - **Current generation**: {current_generation}
 
+## Referencing Code from Previous Trials
+
+You can reference code from any previous trial in your prompts using the token format:
+```
+{{{{CODE_TRIAL_X_Y}}}}
+```
+Where X is the generation number and Y is the trial number within that generation.
+
+**Examples:**
+- `{{{{CODE_TRIAL_0_3}}}}` - Code from generation 0, trial 3 (trial_0_3)
+- `{{{{CODE_TRIAL_1_2}}}}` - Code from generation 1, trial 2 (trial_1_2)
+
+When you include these tokens in a child LLM prompt, they will be automatically replaced with the actual code from that trial. This is useful for:
+- Having child LLMs improve upon specific previous solutions
+- Combining approaches from different trials
+- Providing working examples for child LLMs to learn from
+
+**Example usage in a prompt:**
+```repl
+children = [
+    {{"prompt": """Improve this circle packing algorithm. Here is the code to improve:
+
+{{{{CODE_TRIAL_0_3}}}}
+
+Make the following improvements:
+1. Optimize the radius calculation
+2. Add local search refinement
+""", "parent_id": "trial_0_3"}},
+]
+results = spawn_children_parallel(children)
+```
+
+If a referenced trial does not exist, the token will be replaced with `[CODE NOT FOUND: trial_X_Y]`.
+
 ## Code Specification
 
 Programs must define these functions:
@@ -75,14 +109,26 @@ for r in results:
     print(f"Trial {{r['trial_id']}}: valid={{r['metrics'].get('valid')}}, sum={{r['metrics'].get('sum_radii', 0):.4f}}")
 ```
 
-Mutation example with parent_id:
+Mutation example with parent_id and {{{{CODE_TRIAL_X_Y}}}} token:
 ```repl
-# Mutate from a successful parent in parallel
-parent_code = best_trial['code']
+# Mutate from trial_0_3 in parallel using the code reference token
+# The {{{{CODE_TRIAL_0_3}}}} token is automatically replaced with the trial's code
 children = [
-    {{"prompt": f"Improve this packing by adjusting radii:\\n{{parent_code}}", "parent_id": best_trial['trial_id']}},
-    {{"prompt": f"Improve this packing by moving centers:\\n{{parent_code}}", "parent_id": best_trial['trial_id']}},
-    {{"prompt": f"Improve this packing using optimization:\\n{{parent_code}}", "parent_id": best_trial['trial_id']}},
+    {{"prompt": """Improve this packing by adjusting radii:
+
+{{{{CODE_TRIAL_0_3}}}}
+
+Focus on: increasing individual radii while maintaining validity.""", "parent_id": "trial_0_3"}},
+    {{"prompt": """Improve this packing by moving centers:
+
+{{{{CODE_TRIAL_0_3}}}}
+
+Focus on: repositioning circles for better space utilization.""", "parent_id": "trial_0_3"}},
+    {{"prompt": """Improve this packing using optimization:
+
+{{{{CODE_TRIAL_0_3}}}}
+
+Focus on: adding scipy.optimize refinement step.""", "parent_id": "trial_0_3"}},
 ]
 results = spawn_children_parallel(children)
 ```
@@ -174,8 +220,9 @@ print(f"Best this generation: {{best_score:.4f}}")
 3. **Select promising trials**: When asked for selection, balance performance with diversity.
    Don't just pick the top scorers - also select diverse approaches that might lead to breakthroughs.
 
-4. **Mutate successful programs**: After generation 0, use selected trials' code in your prompts
-   to improve upon them. Reference their strengths and weaknesses.
+4. **Mutate successful programs**: After generation 0, use the `{{{{CODE_TRIAL_X_Y}}}}` token to
+   reference code from selected trials. This automatically injects the trial's code into your prompt.
+   Example: `{{{{CODE_TRIAL_0_3}}}}` will be replaced with trial_0_3's code.
 
 5. **Explore diverse strategies**: Try different algorithmic approaches:
    - Hexagonal/grid patterns

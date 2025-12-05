@@ -16,6 +16,7 @@ from .exceptions import ChildrenLimitError, GenerationLimitError
 from .logger import ExperimentLogger
 from .parallel_worker import child_worker
 from .utils.code_extraction import extract_python_code, extract_reasoning
+from .utils.prompt_substitution import substitute_trial_codes
 
 
 class Evaluator(Protocol):
@@ -227,10 +228,23 @@ class EvolutionAPI:
             + (f" (parent: {parent_id})" if parent_id else "")
         )
 
+        # Substitute {{CODE_TRIAL_X_Y}} tokens with actual code
+        substituted_prompt, substitution_report = substitute_trial_codes(
+            prompt,
+            all_trials=self.all_trials,
+            experiment_dir=str(self.logger.base_dir),
+        )
+        if substitution_report:
+            for sub in substitution_report:
+                if sub["success"]:
+                    tqdm.write(f"       → Substituted {sub['token']} with code from {sub['trial_id']}")
+                else:
+                    tqdm.write(f"       ⚠ Failed to substitute {sub['token']}: {sub['error']}")
+
         # Call child LLM
         try:
             response = self.child_llm.generate(
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "user", "content": substituted_prompt}],
                 max_tokens=4096,
                 temperature=0.7,
             )
@@ -241,7 +255,7 @@ class EvolutionAPI:
                 trial_id=trial_id,
                 code="",
                 metrics={},
-                prompt=prompt,
+                prompt=substituted_prompt,
                 response="",
                 reasoning="",
                 success=False,
@@ -262,7 +276,7 @@ class EvolutionAPI:
                 trial_id=trial_id,
                 code="",
                 metrics={},
-                prompt=prompt,
+                prompt=substituted_prompt,
                 response=response_text,
                 reasoning=reasoning,
                 success=False,
@@ -291,7 +305,7 @@ class EvolutionAPI:
             trial_id=trial_id,
             code=code,
             metrics=metrics,
-            prompt=prompt,
+            prompt=substituted_prompt,
             response=response_text,
             reasoning=reasoning,
             success=success,
@@ -400,15 +414,32 @@ class EvolutionAPI:
         # Get experiment directory for workers to write trial files
         experiment_dir = str(self.logger.base_dir)
 
+        # Substitute {{CODE_TRIAL_X_Y}} tokens in all prompts before passing to workers
+        # We do this in the main process where we have access to all_trials
+        substituted_prompts = []
+        for child in children:
+            prompt = child.get("prompt", "")
+            substituted_prompt, substitution_report = substitute_trial_codes(
+                prompt,
+                all_trials=self.all_trials,
+                experiment_dir=experiment_dir,
+            )
+            substituted_prompts.append(substituted_prompt)
+            if substitution_report:
+                for sub in substitution_report:
+                    if sub["success"]:
+                        tqdm.write(f"       → Substituted {sub['token']} with code from {sub['trial_id']}")
+                    else:
+                        tqdm.write(f"       ⚠ Failed to substitute {sub['token']}: {sub['error']}")
+
         # Prepare worker arguments
         # Each worker gets: (prompt, parent_id, model, evaluator_kwargs, max_tokens, temperature,
         #                    trial_id, generation, experiment_dir)
         worker_args = []
         for i, child in enumerate(children):
-            prompt = child.get("prompt", "")
             parent_id = child.get("parent_id")
             worker_args.append((
-                prompt,
+                substituted_prompts[i],  # Use substituted prompt
                 parent_id,
                 self.child_llm_model,
                 self.evaluator_kwargs,
