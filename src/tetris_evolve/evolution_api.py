@@ -490,10 +490,13 @@ class EvolutionAPI:
         selection_summary: str | None = None,
     ) -> int:
         """
-        Advance to the next generation.
+        Finalize current generation and advance to the next generation.
 
         This is an internal method called by the orchestrator after children
         are spawned for a generation. It is not exposed to the Root LLM.
+
+        The method first finalizes the current generation (selection, logging),
+        then advances to the next generation if possible.
 
         Args:
             selections: Optional list of LLM-selected trials. Each dict should have:
@@ -504,19 +507,11 @@ class EvolutionAPI:
             selection_summary: Optional overall summary of selection reasoning.
 
         Returns:
-            The new generation number
+            The new generation number (or current if at max)
 
         Raises:
-            GenerationLimitError: If max_generations limit is reached
+            GenerationLimitError: If this was the last generation (after finalizing it)
         """
-        # Check generation limit (current_generation is 0-indexed,
-        # so if we're at generation max_generations-1, we can't advance)
-        if self.current_generation >= self.max_generations - 1:
-            raise GenerationLimitError(
-                f"Cannot advance beyond generation {self.current_generation}. "
-                f"Maximum of {self.max_generations} generations reached."
-            )
-
         # Update current generation summary
         gen = self.generations[self.current_generation]
 
@@ -566,6 +561,16 @@ class EvolutionAPI:
         )
         if gen.trial_selections:
             tqdm.write(f"  Selected trials: {', '.join(gen.selected_trial_ids)}")
+
+        # Check if we can advance to next generation (current_generation is 0-indexed,
+        # so if we're at generation max_generations-1, we can't advance)
+        if self.current_generation >= self.max_generations - 1:
+            tqdm.write(f"  ═══ All {self.max_generations} generations complete ═══\n")
+            raise GenerationLimitError(
+                f"Cannot advance beyond generation {self.current_generation}. "
+                f"Maximum of {self.max_generations} generations reached."
+            )
+
         tqdm.write(f"  → Advancing to generation {self.current_generation + 1}/{self.max_generations}\n")
 
         # Move to next generation

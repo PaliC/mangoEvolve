@@ -488,9 +488,10 @@ class RootLLMOrchestrator:
                         gen_pbar.update(1)
                         generations_completed = generation + 1
                     except GenerationLimitError:
-                        # Reached max generations
+                        # Reached max generations - generation was finalized before exception
+                        gen_pbar.update(1)
                         termination_reason = "max_generations_reached"
-                        generations_completed = generation + 1
+                        generations_completed = self.max_generations
                         break
 
                     # Build feedback message for next generation
