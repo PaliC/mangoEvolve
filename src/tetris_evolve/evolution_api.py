@@ -275,8 +275,14 @@ class EvolutionAPI:
         self._record_trial(trial)
         return trial.to_dict()
 
-    def _record_trial(self, trial: TrialResult) -> None:
-        """Record a trial in the current generation and log it."""
+    def _record_trial(self, trial: TrialResult, skip_file_write: bool = False) -> None:
+        """Record a trial in the current generation and log it.
+
+        Args:
+            trial: The trial result to record
+            skip_file_write: If True, skip writing the trial file (used when
+                            file was already written by parallel worker)
+        """
         self.generations[self.current_generation].trials.append(trial)
         self.all_trials[trial.trial_id] = trial
 
@@ -296,17 +302,18 @@ class EvolutionAPI:
             error_short = (trial.error or "unknown error")[:50]
             tqdm.write(f"       ✗ {trial.trial_id}: {error_short}")
 
-        # Log the trial
-        self.logger.log_trial(
-            trial_id=trial.trial_id,
-            generation=trial.generation,
-            code=trial.code,
-            metrics=trial.metrics,
-            prompt=trial.prompt,
-            response=trial.response,
-            reasoning=trial.reasoning,
-            parent_id=trial.parent_id,
-        )
+        # Log the trial (write file) unless already written by worker
+        if not skip_file_write:
+            self.logger.log_trial(
+                trial_id=trial.trial_id,
+                generation=trial.generation,
+                code=trial.code,
+                metrics=trial.metrics,
+                prompt=trial.prompt,
+                response=trial.response,
+                reasoning=trial.reasoning,
+                parent_id=trial.parent_id,
+            )
 
     def spawn_children_parallel(
         self,
@@ -355,10 +362,21 @@ class EvolutionAPI:
             f"gen {self.current_generation}"
         )
 
+        # Pre-assign trial IDs for each child
+        starting_trial_num = len(self.generations[self.current_generation].trials)
+        trial_ids = [
+            f"trial_{self.current_generation}_{starting_trial_num + i}"
+            for i in range(len(children))
+        ]
+
+        # Get experiment directory for workers to write trial files
+        experiment_dir = str(self.logger.base_dir)
+
         # Prepare worker arguments
-        # Each worker gets: (prompt, parent_id, model, evaluator_kwargs, max_tokens, temperature)
+        # Each worker gets: (prompt, parent_id, model, evaluator_kwargs, max_tokens, temperature,
+        #                    trial_id, generation, experiment_dir)
         worker_args = []
-        for child in children:
+        for i, child in enumerate(children):
             prompt = child.get("prompt", "")
             parent_id = child.get("parent_id")
             worker_args.append((
@@ -368,6 +386,9 @@ class EvolutionAPI:
                 self.evaluator_kwargs,
                 4096,  # max_tokens
                 0.7,   # temperature
+                trial_ids[i],
+                self.current_generation,
+                experiment_dir,
             ))
 
         # Determine number of workers
@@ -383,9 +404,8 @@ class EvolutionAPI:
 
         # Process results and record trials
         for worker_result in worker_results:
-            # Generate trial ID
-            trial_num = len(self.generations[self.current_generation].trials)
-            trial_id = f"trial_{self.current_generation}_{trial_num}"
+            # Use pre-assigned trial ID from worker
+            trial_id = worker_result["trial_id"]
 
             # Record token usage in cost tracker
             if worker_result["input_tokens"] > 0 or worker_result["output_tokens"] > 0:
@@ -410,7 +430,7 @@ class EvolutionAPI:
                 generation=self.current_generation,
             )
 
-            self._record_trial(trial)
+            self._record_trial(trial, skip_file_write=True)
             results.append(trial.to_dict())
 
         return results
