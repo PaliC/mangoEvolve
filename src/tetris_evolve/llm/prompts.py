@@ -37,7 +37,7 @@ import numpy as np
 
 def construct_packing():
     """
-    Construct a circle packing for n=26 circles in a unit square.
+    Construct a circle packing for n=26 circles in a unit square. This function should not plot or print anything.
 
     Returns:
         centers: np.array of shape (26, 2) - (x, y) coordinates
@@ -47,7 +47,7 @@ def construct_packing():
     pass
 
 def run_packing():
-    """Entry point called by evaluator."""
+    """Entry point called by evaluator. This function should not plot or print anything."""
     return construct_packing()
 ```
 
@@ -109,7 +109,7 @@ End evolution early and return final results.
 1. **You are called once per generation** to spawn children for that generation.
 2. **You should spawn {max_children_per_generation} children** in your response to maximize exploration.
 3. **After children spawn, you will be asked to SELECT which trials to carry forward.**
-4. **Selection criteria**: Choose 2-5 trials based on:
+4. **Selection criteria**: Choose as many trials as you want based on your judgement. It can contain only one trial up to all of them if you see them all adding value:
    - **Performance**: High-scoring trials with proven results
    - **Diversity**: Trials using different approaches worth exploring
    - **Potential**: Trials that might improve with refinement, even if current scores are lower
