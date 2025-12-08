@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .config import Config, config_from_dict
-from .evolution_api import GenerationSummary, TrialResult, TrialSelection
+from .evolution_api import TrialResult
 
 
 @dataclass
@@ -140,69 +140,6 @@ def load_trials_from_disk(experiment_dir: Path) -> dict[str, TrialResult]:
             all_trials[trial.trial_id] = trial
 
     return all_trials
-
-
-def load_generation_summaries(experiment_dir: Path) -> list[GenerationSummary]:
-    """
-    Load generation summaries from experiment directory.
-
-    Args:
-        experiment_dir: Path to experiment directory
-
-    Returns:
-        List of GenerationSummary objects
-    """
-    generations: list[GenerationSummary] = []
-    generations_dir = experiment_dir / "generations"
-    all_trials = load_trials_from_disk(experiment_dir)
-
-    if not generations_dir.exists():
-        return generations
-
-    gen_dirs = sorted(
-        [d for d in generations_dir.iterdir() if d.is_dir() and d.name.startswith("gen_")],
-        key=lambda d: int(d.name.split("_")[1]),
-    )
-
-    for gen_dir in gen_dirs:
-        gen_num = int(gen_dir.name.split("_")[1])
-        gen_trials = [t for t in all_trials.values() if t.generation == gen_num]
-
-        summary_path = gen_dir / "summary.json"
-        if summary_path.exists():
-            with open(summary_path) as f:
-                summary_data = json.load(f)
-
-            trial_selections = [
-                TrialSelection.from_dict(s)
-                for s in summary_data.get("trial_selections", [])
-            ]
-
-            gen_summary = GenerationSummary(
-                generation_num=gen_num,
-                trials=gen_trials,
-                selected_trial_ids=summary_data.get("selected_trial_ids", []),
-                selection_reasoning=summary_data.get("selection_reasoning", ""),
-                best_trial_id=summary_data.get("best_trial_id"),
-                best_score=summary_data.get("best_sum_radii", 0.0),
-                trial_selections=trial_selections,
-            )
-        else:
-            best_trial = max(
-                (t for t in gen_trials if t.success),
-                key=lambda t: t.metrics.get("sum_radii", 0),
-                default=None,
-            )
-            gen_summary = GenerationSummary(
-                generation_num=gen_num,
-                trials=gen_trials,
-                best_trial_id=best_trial.trial_id if best_trial else None,
-                best_score=best_trial.metrics.get("sum_radii", 0) if best_trial else 0.0,
-            )
-
-        generations.append(gen_summary)
-
-    return generations
 
 
 def prepare_redo(experiment_dir: Path, current_generation: int) -> None:

@@ -11,7 +11,6 @@ from .helpers import MockLLMClient
 from tetris_evolve import config_from_dict
 from tetris_evolve.resume import (
     analyze_experiment,
-    load_generation_summaries,
     load_trials_from_disk,
     prepare_redo,
 )
@@ -177,28 +176,6 @@ class TestLoadTrialsFromDisk:
         assert trials["trial_0_0"].generation == 0
         assert trials["trial_0_0"].success is True
         assert trials["trial_0_1"].metrics["sum_radii"] == pytest.approx(1.6)
-
-
-class TestLoadGenerationSummaries:
-    """Tests for load_generation_summaries function."""
-
-    def test_load_summaries_no_summary(self, setup_experiment_with_trials):
-        """Test loading generation summaries when none exist."""
-        generations = load_generation_summaries(setup_experiment_with_trials)
-
-        assert len(generations) == 1
-        assert generations[0].generation_num == 0
-        assert len(generations[0].trials) == 2
-
-    def test_load_summaries_with_summary(self, setup_experiment_with_complete_gen):
-        """Test loading generation summaries with summary.json."""
-        generations = load_generation_summaries(setup_experiment_with_complete_gen)
-
-        assert len(generations) == 1
-        assert generations[0].generation_num == 0
-        assert len(generations[0].selected_trial_ids) == 2
-        assert generations[0].best_trial_id == "trial_0_2"
-        assert generations[0].best_score == 1.8
 
 
 class TestPrepareRedo:

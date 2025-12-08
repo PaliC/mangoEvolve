@@ -21,7 +21,6 @@ from .logger import ExperimentLogger
 from .repl import REPLEnvironment
 from .resume import (
     analyze_experiment,
-    load_generation_summaries,
     load_trials_from_disk,
     prepare_redo,
 )
@@ -167,9 +166,8 @@ class RootLLMOrchestrator:
         # Re-analyze after cleanup
         info = analyze_experiment(experiment_dir)
 
-        # Load state
+        # Load trials from disk
         all_trials = load_trials_from_disk(experiment_dir)
-        generations = load_generation_summaries(experiment_dir)
 
         # Create orchestrator with existing logger directory
         # We reuse the existing experiment directory
@@ -229,7 +227,6 @@ class RootLLMOrchestrator:
         # Restore evolution state
         orchestrator.evolution_api.restore_state(
             all_trials=all_trials,
-            generations=generations,
             current_generation=info.current_generation,
         )
 
