@@ -6,11 +6,12 @@ import json
 
 import pytest
 
-from tetris_evolve import CostTracker, MockLLMClient, config_from_dict
+from .helpers import MockLLMClient
+
+from tetris_evolve import config_from_dict
 from tetris_evolve.resume import (
     analyze_experiment,
     build_resume_prompt,
-    load_cost_data,
     load_generation_summaries,
     load_trials_from_disk,
     prepare_redo,
@@ -70,33 +71,6 @@ def setup_experiment_with_trials(setup_experiment_dir):
         with open(trial_path, "w") as f:
             json.dump(trial_data, f)
 
-    # Create cost tracking
-    cost_data = {
-        "total_cost": 0.05,
-        "max_budget": 10.0,
-        "usage_log": [
-            {
-                "input_tokens": 1000,
-                "output_tokens": 500,
-                "cost": 0.025,
-                "timestamp": "2024-01-01T12:00:00",
-                "llm_type": "child",
-                "call_id": "test-1",
-            },
-            {
-                "input_tokens": 1000,
-                "output_tokens": 500,
-                "cost": 0.025,
-                "timestamp": "2024-01-01T12:00:01",
-                "llm_type": "child",
-                "call_id": "test-2",
-            },
-        ],
-    }
-    cost_path = exp_dir / "cost_tracking.json"
-    with open(cost_path, "w") as f:
-        json.dump(cost_data, f)
-
     return exp_dir
 
 
@@ -153,7 +127,6 @@ class TestAnalyzeExperiment:
 
         assert info.current_generation == 0
         assert info.trials_in_current_gen == 0
-        assert info.total_cost_spent == 0.0
         assert info.can_resume is False
 
     def test_analyze_experiment_with_incomplete_gen(self, setup_experiment_with_trials):
@@ -163,7 +136,6 @@ class TestAnalyzeExperiment:
         assert info.current_generation == 0
         assert info.trials_in_current_gen == 2
         assert info.max_children_per_gen == 3
-        assert info.total_cost_spent == 0.05
         assert info.can_resume is True
 
     def test_analyze_experiment_with_complete_gen(self, setup_experiment_with_complete_gen):
@@ -230,22 +202,6 @@ class TestLoadGenerationSummaries:
         assert generations[0].best_score == 1.8
 
 
-class TestLoadCostData:
-    """Tests for load_cost_data function."""
-
-    def test_load_cost_data_exists(self, setup_experiment_with_trials):
-        """Test loading cost data when file exists."""
-        cost_data = load_cost_data(setup_experiment_with_trials)
-
-        assert cost_data["total_cost"] == 0.05
-        assert len(cost_data["usage_log"]) == 2
-
-    def test_load_cost_data_missing(self, setup_experiment_dir):
-        """Test loading cost data when file doesn't exist."""
-        cost_data = load_cost_data(setup_experiment_dir)
-        assert cost_data == {}
-
-
 class TestPrepareRedo:
     """Tests for prepare_redo function."""
 
@@ -281,11 +237,6 @@ class TestBuildResumePrompt:
 class TestResumeInfo:
     """Tests for ResumeInfo dataclass."""
 
-    def test_remaining_budget(self, setup_experiment_with_trials):
-        """Test remaining_budget property."""
-        info = analyze_experiment(setup_experiment_with_trials)
-        assert info.remaining_budget == pytest.approx(10.0 - 0.05)
-
     def test_can_resume_with_trials(self, setup_experiment_with_trials):
         """Test can_resume when trials exist."""
         info = analyze_experiment(setup_experiment_with_trials)
@@ -295,26 +246,6 @@ class TestResumeInfo:
         """Test can_resume when no trials exist."""
         info = analyze_experiment(setup_experiment_dir)
         assert info.can_resume is False
-
-
-class TestCostTrackerFromDict:
-    """Tests for CostTracker.from_dict class method."""
-
-    def test_cost_tracker_from_dict(self, mock_config_for_resume, setup_experiment_with_trials):
-        """Test restoring CostTracker from dictionary."""
-        cost_data = load_cost_data(setup_experiment_with_trials)
-        tracker = CostTracker.from_dict(cost_data, mock_config_for_resume)
-
-        assert tracker.total_cost == 0.05
-        assert len(tracker.usage_log) == 2
-        assert tracker.usage_log[0].input_tokens == 1000
-
-    def test_cost_tracker_from_empty_dict(self, mock_config_for_resume):
-        """Test restoring CostTracker from empty dictionary."""
-        tracker = CostTracker.from_dict({}, mock_config_for_resume)
-
-        assert tracker.total_cost == 0.0
-        assert len(tracker.usage_log) == 0
 
 
 class TestOrchestratorFromResume:
@@ -338,14 +269,15 @@ class TestOrchestratorFromResume:
 
         assert len(orchestrator.evolution_api.all_trials) == 3
 
-    def test_from_resume_preserves_cost(self, setup_experiment_with_trials):
-        """Test that resume preserves spent cost."""
+    def test_from_resume_starts_fresh_cost(self, setup_experiment_with_trials):
+        """Test that resume starts with fresh cost tracker."""
         orchestrator = RootLLMOrchestrator.from_resume(
             experiment_dir=setup_experiment_with_trials,
         )
 
-        assert orchestrator.cost_tracker.total_cost == pytest.approx(0.05)
-        assert len(orchestrator.cost_tracker.usage_log) == 2
+        # Cost is not preserved on resume - starts fresh
+        assert orchestrator.cost_tracker.total_cost == 0.0
+        assert len(orchestrator.cost_tracker.usage_log) == 0
 
     def test_from_resume_nonexistent_dir(self, temp_dir):
         """Test from_resume with non-existent directory."""

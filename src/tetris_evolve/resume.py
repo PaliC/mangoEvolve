@@ -8,7 +8,6 @@ import json
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from .config import Config, config_from_dict
 from .evolution_api import GenerationSummary, TrialResult, TrialSelection
@@ -22,18 +21,11 @@ class ResumeInfo:
     current_generation: int
     trials_in_current_gen: int
     max_children_per_gen: int
-    total_cost_spent: float
-    max_budget: float
 
     @property
     def can_resume(self) -> bool:
         """Check if we can resume the experiment."""
         return self.trials_in_current_gen > 0 or self.current_generation > 0
-
-    @property
-    def remaining_budget(self) -> float:
-        """Get remaining budget."""
-        return self.max_budget - self.total_cost_spent
 
 
 def analyze_experiment(experiment_dir: Path | str) -> ResumeInfo:
@@ -62,14 +54,6 @@ def analyze_experiment(experiment_dir: Path | str) -> ResumeInfo:
     with open(config_path) as f:
         config_data = json.load(f)
     config = config_from_dict(config_data)
-
-    # Load cost tracking if exists
-    cost_path = experiment_dir / "cost_tracking.json"
-    total_cost = 0.0
-    if cost_path.exists():
-        with open(cost_path) as f:
-            cost_data = json.load(f)
-        total_cost = cost_data.get("total_cost", 0.0)
 
     # Scan generations directory
     generations_dir = experiment_dir / "generations"
@@ -111,8 +95,6 @@ def analyze_experiment(experiment_dir: Path | str) -> ResumeInfo:
         current_generation=current_generation,
         trials_in_current_gen=trials_in_current_gen,
         max_children_per_gen=config.evolution.max_children_per_generation,
-        total_cost_spent=total_cost,
-        max_budget=config.budget.max_total_cost,
     )
 
 
@@ -223,23 +205,6 @@ def load_generation_summaries(experiment_dir: Path) -> list[GenerationSummary]:
     return generations
 
 
-def load_cost_data(experiment_dir: Path) -> dict[str, Any]:
-    """
-    Load cost tracking data from experiment directory.
-
-    Args:
-        experiment_dir: Path to experiment directory
-
-    Returns:
-        Cost tracking dictionary or empty dict if not found
-    """
-    cost_path = experiment_dir / "cost_tracking.json"
-    if cost_path.exists():
-        with open(cost_path) as f:
-            return json.load(f)
-    return {}
-
-
 def prepare_redo(experiment_dir: Path, current_generation: int) -> None:
     """
     Prepare experiment for redo by removing current generation directory.
@@ -310,10 +275,5 @@ def build_resume_prompt(
                 "",
                 f"Best score so far: {best_score:.4f} ({best.trial_id})",
             ])
-
-    lines.extend([
-        "",
-        f"Budget remaining: ${info.remaining_budget:.2f}",
-    ])
 
     return "\n".join(lines)

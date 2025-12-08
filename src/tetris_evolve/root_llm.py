@@ -15,14 +15,13 @@ from .config import Config, load_evaluator
 from .cost_tracker import CostTracker
 from .evolution_api import EvolutionAPI
 from .exceptions import BudgetExceededError, GenerationLimitError
-from .llm.client import LLMClient, MockLLMClient
+from .llm.client import LLMClient
 from .llm.prompts import get_root_system_prompt
 from .logger import ExperimentLogger
 from .repl import REPLEnvironment
 from .resume import (
     analyze_experiment,
     build_resume_prompt,
-    load_cost_data,
     load_generation_summaries,
     load_trials_from_disk,
     prepare_redo,
@@ -60,8 +59,8 @@ class RootLLMOrchestrator:
     def __init__(
         self,
         config: Config,
-        root_llm: LLMClient | MockLLMClient | None = None,
-        child_llm: LLMClient | MockLLMClient | None = None,
+        root_llm: LLMClient | Any | None = None,
+        child_llm: LLMClient | Any | None = None,
         logger: ExperimentLogger | None = None,
     ):
         """
@@ -135,8 +134,8 @@ class RootLLMOrchestrator:
     def from_resume(
         cls,
         experiment_dir: Path | str,
-        root_llm: LLMClient | MockLLMClient | None = None,
-        child_llm: LLMClient | MockLLMClient | None = None,
+        root_llm: LLMClient | Any | None = None,
+        child_llm: LLMClient | Any | None = None,
     ) -> "RootLLMOrchestrator":
         """
         Create an orchestrator to resume an interrupted experiment.
@@ -175,7 +174,6 @@ class RootLLMOrchestrator:
         # Load state
         all_trials = load_trials_from_disk(experiment_dir)
         generations = load_generation_summaries(experiment_dir)
-        cost_data = load_cost_data(experiment_dir)
 
         # Create orchestrator with existing logger directory
         # We reuse the existing experiment directory
@@ -186,11 +184,8 @@ class RootLLMOrchestrator:
         orchestrator.max_generations = info.config.evolution.max_generations
         orchestrator.max_children_per_generation = info.config.evolution.max_children_per_generation
 
-        # Restore cost tracker
-        if cost_data:
-            orchestrator.cost_tracker = CostTracker.from_dict(cost_data, info.config)
-        else:
-            orchestrator.cost_tracker = CostTracker(info.config)
+        # Create fresh cost tracker (cost history is not preserved on resume)
+        orchestrator.cost_tracker = CostTracker(info.config)
 
         # Create logger pointing to existing directory
         orchestrator.logger = ExperimentLogger(info.config, run_id="resumed")
