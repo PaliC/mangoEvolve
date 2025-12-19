@@ -1,10 +1,10 @@
 """
-Tests for pineapple_evolve.logger module.
+Tests for PineappleEvolve.logger module.
 """
 
 import json
 
-from pineapple_evolve import ExperimentLogger
+from PineappleEvolve import ExperimentLogger
 
 
 class TestExperimentLogger:

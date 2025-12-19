@@ -1,5 +1,5 @@
 """
-Experiment logging system for pineapple_evolve.
+Experiment logging system for PineappleEvolve.
 
 Handles structured logging for experiments, generations, and trials.
 """

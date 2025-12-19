@@ -1,5 +1,5 @@
 """
-LLM Client for pineapple_evolve.
+LLM Client for PineappleEvolve.
 
 Wraps the Anthropic API with cost tracking and budget enforcement.
 Supports prompt caching for reduced costs on repeated prefixes.

@@ -1,5 +1,5 @@
 """
-Custom exceptions for the pineapple_evolve project.
+Custom exceptions for the PineappleEvolve project.
 
 All exceptions inherit from LLMEvolveError for easy catching.
 """

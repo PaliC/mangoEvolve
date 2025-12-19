@@ -1,12 +1,12 @@
 """
-Tests for pineapple_evolve.config module.
+Tests for PineappleEvolve.config module.
 """
 
 from pathlib import Path
 
 import pytest
 
-from pineapple_evolve import (
+from PineappleEvolve import (
     ConfigValidationError,
     EvaluationConfig,
     config_from_dict,
@@ -29,7 +29,7 @@ class TestConfigFromDict:
         assert config.budget.max_total_cost == 10.0
         assert (
             config.evaluation.evaluator_fn
-            == "pineapple_evolve.evaluation.circle_packing:CirclePackingEvaluator"
+            == "PineappleEvolve.evaluation.circle_packing:CirclePackingEvaluator"
         )
 
     def test_load_with_defaults(self, sample_config_dict):
@@ -209,7 +209,7 @@ class TestLoadEvaluator:
     def test_load_evaluator_attribute_not_found(self):
         """Raise on non-existent attribute."""
         config = EvaluationConfig(
-            evaluator_fn="pineapple_evolve.evaluation.circle_packing:NonExistentClass",
+            evaluator_fn="PineappleEvolve.evaluation.circle_packing:NonExistentClass",
             evaluator_kwargs={},
         )
 
@@ -221,7 +221,7 @@ class TestLoadEvaluator:
     def test_load_evaluator_with_kwargs(self):
         """Load evaluator with custom kwargs."""
         config = EvaluationConfig(
-            evaluator_fn="pineapple_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+            evaluator_fn="PineappleEvolve.evaluation.circle_packing:CirclePackingEvaluator",
             evaluator_kwargs={"n_circles": 10, "target": 1.5, "timeout_seconds": 5},
         )
 

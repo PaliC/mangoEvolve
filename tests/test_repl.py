@@ -1,8 +1,8 @@
 """
-Tests for pineapple_evolve.repl module.
+Tests for PineappleEvolve.repl module.
 """
 
-from pineapple_evolve import REPLEnvironment
+from PineappleEvolve import REPLEnvironment
 
 
 class TestREPLEnvironment:

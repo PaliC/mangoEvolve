@@ -7,8 +7,8 @@ Root LLM to reference code from previous trials in child LLM prompts.
 
 import json
 
-from pineapple_evolve.evolution_api import TrialResult
-from pineapple_evolve.utils.prompt_substitution import (
+from PineappleEvolve.evolution_api import TrialResult
+from PineappleEvolve.utils.prompt_substitution import (
     TRIAL_CODE_PATTERN,
     find_trial_code_tokens,
     get_trial_code,

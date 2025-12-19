@@ -1,5 +1,5 @@
 """
-Evaluation modules for pineapple_evolve.
+Evaluation modules for PineappleEvolve.
 """
 
 from .circle_packing import (

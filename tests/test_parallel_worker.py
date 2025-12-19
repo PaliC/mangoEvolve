@@ -1,10 +1,10 @@
 """
-Tests for pineapple_evolve.parallel_worker module.
+Tests for PineappleEvolve.parallel_worker module.
 """
 
 import json
 
-from pineapple_evolve.parallel_worker import _write_trial_file
+from PineappleEvolve.parallel_worker import _write_trial_file
 
 
 class TestWriteTrialFile:

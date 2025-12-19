@@ -1,5 +1,5 @@
 """
-LLM client and prompt modules for pineapple_evolve.
+LLM client and prompt modules for PineappleEvolve.
 """
 
 from .client import LLMClient, LLMResponse, MockLLMClient

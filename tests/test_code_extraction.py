@@ -1,8 +1,8 @@
 """
-Tests for pineapple_evolve.utils.code_extraction module.
+Tests for PineappleEvolve.utils.code_extraction module.
 """
 
-from pineapple_evolve.utils import (
+from PineappleEvolve.utils import (
     extract_code_blocks,
     extract_python_code,
     extract_reasoning,

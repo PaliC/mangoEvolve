@@ -1,5 +1,5 @@
 """
-Cost tracking system for pineapple_evolve.
+Cost tracking system for PineappleEvolve.
 
 Tracks token usage and enforces budget limits.
 """

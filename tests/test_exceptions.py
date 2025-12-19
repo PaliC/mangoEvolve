@@ -1,10 +1,10 @@
 """
-Tests for pineapple_evolve.exceptions module.
+Tests for PineappleEvolve.exceptions module.
 """
 
 import pytest
 
-from pineapple_evolve.exceptions import (
+from PineappleEvolve.exceptions import (
     BudgetExceededError,
     CodeExtractionError,
     ConfigValidationError,
@@ -57,7 +57,7 @@ class TestExceptions:
 
     def test_import_from_package(self):
         """Exceptions can be imported from main package."""
-        from pineapple_evolve import (
+        from PineappleEvolve import (
             BudgetExceededError,
             LLMEvolveError,
         )

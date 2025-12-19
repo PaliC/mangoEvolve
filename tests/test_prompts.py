@@ -2,7 +2,7 @@
 Tests for the prompts module.
 """
 
-from pineapple_evolve.llm.prompts import (
+from PineappleEvolve.llm.prompts import (
     ROOT_LLM_SYSTEM_PROMPT_DYNAMIC,
     format_child_mutation_prompt,
     get_root_system_prompt,

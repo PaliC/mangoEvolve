@@ -352,7 +352,7 @@ Our proof-of-concept testing showed these results:
 ## Files
 
 ```
-src/pineapple_evolve/
+src/PineappleEvolve/
 ├── evaluation/
 │   └── circle_packing.py      # Evaluator (DONE)
 ├── config.py                   # Configuration loading

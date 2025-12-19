@@ -1,5 +1,5 @@
 """
-CLI entry point for pineapple_evolve.
+CLI entry point for PineappleEvolve.
 
 Runs evolutionary experiments for circle packing optimization.
 """
@@ -21,7 +21,7 @@ from .root_llm import RootLLMOrchestrator  # noqa: E402
 def parse_args(args=None):
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        prog="pineapple_evolve",
+        prog="PineappleEvolve",
         description="LLM-driven evolutionary code generation for circle packing",
     )
 

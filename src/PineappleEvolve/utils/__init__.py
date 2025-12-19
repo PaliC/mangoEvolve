@@ -1,5 +1,5 @@
 """
-Utility modules for pineapple_evolve.
+Utility modules for PineappleEvolve.
 """
 
 from .code_extraction import (

@@ -4,12 +4,12 @@ Tests for the Root LLM Orchestrator.
 
 import pytest
 
-from pineapple_evolve import (
+from PineappleEvolve import (
     CostTracker,
     MockLLMClient,
     config_from_dict,
 )
-from pineapple_evolve.root_llm import OrchestratorResult, RootLLMOrchestrator
+from PineappleEvolve.root_llm import OrchestratorResult, RootLLMOrchestrator
 
 
 @pytest.fixture

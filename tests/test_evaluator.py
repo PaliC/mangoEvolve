@@ -1,11 +1,11 @@
 """
-Tests for pineapple_evolve.evaluation.circle_packing module.
+Tests for PineappleEvolve.evaluation.circle_packing module.
 """
 
 import numpy as np
 import pytest
 
-from pineapple_evolve.evaluation import (
+from PineappleEvolve.evaluation import (
     CirclePackingEvaluator,
     validate_packing,
 )

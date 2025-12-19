@@ -1,5 +1,5 @@
 """
-Pytest configuration and fixtures for pineapple_evolve tests.
+Pytest configuration and fixtures for PineappleEvolve tests.
 """
 
 import tempfile
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from pineapple_evolve import (
+from PineappleEvolve import (
     config_from_dict,
 )
 
@@ -32,7 +32,7 @@ def sample_config_dict():
             "cost_per_million_output_tokens": 15.0,
         },
         "evaluation": {
-            "evaluator_fn": "pineapple_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+            "evaluator_fn": "PineappleEvolve.evaluation.circle_packing:CirclePackingEvaluator",
             "evaluator_kwargs": {
                 "n_circles": 26,
                 "target": 2.635,

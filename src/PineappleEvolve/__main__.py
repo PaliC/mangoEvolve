@@ -1,5 +1,5 @@
 """
-Allow running as: python -m pineapple_evolve
+Allow running as: python -m PineappleEvolve
 """
 
 from .main import main

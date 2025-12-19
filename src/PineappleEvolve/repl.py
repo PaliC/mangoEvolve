@@ -1,5 +1,5 @@
 """
-REPL (Read-Eval-Print Loop) environment for pineapple_evolve.
+REPL (Read-Eval-Print Loop) environment for PineappleEvolve.
 
 Provides a sandboxed Python execution environment for the Root LLM.
 """

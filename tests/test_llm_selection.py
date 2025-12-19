@@ -6,15 +6,15 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from pineapple_evolve import (
+from PineappleEvolve import (
     CostTracker,
     EvolutionAPI,
     ExperimentLogger,
 )
-from pineapple_evolve.evolution_api import GenerationSummary, TrialSelection
-from pineapple_evolve.llm import MockLLMClient
-from pineapple_evolve.root_llm import RootLLMOrchestrator
-from pineapple_evolve.utils.code_extraction import extract_selection_block
+from PineappleEvolve.evolution_api import GenerationSummary, TrialSelection
+from PineappleEvolve.llm import MockLLMClient
+from PineappleEvolve.root_llm import RootLLMOrchestrator
+from PineappleEvolve.utils.code_extraction import extract_selection_block
 
 
 class TestTrialSelection:

@@ -1,5 +1,5 @@
 """
-Integration tests for pineapple_evolve.
+Integration tests for PineappleEvolve.
 
 These tests verify that multiple components work together correctly.
 All tests use mock LLMs for reproducibility and speed.
@@ -9,15 +9,15 @@ import json
 
 import pytest
 
-from pineapple_evolve import (
+from PineappleEvolve import (
     CostTracker,
     ExperimentLogger,
     MockLLMClient,
     config_from_dict,
 )
-from pineapple_evolve.evaluation.circle_packing import CirclePackingEvaluator
-from pineapple_evolve.evolution_api import EvolutionAPI
-from pineapple_evolve.root_llm import RootLLMOrchestrator
+from PineappleEvolve.evaluation.circle_packing import CirclePackingEvaluator
+from PineappleEvolve.evolution_api import EvolutionAPI
+from PineappleEvolve.root_llm import RootLLMOrchestrator
 
 
 @pytest.fixture
@@ -251,7 +251,7 @@ class TestBudgetStopsEvolution:
 
     def test_spawn_fails_on_budget_exceeded(self, integration_config):
         """Test that spawn_child_llm raises when budget exceeded."""
-        from pineapple_evolve.exceptions import BudgetExceededError
+        from PineappleEvolve.exceptions import BudgetExceededError
 
         evaluator = CirclePackingEvaluator()
         cost_tracker = CostTracker(integration_config)
