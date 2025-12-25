@@ -51,9 +51,13 @@ class TestOrchestratorInitialization:
         orchestrator = RootLLMOrchestrator(mock_config)
 
         assert orchestrator.config == mock_config
-        assert orchestrator.max_generations == mock_config.evolution.max_generations
+        # max_generations accessed via evolution_api (single source of truth)
         assert (
-            orchestrator.max_children_per_generation
+            orchestrator.evolution_api.max_generations
+            == mock_config.evolution.max_generations
+        )
+        assert (
+            orchestrator.evolution_api.max_children_per_generation
             == mock_config.evolution.max_children_per_generation
         )
         assert orchestrator.cost_tracker is not None
@@ -274,7 +278,8 @@ print(f"Gen 1 result: {result['success']}")
         orchestrator.root_llm = mock_root
         orchestrator.child_llm = mock_child
         orchestrator.evolution_api.child_llm = mock_child
-        orchestrator.max_generations = 2
+        # Note: max_generations is already set via mock_config.evolution.max_generations = 2
+        # and is now read-only after initialization
 
         result = orchestrator.run()
 

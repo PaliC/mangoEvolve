@@ -160,8 +160,8 @@ class EvolutionAPI:
         self.child_llm = child_llm
         self.cost_tracker = cost_tracker
         self.logger = logger
-        self.max_generations = max_generations
-        self.max_children_per_generation = max_children_per_generation
+        self._max_generations = max_generations  # Read-only after init
+        self._max_children_per_generation = max_children_per_generation  # Read-only after init
         self.child_llm_model = child_llm_model
         self.evaluator_kwargs = evaluator_kwargs or {}
 
@@ -170,6 +170,16 @@ class EvolutionAPI:
         self.all_trials: dict[str, TrialResult] = {}
         self._terminated = False
         self._termination_reason: str | None = None
+
+    @property
+    def max_generations(self) -> int:
+        """Maximum number of generations (read-only after initialization)."""
+        return self._max_generations
+
+    @property
+    def max_children_per_generation(self) -> int:
+        """Maximum children per generation (read-only after initialization)."""
+        return self._max_children_per_generation
 
     @property
     def is_terminated(self) -> bool:

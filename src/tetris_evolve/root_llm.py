@@ -65,8 +65,8 @@ class RootLLMOrchestrator:
             logger: Optional pre-configured logger (for testing)
         """
         self.config = config
-        self.max_generations = config.evolution.max_generations
-        self.max_children_per_generation = config.evolution.max_children_per_generation
+        # Note: max_generations and max_children_per_generation are accessed via
+        # self.evolution_api to ensure a single source of truth
 
         # Initialize cost tracker
         self.cost_tracker = CostTracker(config)
@@ -126,8 +126,8 @@ class RootLLMOrchestrator:
             List of content blocks with cache_control on the static portion.
         """
         return get_root_system_prompt_parts(
-            max_children_per_generation=self.max_children_per_generation,
-            max_generations=self.max_generations,
+            max_children_per_generation=self.evolution_api.max_children_per_generation,
+            max_generations=self.evolution_api.max_generations,
             current_generation=self.evolution_api.current_generation,
         )
 
@@ -143,7 +143,7 @@ class RootLLMOrchestrator:
             {
                 "role": "user",
                 "content": (
-                    f"Begin generation 0. Spawn up to {self.max_children_per_generation} children "
+                    f"Begin generation 0. Spawn up to {self.evolution_api.max_children_per_generation} children "
                     "exploring different circle packing strategies."
                 ),
             }
@@ -496,7 +496,7 @@ class RootLLMOrchestrator:
 
         # Create outer progress bar for generations
         gen_pbar = tqdm(
-            total=self.max_generations,
+            total=self.evolution_api.max_generations,
             desc="Generations",
             unit="gen",
             position=0,
@@ -505,7 +505,7 @@ class RootLLMOrchestrator:
 
         # Create inner progress bar for children in current generation
         children_pbar = tqdm(
-            total=self.max_children_per_generation,
+            total=self.evolution_api.max_children_per_generation,
             desc="  Children",
             unit="child",
             position=1,
@@ -541,7 +541,7 @@ class RootLLMOrchestrator:
             )
 
         try:
-            for generation in range(self.max_generations):
+            for generation in range(self.evolution_api.max_generations):
                 current_gen = self.evolution_api.current_generation
                 children_pbar.reset()
                 children_pbar.set_description(f"  Gen {current_gen} children")
@@ -670,7 +670,7 @@ class RootLLMOrchestrator:
                         # Reached max generations - generation was finalized before exception
                         gen_pbar.update(1)
                         termination_reason = "max_generations_reached"
-                        generations_completed = self.max_generations
+                        generations_completed = self.evolution_api.max_generations
                         break
 
                     # Build feedback message for next generation
