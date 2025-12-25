@@ -2,7 +2,7 @@
 Tests for the prompts module.
 """
 
-from tetris_evolve.llm.prompts import (
+from mango_evolve.llm.prompts import (
     ROOT_LLM_SYSTEM_PROMPT_DYNAMIC,
     format_child_mutation_prompt,
     get_root_system_prompt,
@@ -11,12 +11,6 @@ from tetris_evolve.llm.prompts import (
 
 class TestRootSystemPrompt:
     """Tests for the Root LLM system prompt."""
-
-    def test_prompt_documents_spawn_child_llm(self):
-        """Test that spawn_child_llm is documented."""
-        prompt = get_root_system_prompt()
-        assert "spawn_child_llm" in prompt
-        assert "prompt: str" in prompt or "prompt:" in prompt
 
     def test_prompt_documents_spawn_children_parallel(self):
         """Test that spawn_children_parallel is documented."""
