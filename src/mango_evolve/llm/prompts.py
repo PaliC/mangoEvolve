@@ -48,7 +48,7 @@ Returns: `[{trial_id, code, metrics, reasoning, success, error}, ...]`
 Get code from previous trials by ID.
 
 ### update_scratchpad(content: str) -> dict
-Update your persistent notes (shown at start of each generation).
+Update your persistent notes. These are shown at the start of each generation along with the auto-generated lineage map (showing trial ancestry and scores).
 
 ### terminate_evolution(reason: str, best_program: str = None) -> dict
 End evolution early.
