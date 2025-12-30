@@ -1,0 +1,335 @@
+{
+  "experiment_id": "circle_packing_gemini_flash_20251224_232103",
+  "config": {
+    "experiment": {
+      "name": "circle_packing_gemini_flash",
+      "output_dir": "./experiments",
+      "seed": null
+    },
+    "root_llm": {
+      "model": "google/gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "openrouter",
+      "max_iterations": 30
+    },
+    "child_llm": {
+      "model": "google/gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "openrouter",
+      "max_iterations": null
+    },
+    "evaluation": {
+      "evaluator_fn": "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+      "evaluator_kwargs": {
+        "n_circles": 26,
+        "timeout_seconds": 300
+      }
+    },
+    "evolution": {
+      "max_generations": 10,
+      "max_children_per_generation": 15
+    },
+    "budget": {
+      "max_total_cost": 5.0
+    }
+  },
+  "start_time": "2025-12-24T23:21:03.786350",
+  "end_time": "2025-12-24T23:34:26.116443",
+  "termination_reason": "max_generations_reached",
+  "num_generations": 8,
+  "total_trials": 0,
+  "best_trial": {
+    "trial_id": "trial_6_8",
+    "score": 2.63429210740687,
+    "generation": 6
+  },
+  "scratchpad": "### Active Approaches\n- Varying Repulsion Exponents (trial_6_8): NEW LEADER (2.6343). This is within 0.0017 of the benchmark.\n- Thermal Jitter/Annealing (trial_6_1): High score (2.6280). Useful for escaping local minima.\n- Multi-Grid Global Search (trial_6_10): Robust structured baseline.\n- Perturbed Tiling Seeds (trial_6_11): Diverse topological start.\n\n### Key Insights\n- The choice of repulsion exponent (the 'hardness' of the potential) is critical. trial_6_8 proved that non-standard exponents (like 1/d^3 or 1/d^4) can find much better packing basins.\n- We are extremely close to the upper bound (2.6359). At this stage, improvements will come from high-precision local refinement and very small stochastic perturbations (basin hopping).\n- SLSQP remains effective, but 'trust-constr' might be needed for the final sub-millimeter tweaks.\n\n### To Try Next\n- Fine-grained Basin Hopping on trial_6_8: use the 6_8 configuration as a seed and perform thousands of small-step perturbations.\n- \"Hard-sphere\" refinement: Use the result of 6_8 and run a simulation where radii are fixed and we only try to move circles to reduce overlap, then re-expand.\n- Polishing with 'trust-constr' using a tolerance of 1e-15.\n",
+  "generations": [
+    {
+      "generation_num": 0,
+      "num_trials": 15,
+      "num_successful_trials": 13,
+      "best_trial_id": "trial_0_12",
+      "best_score": 2.5846370203767695,
+      "selected_trial_ids": [
+        "trial_0_12",
+        "trial_0_11",
+        "trial_0_1",
+        "trial_0_3"
+      ],
+      "selection_reasoning": "Selected the top two performers which use grid and boundary strategies, a triangular lattice approach for geometric diversity, and a physics-based repulsion model for its potential to find non-obvious configurations.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_0_12",
+          "reasoning": "Highest score (2.5846). Uses an efficient boundary-filling strategy combined with a dense central arrangement, which is a strong foundation for further optimization.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_0_11",
+          "reasoning": "Second highest score (2.5828). Uses a 5x5 grid + 1 extra circle initialization followed by SLSQP optimization. This is a robust approach for this problem size.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_0_1",
+          "reasoning": "Good score (2.5378) using a triangular lattice base. This provides a different geometric starting point than the grid-based 0_11 or boundary-based 0_12.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_0_3",
+          "reasoning": "Uses a 'growth and repulsion' (physics-based) algorithm. Although the score is lower (2.3894), this stochastic approach can escape local minima that gradient-based solvers might get stuck in.",
+          "category": "potential"
+        }
+      ],
+      "timestamp": "2025-12-24T23:24:08.586209"
+    },
+    {
+      "generation_num": 1,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_1_1",
+      "best_score": 2.6261254816737205,
+      "selected_trial_ids": [
+        "trial_1_1",
+        "trial_1_4",
+        "trial_1_0",
+        "trial_1_7"
+      ],
+      "selection_reasoning": "Selected the top three performers which represent the best grid-based, global optimization, and boundary-filling strategies. Included a coordinate descent approach for algorithmic diversity.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_1_1",
+          "reasoning": "Highest score (2.6261), very close to the benchmark. Uses multi-grid initialization and shaking, proving that starting configuration diversity is key.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_1_4",
+          "reasoning": "Second highest score (2.6260). Uses Basin-Hopping global optimization. This approach is excellent for fine-tuning and escaping local optima.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_1_0",
+          "reasoning": "Strong performance (2.6182) using a refined boundary-filling strategy. It provides a different geometric arrangement than the grid-based 1_1.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_1_7",
+          "reasoning": "Good score (2.6093) using a coordinate descent approach. This iterative refinement method is a distinct optimization flavor that could be hybridized.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-24T23:24:34.569009"
+    },
+    {
+      "generation_num": 2,
+      "num_trials": 15,
+      "num_successful_trials": 12,
+      "best_trial_id": "trial_2_2",
+      "best_score": 2.6156815022983944,
+      "selected_trial_ids": [
+        "trial_2_2",
+        "trial_2_7",
+        "trial_2_11"
+      ],
+      "selection_reasoning": "I am carrying forward the top two performers from Gen 1 (which remain the best overall) alongside the most promising new trials from Gen 2. This selection balances the proven multi-grid/Basin-Hopping strategies with a new core-boundary topological approach.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_2",
+          "reasoning": "The best performer of Generation 2 (2.6157). It represents a successful refinement of the multi-grid strategy with higher precision.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "Uses an adaptive Basin-Hopping approach. While the score is slightly lower (2.6054), the implementation of adaptive step sizes for global search has high potential if tuned.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_2_11",
+          "reasoning": "Uses a 4x4 dense core with a floating boundary. This geometric diversity (16 core + 10 boundary) is a distinct topological alternative to the 5x5+1 grid.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-24T23:25:16.832633"
+    },
+    {
+      "generation_num": 3,
+      "num_trials": 15,
+      "num_successful_trials": 12,
+      "best_trial_id": "trial_3_6",
+      "best_score": 2.6255131378816428,
+      "selected_trial_ids": [
+        "trial_3_6",
+        "trial_3_4",
+        "trial_3_2"
+      ],
+      "selection_reasoning": "I am retaining the overall best (1_1) and selecting the best from Gen 3 (3_6). I've also included a diverse core-boundary approach (3_4) and a targeted 25+1 insertion strategy (3_2) to explore different topological basins.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_3_6",
+          "reasoning": "Best performer of this generation (2.6255). It uses a Simulated Annealing approach with local refinement, which is a powerful global search method that can escape local minima.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_3_4",
+          "reasoning": "Strong performance (2.6251) using a core-boundary strategy with flexible grid sizes. This provides topological diversity compared to the 5x5 grid.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_3_2",
+          "reasoning": "Explicitly focuses on the 25+1 transition. While the score is lower (2.6082), this 'surgical' approach to adding the 26th circle is a logically sound way to break the 5x5 symmetry.",
+          "category": "potential"
+        }
+      ],
+      "timestamp": "2025-12-24T23:26:01.512374"
+    },
+    {
+      "generation_num": 4,
+      "num_trials": 15,
+      "num_successful_trials": 13,
+      "best_trial_id": "trial_4_5",
+      "best_score": 2.6295826028790983,
+      "selected_trial_ids": [
+        "trial_4_5",
+        "trial_4_1",
+        "trial_4_11",
+        "trial_4_7"
+      ],
+      "selection_reasoning": "Selected the new breakthrough leader (4_5), the previous best (1_1), and three diverse strategies (global search, recursive subdivision, and symmetry breaking) to ensure we don't over-fit to one basin.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_4_5",
+          "reasoning": "Significant breakthrough! Achieved 2.6296, the highest score so far, using a force-directed 'shake and bake' approach. This indicates that dynamic relaxation is superior to static grid starts for this problem.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_4_1",
+          "reasoning": "Uses a hybrid of multi-grid and Simulated Annealing. While the score (2.6114) is lower than the leader, the global search mechanism is worth keeping for further tuning.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_4_11",
+          "reasoning": "Recursive subdivision approach. Offers a unique topological partitioning strategy that differs from the grid or force-directed methods.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_4_7",
+          "reasoning": "The 'fault line' hypothesis (2.5917). Although the score is lower, the geometric intuition of breaking the 5x5 grid with a fault line is a promising direction for manual symmetry breaking.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-24T23:31:38.138944"
+    },
+    {
+      "generation_num": 5,
+      "num_trials": 15,
+      "num_successful_trials": 12,
+      "best_trial_id": "trial_5_0",
+      "best_score": 2.622075825597995,
+      "selected_trial_ids": [
+        "trial_5_0",
+        "trial_5_12",
+        "trial_5_14",
+        "trial_5_10"
+      ],
+      "selection_reasoning": "I am carrying forward the breakthrough leader (4_5) and the best refinements from Gen 5. I'm also including the 'pressure' model and 'trust-constr' optimizer for their potential to break through the current plateau through different numerical and physical strategies.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_5_0",
+          "reasoning": "The best performer of this generation (2.6221). It refined the force-directed parameters of 4_5, though it didn't quite surpass the original's best run. It shows the approach is stable.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_5_12",
+          "reasoning": "Uses a 'pressure-based' growth model (2.6193). This is a distinct physical analogy from the standard force-directed model and provides useful diversity in how circles are pushed into place.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_5_14",
+          "reasoning": "Uses the 'trust-constr' optimizer (2.6135). While the score is lower, this optimizer is more robust than SLSQP for complex constraints and may be key for final high-precision tuning.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_5_10",
+          "reasoning": "Implements a circle-swap with relaxation (2.6015). This combinatorial approach is necessary to escape the local topological basins that simple gradient descent gets stuck in.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-24T23:32:42.581964"
+    },
+    {
+      "generation_num": 6,
+      "num_trials": 15,
+      "num_successful_trials": 14,
+      "best_trial_id": "trial_6_8",
+      "best_score": 2.63429210740687,
+      "selected_trial_ids": [
+        "trial_6_8",
+        "trial_6_10",
+        "trial_6_1",
+        "trial_6_11",
+        "trial_6_14"
+      ],
+      "selection_reasoning": "Selected the new near-benchmark leader (6_8) and the best stochastic refinement (6_1). Included diverse grid-based and recursive strategies to maintain a broad search space for the final generations.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_8",
+          "reasoning": "Major breakthrough! Achieved 2.6343, which is extremely close to the known upper bound of 2.6359. This trial successfully used varying repulsion exponents in the force-directed model to find a superior basin.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_6_10",
+          "reasoning": "Strong performance (2.6281) using a multi-grid global search. It provides a more structured alternative to the force-directed leader.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "High score (2.6280) using thermal jitter/annealing in the force-directed space. This stochastic approach is a good candidate for further refinement to bridge the final 0.001 gap.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_6_11",
+          "reasoning": "Uses a perturbed grid inspired by dense tilings (2.6255). It offers topological diversity that might be useful if the leader's basin is fully exhausted.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_6_14",
+          "reasoning": "Recursive quadrant packing with overlap allowance. Although the score is lower (2.6066), the 'boundary-aware' recursive strategy is a unique way to handle the unit square constraints.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-24T23:33:40.990758"
+    },
+    {
+      "generation_num": 7,
+      "num_trials": 15,
+      "num_successful_trials": 10,
+      "best_trial_id": "trial_7_0",
+      "best_score": 2.610541529322459,
+      "selected_trial_ids": [
+        "trial_7_0",
+        "trial_7_13",
+        "trial_7_8"
+      ],
+      "selection_reasoning": "I am retaining the all-time leader (6_8) as the primary branch and carrying forward the most successful refinements and diverse optimization strategies (penalty-based and coordinate descent) from Gen 7 to attempt a final breakthrough.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_7_0",
+          "reasoning": "The best performer of this generation (2.6105). While significantly lower than 6_8, it represents the most stable refinement attempt from the current best basin and serves as a secondary branch.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_7_13",
+          "reasoning": "Uses a penalty-based L-BFGS-B approach (2.6065). This is a numerically distinct optimization method from the SLSQP used in 6_8 and might be able to cross 'ridges' in the constraint surface that SLSQP cannot.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_7_8",
+          "reasoning": "Uses coordinate descent (2.4617). Although the current score is low, the strategy of optimizing circles one-by-one is a powerful way to 'wiggle' a tight packing into a slightly better state without the instability of 52-variable gradients.",
+          "category": "potential"
+        }
+      ],
+      "timestamp": "2025-12-24T23:34:26.109799"
+    }
+  ]
+}

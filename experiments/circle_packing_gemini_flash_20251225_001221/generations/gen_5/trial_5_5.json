@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_5_5",
+  "generation": 5,
+  "parent_id": "trial_4_6",
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef compute_radii(centers):\n    \"\"\"\n    Given 26 centers, calculates the maximum valid radii such that the circles \n    stay within the unit square and do not overlap, maximizing the sum of radii.\n    This is a linear programming problem if centers are fixed, but here we \n    simplify by assigning each circle the largest possible radius limited by \n    its nearest neighbors and the boundary.\n    \"\"\"\n    n = len(centers)\n    # Distance to boundaries\n    r_bound = np.min(np.concatenate([centers, 1 - centers], axis=1), axis=1)\n    \n    # Distance between centers\n    # dist_matrix[i, j] = distance between center i and center j\n    diff = centers[:, np.newaxis, :] - centers[np.newaxis, :, :]\n    dist_matrix = np.sqrt(np.sum(diff**2, axis=-1))\n    np.fill_diagonal(dist_matrix, np.inf)\n    \n    # We solve for radii r_i such that r_i + r_j <= dist_ij and r_i <= bound_i\n    # For a sum-maximization with fixed centers, we use a simple heuristic \n    # or a quick optimization. Here we use a uniform-scaling approach \n    # followed by greedy expansion.\n    \n    r = np.zeros(n)\n    # Initial guess: half the distance to nearest neighbor or boundary\n    for i in range(n):\n        r[i] = min(r_bound[i], np.min(dist_matrix[i, :]) / 2.0)\n    \n    # Refine radii to maximize sum sum(r_i) subject to r_i + r_j <= d_ij\n    # This is a small LP. For speed in GA, we use the initial guess.\n    return r\n\ndef objective(flat_centers):\n    centers = flat_centers.reshape((26, 2))\n    # Constraints are handled by the optimizer\n    # We want to maximize sum of radii\n    # To use minimize, we need a smooth approximation or a proxy.\n    # A common proxy for circle packing is maximizing min distances.\n    # However, we'll use a local search on the radii sum.\n    r = compute_radii(centers)\n    return -np.sum(r)\n\ndef refine_packing(centers):\n    n = 26\n    def obj(p):\n        c = p.reshape((n, 2))\n        # Penalty for boundary\n        b_violation = np.sum(np.maximum(0, -c)) + np.sum(np.maximum(0, c - 1))\n        \n        # Calculate radii sum via proxy\n        r = compute_radii(np.clip(c, 0, 1))\n        return -np.sum(r) + 10 * b_violation\n\n    res = minimize(obj, centers.flatten(), method='SLSQP', \n                   bounds=[(0, 1)] * (2 * n), tol=1e-4)\n    refined_centers = np.clip(res.x.reshape((n, 2)), 0, 1)\n    refined_radii = compute_radii(refined_centers)\n    return refined_centers, refined_radii, np.sum(refined_radii)\n\ndef construct_packing():\n    # Initial seed from the prompt\n    parent_centers = np.array([\n        [0.367734, 0.253038], [0.925845, 0.304813], [0.304813, 0.925845],\n        [0.075659, 0.075659], [0.924377, 0.924377], [0.682825, 0.682825],\n        [0.546041, 0.273005], [0.105273, 0.254151], [0.457251, 0.097959],\n        [0.253038, 0.367734], [0.421285, 0.421285], [0.747585, 0.294715],\n        [0.659890, 0.104796], [0.097959, 0.457251], [0.620799, 0.466494],\n        [0.273005, 0.546041], [0.294715, 0.747585], [0.104796, 0.659890],\n        [0.745972, 0.894778], [0.882152, 0.117848], [0.894778, 0.745972],\n        [0.254151, 0.105273], [0.117848, 0.882152], [0.466494, 0.620799],\n        [0.506146, 0.863345], [0.863345, 0.506146]\n    ])\n\n    population = [parent_centers]\n    # Create 14 variations\n    for _ in range(14):\n        noise = np.random.normal(0, 0.01, (26, 2))\n        population.append(np.clip(parent_centers + noise, 0, 1))\n\n    best_centers = parent_centers\n    best_sum = 0\n\n    # Genetic Algorithm Loop (Simplified for execution time)\n    for gen in range(20):\n        scored_pop = []\n        for individual in population:\n            c, r, s = refine_packing(individual)\n            scored_pop.append((s, c))\n        \n        # Sort by sum of radii descending\n        scored_pop.sort(key=lambda x: x[0], reverse=True)\n        \n        if scored_pop[0][0] > best_sum:\n            best_sum = scored_pop[0][0]\n            best_centers = scored_pop[0][1]\n        \n        # Selection: Keep top 5\n        top_individuals = [x[1] for x in scored_pop[:5]]\n        \n        # Crossover and Mutation to refill population\n        new_population = top_individuals[:]\n        while len(new_population) < 15:\n            # Crossover\n            idx1, idx2 = np.random.choice(len(top_individuals), 2, replace=False)\n            p1, p2 = top_individuals[idx1], top_individuals[idx2]\n            mask = np.random.rand(26) > 0.5\n            child = np.where(mask[:, np.newaxis], p1, p2)\n            \n            # Mutation\n            if np.random.rand() < 0.3:\n                mutate_indices = np.random.choice(26, 2, replace=False)\n                child[mutate_indices] += np.random.normal(0, 0.05, (2, 2))\n                child = np.clip(child, 0, 1)\n            \n            new_population.append(child)\n        population = new_population\n\n    final_centers, final_radii, final_sum = refine_packing(best_centers)\n    return final_centers, final_radii, final_sum\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.5182019776792974,
+    "eval_time": 25.76814889907837,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.33761007015604,
+            0.2476661599051699
+          ],
+          [
+            0.9043945690600508,
+            0.3319262498111649
+          ],
+          [
+            0.3017486483650897,
+            0.9093381904781881
+          ],
+          [
+            0.0875663195698699,
+            0.08745443281864111
+          ],
+          [
+            0.8953144356028649,
+            0.8951190302029658
+          ],
+          [
+            0.6700080923199935,
+            0.6768466549401781
+          ],
+          [
+            0.5259232319684821,
+            0.28005228816672006
+          ],
+          [
+            0.0874204379082125,
+            0.2622968704693163
+          ],
+          [
+            0.4563451413117411,
+            0.09622844362026638
+          ],
+          [
+            0.21922534254680853,
+            0.37714818650142085
+          ],
+          [
+            0.40358524882758373,
+            0.42685225518024866
+          ],
+          [
+            0.7142667482007599,
+            0.31246798182425983
+          ],
+          [
+            0.6678595468298124,
+            0.10588275397352025
+          ],
+          [
+            0.08821848800584246,
+            0.4950888168890579
+          ],
+          [
+            0.5959928206100567,
+            0.4705018242036376
+          ],
+          [
+            0.25832704502434195,
+            0.5522113265496148
+          ],
+          [
+            0.3019563531827623,
+            0.7280259183225741
+          ],
+          [
+            0.10150383088006765,
+            0.6969174874989472
+          ],
+          [
+            0.6859475832752141,
+            0.8952845976434287
+          ],
+          [
+            0.8892615432495432,
+            0.11083263050139713
+          ],
+          [
+            0.8901948516262215,
+            0.6829425473446556
+          ],
+          [
+            0.2635551395182123,
+            0.088031939775433
+          ],
+          [
+            0.10069955585506213,
+            0.8991901328132506
+          ],
+          [
+            0.4602738066086331,
+            0.613723722801724
+          ],
+          [
+            0.49050333924761697,
+            0.8202543211660922
+          ],
+          [
+            0.7921971309598067,
+            0.49470384404061196
+          ]
+        ],
+        "radii": [
+          0.08772191707689728,
+          0.09556046836656991,
+          0.0906561955625796,
+          0.08742124925481426,
+          0.1046834588965297,
+          0.10950936282384732,
+          0.0955388771856418,
+          0.08741189518751974,
+          0.09621772060792173,
+          0.08741189518751974,
+          0.09547129082489386,
+          0.09555634110570284,
+          0.10586676143297487,
+          0.08813737605714028,
+          0.09864831290391522,
+          0.08968841360534692,
+          0.09057357121516567,
+          0.10113272543474852,
+          0.10467568355614461,
+          0.11072866080681608,
+          0.1061100403795518,
+          0.08798752324648475,
+          0.10065252191758103,
+          0.09763376460034126,
+          0.10436027632889466,
+          0.09884567411375464
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.518202)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.337610 | 0.247666 | 0.087722 |\n|  1 | 0.904395 | 0.331926 | 0.095560 |\n|  2 | 0.301749 | 0.909338 | 0.090656 |\n|  3 | 0.087566 | 0.087454 | 0.087421 |\n|  4 | 0.895314 | 0.895119 | 0.104683 |\n|  5 | 0.670008 | 0.676847 | 0.109509 |\n|  6 | 0.525923 | 0.280052 | 0.095539 |\n|  7 | 0.087420 | 0.262297 | 0.087412 |\n|  8 | 0.456345 | 0.096228 | 0.096218 |\n|  9 | 0.219225 | 0.377148 | 0.087412 |\n| 10 | 0.403585 | 0.426852 | 0.095471 |\n| 11 | 0.714267 | 0.312468 | 0.095556 |\n| 12 | 0.667860 | 0.105883 | 0.105867 |\n| 13 | 0.088218 | 0.495089 | 0.088137 |\n| 14 | 0.595993 | 0.470502 | 0.098648 |\n| 15 | 0.258327 | 0.552211 | 0.089688 |\n| 16 | 0.301956 | 0.728026 | 0.090574 |\n| 17 | 0.101504 | 0.696917 | 0.101133 |\n| 18 | 0.685948 | 0.895285 | 0.104676 |\n| 19 | 0.889262 | 0.110833 | 0.110729 |\n| 20 | 0.890195 | 0.682943 | 0.106110 |\n| 21 | 0.263555 | 0.088032 | 0.087988 |\n| 22 | 0.100700 | 0.899190 | 0.100653 |\n| 23 | 0.460274 | 0.613724 | 0.097634 |\n| 24 | 0.490503 | 0.820254 | 0.104360 |\n| 25 | 0.792197 | 0.494704 | 0.098846 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.337610, 0.247666],\n    [0.904395, 0.331926],\n    [0.301749, 0.909338],\n    [0.087566, 0.087454],\n    [0.895314, 0.895119],\n    [0.670008, 0.676847],\n    [0.525923, 0.280052],\n    [0.087420, 0.262297],\n    [0.456345, 0.096228],\n    [0.219225, 0.377148],\n    [0.403585, 0.426852],\n    [0.714267, 0.312468],\n    [0.667860, 0.105883],\n    [0.088218, 0.495089],\n    [0.595993, 0.470502],\n    [0.258327, 0.552211],\n    [0.301956, 0.728026],\n    [0.101504, 0.696917],\n    [0.685948, 0.895285],\n    [0.889262, 0.110833],\n    [0.890195, 0.682943],\n    [0.263555, 0.088032],\n    [0.100700, 0.899190],\n    [0.460274, 0.613724],\n    [0.490503, 0.820254],\n    [0.792197, 0.494704]\n])\n\nradii = np.array([\n    0.087722,\n    0.095560,\n    0.090656,\n    0.087421,\n    0.104683,\n    0.109509,\n    0.095539,\n    0.087412,\n    0.096218,\n    0.087412,\n    0.095471,\n    0.095556,\n    0.105867,\n    0.088137,\n    0.098648,\n    0.089688,\n    0.090574,\n    0.101133,\n    0.104676,\n    0.110729,\n    0.106110,\n    0.087988,\n    0.100653,\n    0.097634,\n    0.104360,\n    0.098846\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.518202"
+    }
+  },
+  "prompt": "Implement a 'Genetic Algorithm' where the genes are the 26 circle centers.\n1. Initialize the population with {{## Parent Solution (score: 2.632315)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.367734 | 0.253038 | 0.081101 |\n|  1 | 0.925845 | 0.304813 | 0.074154 |\n|  2 | 0.304813 | 0.925845 | 0.074154 |\n|  3 | 0.075659 | 0.075659 | 0.075658 |\n|  4 | 0.924377 | 0.924377 | 0.075622 |\n|  5 | 0.682825 | 0.682825 | 0.115936 |\n|  6 | 0.546041 | 0.273005 | 0.098318 |\n|  7 | 0.105273 | 0.254151 | 0.105272 |\n|  8 | 0.457251 | 0.097959 | 0.097958 |\n|  9 | 0.253038 | 0.367734 | 0.081101 |\n| 10 | 0.421285 | 0.421285 | 0.095461 |\n| 11 | 0.747585 | 0.294715 | 0.104390 |\n| 12 | 0.659890 | 0.104796 | 0.104795 |\n| 13 | 0.097959 | 0.457251 | 0.097958 |\n| 14 | 0.620799 | 0.466494 | 0.109109 |\n| 15 | 0.273005 | 0.546041 | 0.098318 |\n| 16 | 0.294715 | 0.747585 | 0.104390 |\n| 17 | 0.104796 | 0.659890 | 0.104795 |\n| 18 | 0.745972 | 0.894778 | 0.105221 |\n| 19 | 0.882152 | 0.117848 | 0.117847 |\n| 20 | 0.894778 | 0.745972 | 0.105221 |\n| 21 | 0.254151 | 0.105273 | 0.105272 |\n| 22 | 0.117848 | 0.882152 | 0.117847 |\n| 23 | 0.466494 | 0.620799 | 0.109109 |\n| 24 | 0.506146 | 0.863345 | 0.136654 |\n| 25 | 0.863345 | 0.506146 | 0.136654 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.367734, 0.253038],\n    [0.925845, 0.304813],\n    [0.304813, 0.925845],\n    [0.075659, 0.075659],\n    [0.924377, 0.924377],\n    [0.682825, 0.682825],\n    [0.546041, 0.273005],\n    [0.105273, 0.254151],\n    [0.457251, 0.097959],\n    [0.253038, 0.367734],\n    [0.421285, 0.421285],\n    [0.747585, 0.294715],\n    [0.659890, 0.104796],\n    [0.097959, 0.457251],\n    [0.620799, 0.466494],\n    [0.273005, 0.546041],\n    [0.294715, 0.747585],\n    [0.104796, 0.659890],\n    [0.745972, 0.894778],\n    [0.882152, 0.117848],\n    [0.894778, 0.745972],\n    [0.254151, 0.105273],\n    [0.117848, 0.882152],\n    [0.466494, 0.620799],\n    [0.506146, 0.863345],\n    [0.863345, 0.506146]\n])\n\nradii = np.array([\n    0.081101,\n    0.074154,\n    0.074154,\n    0.075658,\n    0.075622,\n    0.115936,\n    0.098318,\n    0.105272,\n    0.097958,\n    0.081101,\n    0.095461,\n    0.104390,\n    0.104795,\n    0.097958,\n    0.109109,\n    0.098318,\n    0.104390,\n    0.104795,\n    0.105221,\n    0.117847,\n    0.105221,\n    0.105272,\n    0.117847,\n    0.109109,\n    0.136654,\n    0.136654\n])\n```}} and 14 variations (small jitters).\n2. Crossover: Create a child by taking 13 circles from Parent A and 13 from Parent B.\n3. Mutation: Randomly move 1-2 circles.\n4. Selection: Keep the packings with the highest sum of radii after a quick SLSQP refinement.\n5. Run for 20 generations.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef compute_radii(centers):\n    \"\"\"\n    Given 26 centers, calculates the maximum valid radii such that the circles \n    stay within the unit square and do not overlap, maximizing the sum of radii.\n    This is a linear programming problem if centers are fixed, but here we \n    simplify by assigning each circle the largest possible radius limited by \n    its nearest neighbors and the boundary.\n    \"\"\"\n    n = len(centers)\n    # Distance to boundaries\n    r_bound = np.min(np.concatenate([centers, 1 - centers], axis=1), axis=1)\n    \n    # Distance between centers\n    # dist_matrix[i, j] = distance between center i and center j\n    diff = centers[:, np.newaxis, :] - centers[np.newaxis, :, :]\n    dist_matrix = np.sqrt(np.sum(diff**2, axis=-1))\n    np.fill_diagonal(dist_matrix, np.inf)\n    \n    # We solve for radii r_i such that r_i + r_j <= dist_ij and r_i <= bound_i\n    # For a sum-maximization with fixed centers, we use a simple heuristic \n    # or a quick optimization. Here we use a uniform-scaling approach \n    # followed by greedy expansion.\n    \n    r = np.zeros(n)\n    # Initial guess: half the distance to nearest neighbor or boundary\n    for i in range(n):\n        r[i] = min(r_bound[i], np.min(dist_matrix[i, :]) / 2.0)\n    \n    # Refine radii to maximize sum sum(r_i) subject to r_i + r_j <= d_ij\n    # This is a small LP. For speed in GA, we use the initial guess.\n    return r\n\ndef objective(flat_centers):\n    centers = flat_centers.reshape((26, 2))\n    # Constraints are handled by the optimizer\n    # We want to maximize sum of radii\n    # To use minimize, we need a smooth approximation or a proxy.\n    # A common proxy for circle packing is maximizing min distances.\n    # However, we'll use a local search on the radii sum.\n    r = compute_radii(centers)\n    return -np.sum(r)\n\ndef refine_packing(centers):\n    n = 26\n    def obj(p):\n        c = p.reshape((n, 2))\n        # Penalty for boundary\n        b_violation = np.sum(np.maximum(0, -c)) + np.sum(np.maximum(0, c - 1))\n        \n        # Calculate radii sum via proxy\n        r = compute_radii(np.clip(c, 0, 1))\n        return -np.sum(r) + 10 * b_violation\n\n    res = minimize(obj, centers.flatten(), method='SLSQP', \n                   bounds=[(0, 1)] * (2 * n), tol=1e-4)\n    refined_centers = np.clip(res.x.reshape((n, 2)), 0, 1)\n    refined_radii = compute_radii(refined_centers)\n    return refined_centers, refined_radii, np.sum(refined_radii)\n\ndef construct_packing():\n    # Initial seed from the prompt\n    parent_centers = np.array([\n        [0.367734, 0.253038], [0.925845, 0.304813], [0.304813, 0.925845],\n        [0.075659, 0.075659], [0.924377, 0.924377], [0.682825, 0.682825],\n        [0.546041, 0.273005], [0.105273, 0.254151], [0.457251, 0.097959],\n        [0.253038, 0.367734], [0.421285, 0.421285], [0.747585, 0.294715],\n        [0.659890, 0.104796], [0.097959, 0.457251], [0.620799, 0.466494],\n        [0.273005, 0.546041], [0.294715, 0.747585], [0.104796, 0.659890],\n        [0.745972, 0.894778], [0.882152, 0.117848], [0.894778, 0.745972],\n        [0.254151, 0.105273], [0.117848, 0.882152], [0.466494, 0.620799],\n        [0.506146, 0.863345], [0.863345, 0.506146]\n    ])\n\n    population = [parent_centers]\n    # Create 14 variations\n    for _ in range(14):\n        noise = np.random.normal(0, 0.01, (26, 2))\n        population.append(np.clip(parent_centers + noise, 0, 1))\n\n    best_centers = parent_centers\n    best_sum = 0\n\n    # Genetic Algorithm Loop (Simplified for execution time)\n    for gen in range(20):\n        scored_pop = []\n        for individual in population:\n            c, r, s = refine_packing(individual)\n            scored_pop.append((s, c))\n        \n        # Sort by sum of radii descending\n        scored_pop.sort(key=lambda x: x[0], reverse=True)\n        \n        if scored_pop[0][0] > best_sum:\n            best_sum = scored_pop[0][0]\n            best_centers = scored_pop[0][1]\n        \n        # Selection: Keep top 5\n        top_individuals = [x[1] for x in scored_pop[:5]]\n        \n        # Crossover and Mutation to refill population\n        new_population = top_individuals[:]\n        while len(new_population) < 15:\n            # Crossover\n            idx1, idx2 = np.random.choice(len(top_individuals), 2, replace=False)\n            p1, p2 = top_individuals[idx1], top_individuals[idx2]\n            mask = np.random.rand(26) > 0.5\n            child = np.where(mask[:, np.newaxis], p1, p2)\n            \n            # Mutation\n            if np.random.rand() < 0.3:\n                mutate_indices = np.random.choice(26, 2, replace=False)\n                child[mutate_indices] += np.random.normal(0, 0.05, (2, 2))\n                child = np.clip(child, 0, 1)\n            \n            new_population.append(child)\n        population = new_population\n\n    final_centers, final_radii, final_sum = refine_packing(best_centers)\n    return final_centers, final_radii, final_sum\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-25T00:21:35.452404",
+  "cost_data": null
+}

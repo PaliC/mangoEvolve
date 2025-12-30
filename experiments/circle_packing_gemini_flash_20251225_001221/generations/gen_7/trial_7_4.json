@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_7_4",
+  "generation": 7,
+  "parent_id": "trial_2_6",
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial import Voronoi\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square using \n    a recursive pruning strategy starting from n=50.\n    Pruning is based on the area of the Voronoi cell to maintain spatial diversity.\n    \"\"\"\n    n_target = 26\n    n_start = 50\n    \n    # Initialize with a jittered grid to ensure better coverage than pure random\n    side = int(np.ceil(np.sqrt(n_start)))\n    x = np.linspace(0.1, 0.9, side)\n    y = np.linspace(0.1, 0.9, side)\n    xv, yv = np.meshgrid(x, y)\n    centers = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n_start]\n    \n    def objective(params, n):\n        # We maximize sum of radii -> minimize -sum(radii)\n        return -np.sum(params[2*n:])\n\n    def constraints(params, n):\n        x = params[:n]\n        y = params[n:2*n]\n        r = params[2*n:]\n        cons = []\n        # Boundary constraints\n        for i in range(n):\n            cons.append(x[i] - r[i])          # x - r >= 0\n            cons.append(1.0 - (x[i] + r[i]))  # 1 - (x + r) >= 0\n            cons.append(y[i] - r[i])          # y - r >= 0\n            cons.append(1.0 - (y[i] + r[i]))  # 1 - (y + r) >= 0\n        \n        # Non-overlap constraints\n        for i in range(n):\n            for j in range(i + 1, n):\n                dist_sq = (x[i] - x[j])**2 + (y[i] - y[j])**2\n                # dist >= r_i + r_j  => sqrt(dist_sq) - (r_i + r_j) >= 0\n                cons.append(np.sqrt(dist_sq + 1e-9) - (r[i] + r[j]))\n        return np.array(cons)\n\n    current_centers = centers\n    \n    # Iterative pruning loop\n    for n_curr in range(n_start, n_target - 1, -1):\n        # Optimization step\n        r_init = np.full(n_curr, 1.0 / (2 * np.sqrt(n_curr)))\n        initial_params = np.concatenate([current_centers[:, 0], current_centers[:, 1], r_init])\n        \n        bounds = [(0, 1)] * (2 * n_curr) + [(0, 0.5)] * n_curr\n        \n        res = minimize(\n            objective, \n            initial_params, \n            args=(n_curr,),\n            method='SLSQP',\n            bounds=bounds,\n            constraints={'type': 'ineq', 'fun': constraints, 'args': (n_curr,)},\n            options={'maxiter': 50, 'ftol': 1e-4}\n        )\n        \n        optimized_params = res.x\n        current_centers = np.stack([optimized_params[:n_curr], optimized_params[n_curr:2*n_curr]], axis=1)\n        current_radii = optimized_params[2*n_curr:]\n        \n        if n_curr == n_target:\n            break\n            \n        # Pruning step: Use Voronoi area to find the most \"crowded\" or smallest cell\n        # Add dummy points to handle boundary for Voronoi\n        points_with_boundary = np.vstack([\n            current_centers,\n            [[-10, -10], [-10, 10], [10, -10], [10, 10]]\n        ])\n        vor = Voronoi(points_with_boundary)\n        \n        # Calculate approximate area or just use radius as a proxy for efficiency in this loop\n        # To strictly follow \"Voronoi area\" logic:\n        areas = []\n        for i in range(n_curr):\n            region_idx = vor.point_region[i]\n            region = vor.regions[region_idx]\n            if -1 in region: # Infinite region\n                areas.append(1.0) \n            else:\n                # Polygon area formula\n                verts = vor.vertices[region]\n                areas.append(0.5 * np.abs(np.dot(verts[:, 0], np.roll(verts[:, 1], 1)) - np.dot(verts[:, 1], np.roll(verts[:, 0], 1))))\n        \n        # Remove the point with the smallest Voronoi area\n        idx_to_remove = np.argmin(areas)\n        current_centers = np.delete(current_centers, idx_to_remove, axis=0)\n\n    # Final Polish\n    res = minimize(\n        objective, \n        optimized_params, \n        args=(n_target,),\n        method='SLSQP',\n        bounds=bounds,\n        constraints={'type': 'ineq', 'fun': constraints, 'args': (n_target,)},\n        options={'maxiter': 200, 'ftol': 1e-7}\n    )\n    \n    final_params = res.x\n    final_centers = np.stack([final_params[:n_target], final_params[n_target:2*n_target]], axis=1)\n    final_radii = final_params[2*n_target:]\n    \n    return final_centers, final_radii, np.sum(final_radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.570444068052917,
+    "eval_time": 20.845704317092896,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.09464117088534892,
+            0.38988576329310365
+          ],
+          [
+            0.7641411442758377,
+            0.10274058668743836
+          ],
+          [
+            0.20141938875092233,
+            0.08127553644286883
+          ],
+          [
+            0.06081253945878196,
+            0.06081253945878152
+          ],
+          [
+            0.7586970408201734,
+            0.9004491277329949
+          ],
+          [
+            0.3838042628509379,
+            0.7333037413638057
+          ],
+          [
+            0.12347571802913573,
+            0.7311344761533187
+          ],
+          [
+            0.24297572588421865,
+            0.5306945356714372
+          ],
+          [
+            0.08813112736944421,
+            0.20722944300070523
+          ],
+          [
+            0.9280097150381061,
+            0.9280097150381046
+          ],
+          [
+            0.4640216675451155,
+            0.4957026391125771
+          ],
+          [
+            0.8926926026725984,
+            0.5496512602081164
+          ],
+          [
+            0.5570558421431702,
+            0.8978934762750064
+          ],
+          [
+            0.9316902920031856,
+            0.0683097079968148
+          ],
+          [
+            0.0670305513902584,
+            0.5491823372507927
+          ],
+          [
+            0.3940616164862877,
+            0.9349524456707555
+          ],
+          [
+            0.6639819553970521,
+            0.6688975078505127
+          ],
+          [
+            0.7030795244625087,
+            0.3595280265021354
+          ],
+          [
+            0.9119295020179481,
+            0.22343636270564393
+          ],
+          [
+            0.07561420524269497,
+            0.9243857947573024
+          ],
+          [
+            0.9317506400929083,
+            0.3784944790875194
+          ],
+          [
+            0.5368697250264102,
+            0.12568620803379685
+          ],
+          [
+            0.8992100022433275,
+            0.7576465686735047
+          ],
+          [
+            0.3509369220318216,
+            0.0687645223176077
+          ],
+          [
+            0.3121810795045075,
+            0.282152248744346
+          ],
+          [
+            0.24082689361360443,
+            0.9097549418421714
+          ]
+        ],
+        "radii": [
+          0.09464117088534764,
+          0.10274058668743882,
+          0.08127553644286808,
+          0.06081253945878204,
+          0.09955087226700504,
+          0.13686186658090624,
+          0.12347571802913646,
+          0.10988328140680795,
+          0.08813112736944353,
+          0.07199028496189462,
+          0.11391515949378815,
+          0.10730739732739943,
+          0.10210652372499225,
+          0.06830970799681496,
+          0.06703055139025772,
+          0.06504755432924526,
+          0.1506232692362941,
+          0.16120696806693655,
+          0.08807049798205094,
+          0.07561420524269567,
+          0.06824935990709123,
+          0.12568620803379812,
+          0.10078999775667305,
+          0.06876452231760712,
+          0.14811410299981448,
+          0.0902450581578274
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.570444)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.094641 | 0.389886 | 0.094641 |\n|  1 | 0.764141 | 0.102741 | 0.102741 |\n|  2 | 0.201419 | 0.081276 | 0.081276 |\n|  3 | 0.060813 | 0.060813 | 0.060813 |\n|  4 | 0.758697 | 0.900449 | 0.099551 |\n|  5 | 0.383804 | 0.733304 | 0.136862 |\n|  6 | 0.123476 | 0.731134 | 0.123476 |\n|  7 | 0.242976 | 0.530695 | 0.109883 |\n|  8 | 0.088131 | 0.207229 | 0.088131 |\n|  9 | 0.928010 | 0.928010 | 0.071990 |\n| 10 | 0.464022 | 0.495703 | 0.113915 |\n| 11 | 0.892693 | 0.549651 | 0.107307 |\n| 12 | 0.557056 | 0.897893 | 0.102107 |\n| 13 | 0.931690 | 0.068310 | 0.068310 |\n| 14 | 0.067031 | 0.549182 | 0.067031 |\n| 15 | 0.394062 | 0.934952 | 0.065048 |\n| 16 | 0.663982 | 0.668898 | 0.150623 |\n| 17 | 0.703080 | 0.359528 | 0.161207 |\n| 18 | 0.911930 | 0.223436 | 0.088070 |\n| 19 | 0.075614 | 0.924386 | 0.075614 |\n| 20 | 0.931751 | 0.378494 | 0.068249 |\n| 21 | 0.536870 | 0.125686 | 0.125686 |\n| 22 | 0.899210 | 0.757647 | 0.100790 |\n| 23 | 0.350937 | 0.068765 | 0.068765 |\n| 24 | 0.312181 | 0.282152 | 0.148114 |\n| 25 | 0.240827 | 0.909755 | 0.090245 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.094641, 0.389886],\n    [0.764141, 0.102741],\n    [0.201419, 0.081276],\n    [0.060813, 0.060813],\n    [0.758697, 0.900449],\n    [0.383804, 0.733304],\n    [0.123476, 0.731134],\n    [0.242976, 0.530695],\n    [0.088131, 0.207229],\n    [0.928010, 0.928010],\n    [0.464022, 0.495703],\n    [0.892693, 0.549651],\n    [0.557056, 0.897893],\n    [0.931690, 0.068310],\n    [0.067031, 0.549182],\n    [0.394062, 0.934952],\n    [0.663982, 0.668898],\n    [0.703080, 0.359528],\n    [0.911930, 0.223436],\n    [0.075614, 0.924386],\n    [0.931751, 0.378494],\n    [0.536870, 0.125686],\n    [0.899210, 0.757647],\n    [0.350937, 0.068765],\n    [0.312181, 0.282152],\n    [0.240827, 0.909755]\n])\n\nradii = np.array([\n    0.094641,\n    0.102741,\n    0.081276,\n    0.060813,\n    0.099551,\n    0.136862,\n    0.123476,\n    0.109883,\n    0.088131,\n    0.071990,\n    0.113915,\n    0.107307,\n    0.102107,\n    0.068310,\n    0.067031,\n    0.065048,\n    0.150623,\n    0.161207,\n    0.088070,\n    0.075614,\n    0.068249,\n    0.125686,\n    0.100790,\n    0.068765,\n    0.148114,\n    0.090245\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.570444"
+    }
+  },
+  "prompt": "Refine the 'Growth and Pruning' from trial_2_6 but starting from N=50.\n1. Generate 50 random centers.\n2. Optimize to maximize $\\sum R_i$.\n3. Prune the circle that has the smallest 'Voronoi Area' (calculate using a grid approximation or scipy.spatial.Voronoi).\n4. Optimize the remaining $N-1$ circles.\n5. Repeat until $N=26$. Pruning by Voronoi area is more 'spatially aware' than pruning by radius.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial import Voronoi\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square using \n    a recursive pruning strategy starting from n=50.\n    Pruning is based on the area of the Voronoi cell to maintain spatial diversity.\n    \"\"\"\n    n_target = 26\n    n_start = 50\n    \n    # Initialize with a jittered grid to ensure better coverage than pure random\n    side = int(np.ceil(np.sqrt(n_start)))\n    x = np.linspace(0.1, 0.9, side)\n    y = np.linspace(0.1, 0.9, side)\n    xv, yv = np.meshgrid(x, y)\n    centers = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n_start]\n    \n    def objective(params, n):\n        # We maximize sum of radii -> minimize -sum(radii)\n        return -np.sum(params[2*n:])\n\n    def constraints(params, n):\n        x = params[:n]\n        y = params[n:2*n]\n        r = params[2*n:]\n        cons = []\n        # Boundary constraints\n        for i in range(n):\n            cons.append(x[i] - r[i])          # x - r >= 0\n            cons.append(1.0 - (x[i] + r[i]))  # 1 - (x + r) >= 0\n            cons.append(y[i] - r[i])          # y - r >= 0\n            cons.append(1.0 - (y[i] + r[i]))  # 1 - (y + r) >= 0\n        \n        # Non-overlap constraints\n        for i in range(n):\n            for j in range(i + 1, n):\n                dist_sq = (x[i] - x[j])**2 + (y[i] - y[j])**2\n                # dist >= r_i + r_j  => sqrt(dist_sq) - (r_i + r_j) >= 0\n                cons.append(np.sqrt(dist_sq + 1e-9) - (r[i] + r[j]))\n        return np.array(cons)\n\n    current_centers = centers\n    \n    # Iterative pruning loop\n    for n_curr in range(n_start, n_target - 1, -1):\n        # Optimization step\n        r_init = np.full(n_curr, 1.0 / (2 * np.sqrt(n_curr)))\n        initial_params = np.concatenate([current_centers[:, 0], current_centers[:, 1], r_init])\n        \n        bounds = [(0, 1)] * (2 * n_curr) + [(0, 0.5)] * n_curr\n        \n        res = minimize(\n            objective, \n            initial_params, \n            args=(n_curr,),\n            method='SLSQP',\n            bounds=bounds,\n            constraints={'type': 'ineq', 'fun': constraints, 'args': (n_curr,)},\n            options={'maxiter': 50, 'ftol': 1e-4}\n        )\n        \n        optimized_params = res.x\n        current_centers = np.stack([optimized_params[:n_curr], optimized_params[n_curr:2*n_curr]], axis=1)\n        current_radii = optimized_params[2*n_curr:]\n        \n        if n_curr == n_target:\n            break\n            \n        # Pruning step: Use Voronoi area to find the most \"crowded\" or smallest cell\n        # Add dummy points to handle boundary for Voronoi\n        points_with_boundary = np.vstack([\n            current_centers,\n            [[-10, -10], [-10, 10], [10, -10], [10, 10]]\n        ])\n        vor = Voronoi(points_with_boundary)\n        \n        # Calculate approximate area or just use radius as a proxy for efficiency in this loop\n        # To strictly follow \"Voronoi area\" logic:\n        areas = []\n        for i in range(n_curr):\n            region_idx = vor.point_region[i]\n            region = vor.regions[region_idx]\n            if -1 in region: # Infinite region\n                areas.append(1.0) \n            else:\n                # Polygon area formula\n                verts = vor.vertices[region]\n                areas.append(0.5 * np.abs(np.dot(verts[:, 0], np.roll(verts[:, 1], 1)) - np.dot(verts[:, 1], np.roll(verts[:, 0], 1))))\n        \n        # Remove the point with the smallest Voronoi area\n        idx_to_remove = np.argmin(areas)\n        current_centers = np.delete(current_centers, idx_to_remove, axis=0)\n\n    # Final Polish\n    res = minimize(\n        objective, \n        optimized_params, \n        args=(n_target,),\n        method='SLSQP',\n        bounds=bounds,\n        constraints={'type': 'ineq', 'fun': constraints, 'args': (n_target,)},\n        options={'maxiter': 200, 'ftol': 1e-7}\n    )\n    \n    final_params = res.x\n    final_centers = np.stack([final_params[:n_target], final_params[n_target:2*n_target]], axis=1)\n    final_radii = final_params[2*n_target:]\n    \n    return final_centers, final_radii, np.sum(final_radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-25T00:27:56.888490",
+  "cost_data": null
+}

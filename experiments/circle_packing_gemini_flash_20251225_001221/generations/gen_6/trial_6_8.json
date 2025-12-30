@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_6_8",
+  "generation": 6,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square using \n    reflectional symmetry as an initial guess, then refining locally.\n    Objective: Maximize the sum of radii.\n    \"\"\"\n    n = 26\n    \n    # 1. Initialize 13 circles on the left half (x <= 0.5)\n    # We use a grid-like start for the 13 circles in the left rectangle [0, 0.5] x [0, 1]\n    # 13 circles: roughly 3 columns (x) and 4-5 rows (y)\n    x_left = np.linspace(0.1, 0.4, 3)\n    y_left = np.linspace(0.1, 0.9, 5)\n    xv, yv = np.meshgrid(x_left, y_left)\n    initial_13_xy = np.vstack([xv.ravel(), yv.ravel()]).T[:13]\n    \n    # Initial radii guess\n    initial_r = np.full(13, 0.08)\n    \n    # Pack parameters: [x1, y1, r1, ..., x13, y13, r13]\n    initial_params = np.hstack([initial_13_xy, initial_r.reshape(-1, 1)]).flatten()\n\n    def objective(params):\n        # We want to maximize sum of radii, so minimize negative sum\n        # Only 13 circles are independent here, but we sum for all 26\n        r = params[2::3]\n        return -np.sum(r) * 2\n\n    def constraints_sym(params):\n        cons = []\n        pts = params.reshape(-1, 3)\n        xy = pts[:, :2]\n        r = pts[:, 2]\n        \n        # Boundary constraints for the 13 circles (left side)\n        # x + r <= 0.5 ensures they stay on left half for symmetry initialization\n        for i in range(13):\n            cons.append(xy[i, 0] - r[i])       # x - r >= 0\n            cons.append(0.5 - (xy[i, 0] + r[i])) # x + r <= 0.5\n            cons.append(xy[i, 1] - r[i])       # y - r >= 0\n            cons.append(1.0 - (xy[i, 1] + r[i])) # y + r <= 1.0\n            cons.append(r[i])                  # r >= 0\n\n        # Non-overlap within the 13\n        for i in range(13):\n            for j in range(i + 1, 13):\n                dist = np.linalg.norm(xy[i] - xy[j])\n                cons.append(dist - (r[i] + r[j]))\n        \n        # Non-overlap with mirrored versions (across x=0.5)\n        # Mirrored point: (1 - x, y)\n        xy_mirrored = xy.copy()\n        xy_mirrored[:, 0] = 1.0 - xy_mirrored[:, 0]\n        \n        for i in range(13):\n            for j in range(13):\n                dist = np.linalg.norm(xy[i] - xy_mirrored[j])\n                cons.append(dist - (r[i] + r[j]))\n                \n        return np.array(cons)\n\n    # First pass: Symmetric optimization\n    res_sym = minimize(\n        objective, \n        initial_params, \n        constraints={'type': 'ineq', 'fun': constraints_sym},\n        method='SLSQP',\n        options={'maxiter': 100}\n    )\n\n    # 2. Break symmetry and refine all 26 circles\n    pts_sym = res_sym.x.reshape(-1, 3)\n    xy_left = pts_sym[:, :2]\n    r_left = pts_sym[:, 2]\n    \n    xy_right = xy_left.copy()\n    xy_right[:, 0] = 1.0 - xy_right[:, 0]\n    r_right = r_left.copy()\n    \n    all_xy = np.vstack([xy_left, xy_right])\n    all_r = np.concatenate([r_left, r_right])\n    \n    # Full parameters for 26 circles: [x1, y1, ..., x26, y26, r1, ..., r26]\n    full_params = np.concatenate([all_xy.flatten(), all_r])\n\n    def full_objective(p):\n        return -np.sum(p[52:])\n\n    def full_constraints(p):\n        xy = p[:52].reshape(26, 2)\n        r = p[52:]\n        cons = []\n        # Boundaries\n        cons.extend((xy - r[:, np.newaxis]).flatten())\n        cons.extend((1.0 - (xy + r[:, np.newaxis])).flatten())\n        # Overlaps\n        for i in range(26):\n            for j in range(i + 1, 26):\n                d = np.sqrt(np.sum((xy[i] - xy[j])**2))\n                cons.append(d - (r[i] + r[j]))\n        return np.array(cons)\n\n    # Final refinement\n    res_final = minimize(\n        full_objective, \n        full_params, \n        constraints={'type': 'ineq', 'fun': full_constraints},\n        method='SLSQP',\n        options={'maxiter': 50}\n    )\n\n    final_params = res_final.x\n    centers = final_params[:52].reshape(26, 2)\n    radii = final_params[52:]\n    \n    # Ensure all constraints are strictly met for the return (clipping/cleaning)\n    radii = np.maximum(radii, 0)\n    for i in range(26):\n        centers[i] = np.clip(centers[i], radii[i], 1.0 - radii[i])\n        \n    return centers, radii, np.sum(radii)\n\ndef run_packing():\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.5669162522615703,
+    "eval_time": 0.40189623832702637,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.06892802457709414,
+            0.06892802457896642
+          ],
+          [
+            0.22961969371004376,
+            0.09365498567208391
+          ],
+          [
+            0.41159941714531284,
+            0.08840058285127163
+          ],
+          [
+            0.0982285609283441,
+            0.23349655942002248
+          ],
+          [
+            0.334087813899224,
+            0.3153661075143243
+          ],
+          [
+            0.43080599876858,
+            0.5136664004633744
+          ],
+          [
+            0.10693352858795631,
+            0.4384738911964168
+          ],
+          [
+            0.2722261549804429,
+            0.5531002162024118
+          ],
+          [
+            0.41214376090935523,
+            0.6696038816022223
+          ],
+          [
+            0.10081488684915364,
+            0.6461321823574879
+          ],
+          [
+            0.2587510294460384,
+            0.7205496334116154
+          ],
+          [
+            0.3772767620401039,
+            0.8772767197661466
+          ],
+          [
+            0.1272977082899032,
+            0.8727022917517082
+          ],
+          [
+            0.9310719754229059,
+            0.06892802457896642
+          ],
+          [
+            0.7703803062899562,
+            0.09365498567208391
+          ],
+          [
+            0.5884005828546872,
+            0.08840058285127163
+          ],
+          [
+            0.9017714390716559,
+            0.23349655942002248
+          ],
+          [
+            0.665912186100776,
+            0.3153661075143243
+          ],
+          [
+            0.56919400123142,
+            0.5136664004633744
+          ],
+          [
+            0.8930664714120436,
+            0.4384738911964168
+          ],
+          [
+            0.7277738450195571,
+            0.5531002162024118
+          ],
+          [
+            0.5878562390906448,
+            0.6696038816022223
+          ],
+          [
+            0.8991851131508464,
+            0.6461321823574879
+          ],
+          [
+            0.7412489705539616,
+            0.7205496334116154
+          ],
+          [
+            0.6227232379598961,
+            0.8772767197661466
+          ],
+          [
+            0.8727022917100968,
+            0.8727022917517082
+          ]
+        ],
+        "radii": [
+          0.06892802450044377,
+          0.09365498552299663,
+          0.08840058282406964,
+          0.09822856091305776,
+          0.15143563367696308,
+          0.06919400121636947,
+          0.10693352857806636,
+          0.09421529259973353,
+          0.08785623905586448,
+          0.1008148867882367,
+          0.07377544430101372,
+          0.12272323792482996,
+          0.12729770822914027,
+          0.06892802450044377,
+          0.09365498552299663,
+          0.08840058282406964,
+          0.09822856091305776,
+          0.15143563367696308,
+          0.06919400121636947,
+          0.10693352857806636,
+          0.09421529259973353,
+          0.08785623905586448,
+          0.1008148867882367,
+          0.07377544430101372,
+          0.12272323792482996,
+          0.12729770822914027
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.566916)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.068928 | 0.068928 | 0.068928 |\n|  1 | 0.229620 | 0.093655 | 0.093655 |\n|  2 | 0.411599 | 0.088401 | 0.088401 |\n|  3 | 0.098229 | 0.233497 | 0.098229 |\n|  4 | 0.334088 | 0.315366 | 0.151436 |\n|  5 | 0.430806 | 0.513666 | 0.069194 |\n|  6 | 0.106934 | 0.438474 | 0.106934 |\n|  7 | 0.272226 | 0.553100 | 0.094215 |\n|  8 | 0.412144 | 0.669604 | 0.087856 |\n|  9 | 0.100815 | 0.646132 | 0.100815 |\n| 10 | 0.258751 | 0.720550 | 0.073775 |\n| 11 | 0.377277 | 0.877277 | 0.122723 |\n| 12 | 0.127298 | 0.872702 | 0.127298 |\n| 13 | 0.931072 | 0.068928 | 0.068928 |\n| 14 | 0.770380 | 0.093655 | 0.093655 |\n| 15 | 0.588401 | 0.088401 | 0.088401 |\n| 16 | 0.901771 | 0.233497 | 0.098229 |\n| 17 | 0.665912 | 0.315366 | 0.151436 |\n| 18 | 0.569194 | 0.513666 | 0.069194 |\n| 19 | 0.893066 | 0.438474 | 0.106934 |\n| 20 | 0.727774 | 0.553100 | 0.094215 |\n| 21 | 0.587856 | 0.669604 | 0.087856 |\n| 22 | 0.899185 | 0.646132 | 0.100815 |\n| 23 | 0.741249 | 0.720550 | 0.073775 |\n| 24 | 0.622723 | 0.877277 | 0.122723 |\n| 25 | 0.872702 | 0.872702 | 0.127298 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.068928, 0.068928],\n    [0.229620, 0.093655],\n    [0.411599, 0.088401],\n    [0.098229, 0.233497],\n    [0.334088, 0.315366],\n    [0.430806, 0.513666],\n    [0.106934, 0.438474],\n    [0.272226, 0.553100],\n    [0.412144, 0.669604],\n    [0.100815, 0.646132],\n    [0.258751, 0.720550],\n    [0.377277, 0.877277],\n    [0.127298, 0.872702],\n    [0.931072, 0.068928],\n    [0.770380, 0.093655],\n    [0.588401, 0.088401],\n    [0.901771, 0.233497],\n    [0.665912, 0.315366],\n    [0.569194, 0.513666],\n    [0.893066, 0.438474],\n    [0.727774, 0.553100],\n    [0.587856, 0.669604],\n    [0.899185, 0.646132],\n    [0.741249, 0.720550],\n    [0.622723, 0.877277],\n    [0.872702, 0.872702]\n])\n\nradii = np.array([\n    0.068928,\n    0.093655,\n    0.088401,\n    0.098229,\n    0.151436,\n    0.069194,\n    0.106934,\n    0.094215,\n    0.087856,\n    0.100815,\n    0.073775,\n    0.122723,\n    0.127298,\n    0.068928,\n    0.093655,\n    0.088401,\n    0.098229,\n    0.151436,\n    0.069194,\n    0.106934,\n    0.094215,\n    0.087856,\n    0.100815,\n    0.073775,\n    0.122723,\n    0.127298\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.566916"
+    }
+  },
+  "prompt": "Implement 'Reflectional Symmetry' search.\n1. Force the packing to be symmetric across the x=0.5 axis.\n2. This reduces the degrees of freedom from 52 to 26 (13 circles' x,y are independent, 13 are mirrored).\n3. Optimize the 13 circles.\n4. Then 'break' the symmetry and run a final global optimization on all 26.\n5. Many optimal packings have near-symmetry or broken symmetry.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square using \n    reflectional symmetry as an initial guess, then refining locally.\n    Objective: Maximize the sum of radii.\n    \"\"\"\n    n = 26\n    \n    # 1. Initialize 13 circles on the left half (x <= 0.5)\n    # We use a grid-like start for the 13 circles in the left rectangle [0, 0.5] x [0, 1]\n    # 13 circles: roughly 3 columns (x) and 4-5 rows (y)\n    x_left = np.linspace(0.1, 0.4, 3)\n    y_left = np.linspace(0.1, 0.9, 5)\n    xv, yv = np.meshgrid(x_left, y_left)\n    initial_13_xy = np.vstack([xv.ravel(), yv.ravel()]).T[:13]\n    \n    # Initial radii guess\n    initial_r = np.full(13, 0.08)\n    \n    # Pack parameters: [x1, y1, r1, ..., x13, y13, r13]\n    initial_params = np.hstack([initial_13_xy, initial_r.reshape(-1, 1)]).flatten()\n\n    def objective(params):\n        # We want to maximize sum of radii, so minimize negative sum\n        # Only 13 circles are independent here, but we sum for all 26\n        r = params[2::3]\n        return -np.sum(r) * 2\n\n    def constraints_sym(params):\n        cons = []\n        pts = params.reshape(-1, 3)\n        xy = pts[:, :2]\n        r = pts[:, 2]\n        \n        # Boundary constraints for the 13 circles (left side)\n        # x + r <= 0.5 ensures they stay on left half for symmetry initialization\n        for i in range(13):\n            cons.append(xy[i, 0] - r[i])       # x - r >= 0\n            cons.append(0.5 - (xy[i, 0] + r[i])) # x + r <= 0.5\n            cons.append(xy[i, 1] - r[i])       # y - r >= 0\n            cons.append(1.0 - (xy[i, 1] + r[i])) # y + r <= 1.0\n            cons.append(r[i])                  # r >= 0\n\n        # Non-overlap within the 13\n        for i in range(13):\n            for j in range(i + 1, 13):\n                dist = np.linalg.norm(xy[i] - xy[j])\n                cons.append(dist - (r[i] + r[j]))\n        \n        # Non-overlap with mirrored versions (across x=0.5)\n        # Mirrored point: (1 - x, y)\n        xy_mirrored = xy.copy()\n        xy_mirrored[:, 0] = 1.0 - xy_mirrored[:, 0]\n        \n        for i in range(13):\n            for j in range(13):\n                dist = np.linalg.norm(xy[i] - xy_mirrored[j])\n                cons.append(dist - (r[i] + r[j]))\n                \n        return np.array(cons)\n\n    # First pass: Symmetric optimization\n    res_sym = minimize(\n        objective, \n        initial_params, \n        constraints={'type': 'ineq', 'fun': constraints_sym},\n        method='SLSQP',\n        options={'maxiter': 100}\n    )\n\n    # 2. Break symmetry and refine all 26 circles\n    pts_sym = res_sym.x.reshape(-1, 3)\n    xy_left = pts_sym[:, :2]\n    r_left = pts_sym[:, 2]\n    \n    xy_right = xy_left.copy()\n    xy_right[:, 0] = 1.0 - xy_right[:, 0]\n    r_right = r_left.copy()\n    \n    all_xy = np.vstack([xy_left, xy_right])\n    all_r = np.concatenate([r_left, r_right])\n    \n    # Full parameters for 26 circles: [x1, y1, ..., x26, y26, r1, ..., r26]\n    full_params = np.concatenate([all_xy.flatten(), all_r])\n\n    def full_objective(p):\n        return -np.sum(p[52:])\n\n    def full_constraints(p):\n        xy = p[:52].reshape(26, 2)\n        r = p[52:]\n        cons = []\n        # Boundaries\n        cons.extend((xy - r[:, np.newaxis]).flatten())\n        cons.extend((1.0 - (xy + r[:, np.newaxis])).flatten())\n        # Overlaps\n        for i in range(26):\n            for j in range(i + 1, 26):\n                d = np.sqrt(np.sum((xy[i] - xy[j])**2))\n                cons.append(d - (r[i] + r[j]))\n        return np.array(cons)\n\n    # Final refinement\n    res_final = minimize(\n        full_objective, \n        full_params, \n        constraints={'type': 'ineq', 'fun': full_constraints},\n        method='SLSQP',\n        options={'maxiter': 50}\n    )\n\n    final_params = res_final.x\n    centers = final_params[:52].reshape(26, 2)\n    radii = final_params[52:]\n    \n    # Ensure all constraints are strictly met for the return (clipping/cleaning)\n    radii = np.maximum(radii, 0)\n    for i in range(26):\n        centers[i] = np.clip(centers[i], radii[i], 1.0 - radii[i])\n        \n    return centers, radii, np.sum(radii)\n\ndef run_packing():\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-25T00:22:05.131553",
+  "cost_data": null
+}

@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_1_14",
+  "generation": 1,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    n = 26\n    \n    def get_radii(centers):\n        \"\"\"Calculates maximum valid radii for fixed centers.\"\"\"\n        # Distance to boundaries\n        r_bound = np.min(np.concatenate([centers, 1 - centers], axis=1), axis=1)\n        r = r_bound.copy()\n        \n        # Pairwise distances to prevent overlap: r_i + r_j <= dist(c_i, c_j)\n        # This is a simplification: we solve for r such that all constraints hold.\n        # For the GA fitness, we use a heuristic; for the final, we optimize.\n        for i in range(n):\n            for j in range(i + 1, n):\n                dist = np.linalg.norm(centers[i] - centers[j])\n                if r[i] + r[j] > dist:\n                    # Shrink both proportionally to current size\n                    ratio = dist / (r[i] + r[j])\n                    r[i] *= ratio\n                    r[j] *= ratio\n        return r\n\n    def objective(coords):\n        centers = coords.reshape((n, 2))\n        # Penalty for being outside square\n        penalty = np.sum(np.maximum(0, -centers)) + np.sum(np.maximum(0, centers - 1))\n        if penalty > 0: return 10 + penalty\n        \n        r = get_radii(centers)\n        return -np.sum(r)\n\n    # Simple Genetic Algorithm\n    pop_size = 10\n    generations = 5\n    population = [np.random.rand(n * 2) for _ in range(pop_size)]\n    \n    for _ in range(generations):\n        # Evaluate\n        fitness = [objective(ind) for ind in population]\n        sorted_idx = np.argsort(fitness)\n        population = [population[i] for i in sorted_idx]\n        \n        # Crossover and Mutation\n        new_pop = population[:2] # Elitism\n        while len(new_pop) < pop_size:\n            p1, p2 = population[np.random.randint(0, 5)], population[np.random.randint(0, 5)]\n            child = (p1 + p2) / 2 + np.random.normal(0, 0.05, n * 2)\n            new_pop.append(np.clip(child, 0, 1))\n        population = new_pop\n\n    # Final deep optimization\n    res = minimize(objective, population[0], method='L-BFGS-B', bounds=[(0, 1)] * (n * 2))\n    \n    final_centers = res.x.reshape((n, 2))\n    \n    # Refine radii calculation to be strictly valid\n    def compute_valid_radii(centers):\n        # Linear programming approach to maximize sum(r) subject to:\n        # r_i + r_j <= dist_ij\n        # r_i <= x_i, r_i <= 1-x_i, r_i <= y_i, r_i <= 1-y_i\n        from scipy.optimize import linprog\n        c = -np.ones(n)\n        A_ub = []\n        b_ub = []\n        \n        # Boundary constraints\n        bounds = []\n        for i in range(n):\n            max_r = min(centers[i, 0], 1 - centers[i, 0], centers[i, 1], 1 - centers[i, 1])\n            bounds.append((0, max(0, max_r)))\n            \n        # Overlap constraints\n        for i in range(n):\n            for j in range(i + 1, n):\n                dist = np.linalg.norm(centers[i] - centers[j])\n                row = np.zeros(n)\n                row[i] = 1\n                row[j] = 1\n                A_ub.append(row)\n                b_ub.append(dist)\n        \n        lp_res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs')\n        return lp_res.x if lp_res.success else get_radii(centers)\n\n    radii = compute_valid_radii(final_centers)\n    sum_radii = np.sum(radii)\n    \n    return final_centers, radii, sum_radii\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.176344613924019,
+    "eval_time": 7.131266832351685,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.5747234676679119,
+            0.4062190353186961
+          ],
+          [
+            0.5662627299138786,
+            0.9089756712820513
+          ],
+          [
+            0.41805018822550966,
+            0.95449062590062
+          ],
+          [
+            0.23906063524510482,
+            0.39587643059218525
+          ],
+          [
+            0.5376779036107304,
+            0.5957592074198717
+          ],
+          [
+            0.4712815884472712,
+            0.15666669775188116
+          ],
+          [
+            0.2944265306753803,
+            0.4034812647112651
+          ],
+          [
+            0.41123693595402844,
+            0.6842216316925536
+          ],
+          [
+            0.10314943004179777,
+            0.6777966980870537
+          ],
+          [
+            0.8798242840837822,
+            0.8801905952129917
+          ],
+          [
+            0.6666700748135007,
+            0.611469293765263
+          ],
+          [
+            0.07174750012071796,
+            0.43410676969488526
+          ],
+          [
+            0.882246416708393,
+            0.6426551167048276
+          ],
+          [
+            0.9227611789174508,
+            0.07721126133388428
+          ],
+          [
+            0.7853954099240045,
+            0.0609131406294586
+          ],
+          [
+            0.47479135434065234,
+            0.8451491454026896
+          ],
+          [
+            0.3233749731784852,
+            0.2856028519493968
+          ],
+          [
+            0.792430156979784,
+            0.32973594201648837
+          ],
+          [
+            0.6595848176032909,
+            0.8200118183263847
+          ],
+          [
+            0.25945500733966276,
+            0.8617726329910533
+          ],
+          [
+            0.14325908406530685,
+            0.1433505742657543
+          ],
+          [
+            0.6446308602152003,
+            0.08125463119272865
+          ],
+          [
+            0.44933416400055853,
+            0.4618214964640276
+          ],
+          [
+            0.18361906931497318,
+            0.3506263576822083
+          ],
+          [
+            0.732757199476297,
+            0.9549652977601492
+          ],
+          [
+            0.22448343494852618,
+            0.5141075983017511
+          ]
+        ],
+        "radii": [
+          0.023180814903461938,
+          0.020452866001444914,
+          0.04550937409938005,
+          0.021195984358129763,
+          0.04646541512175409,
+          0.10778755935000021,
+          0.03295204024563529,
+          0.09538555009696609,
+          0.10314943004179777,
+          0.11979424405386402,
+          0.08347990816686779,
+          0.07174750012071796,
+          0.11775358329160701,
+          0.07660420511431676,
+          0.0609131406294586,
+          0.07763707491314079,
+          0.08842889943853822,
+          0.20756984302021597,
+          0.10847959377276331,
+          0.13819979172909172,
+          0.1410867732664317,
+          0.08125463119272865,
+          0.113983725556534,
+          0.05036752821038076,
+          0.04503470223985084,
+          0.09793043498894062
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.176345)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.574723 | 0.406219 | 0.023181 |\n|  1 | 0.566263 | 0.908976 | 0.020453 |\n|  2 | 0.418050 | 0.954491 | 0.045509 |\n|  3 | 0.239061 | 0.395876 | 0.021196 |\n|  4 | 0.537678 | 0.595759 | 0.046465 |\n|  5 | 0.471282 | 0.156667 | 0.107788 |\n|  6 | 0.294427 | 0.403481 | 0.032952 |\n|  7 | 0.411237 | 0.684222 | 0.095386 |\n|  8 | 0.103149 | 0.677797 | 0.103149 |\n|  9 | 0.879824 | 0.880191 | 0.119794 |\n| 10 | 0.666670 | 0.611469 | 0.083480 |\n| 11 | 0.071748 | 0.434107 | 0.071748 |\n| 12 | 0.882246 | 0.642655 | 0.117754 |\n| 13 | 0.922761 | 0.077211 | 0.076604 |\n| 14 | 0.785395 | 0.060913 | 0.060913 |\n| 15 | 0.474791 | 0.845149 | 0.077637 |\n| 16 | 0.323375 | 0.285603 | 0.088429 |\n| 17 | 0.792430 | 0.329736 | 0.207570 |\n| 18 | 0.659585 | 0.820012 | 0.108480 |\n| 19 | 0.259455 | 0.861773 | 0.138200 |\n| 20 | 0.143259 | 0.143351 | 0.141087 |\n| 21 | 0.644631 | 0.081255 | 0.081255 |\n| 22 | 0.449334 | 0.461821 | 0.113984 |\n| 23 | 0.183619 | 0.350626 | 0.050368 |\n| 24 | 0.732757 | 0.954965 | 0.045035 |\n| 25 | 0.224483 | 0.514108 | 0.097930 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.574723, 0.406219],\n    [0.566263, 0.908976],\n    [0.418050, 0.954491],\n    [0.239061, 0.395876],\n    [0.537678, 0.595759],\n    [0.471282, 0.156667],\n    [0.294427, 0.403481],\n    [0.411237, 0.684222],\n    [0.103149, 0.677797],\n    [0.879824, 0.880191],\n    [0.666670, 0.611469],\n    [0.071748, 0.434107],\n    [0.882246, 0.642655],\n    [0.922761, 0.077211],\n    [0.785395, 0.060913],\n    [0.474791, 0.845149],\n    [0.323375, 0.285603],\n    [0.792430, 0.329736],\n    [0.659585, 0.820012],\n    [0.259455, 0.861773],\n    [0.143259, 0.143351],\n    [0.644631, 0.081255],\n    [0.449334, 0.461821],\n    [0.183619, 0.350626],\n    [0.732757, 0.954965],\n    [0.224483, 0.514108]\n])\n\nradii = np.array([\n    0.023181,\n    0.020453,\n    0.045509,\n    0.021196,\n    0.046465,\n    0.107788,\n    0.032952,\n    0.095386,\n    0.103149,\n    0.119794,\n    0.083480,\n    0.071748,\n    0.117754,\n    0.076604,\n    0.060913,\n    0.077637,\n    0.088429,\n    0.207570,\n    0.108480,\n    0.138200,\n    0.141087,\n    0.081255,\n    0.113984,\n    0.050368,\n    0.045035,\n    0.097930\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.176345"
+    }
+  },
+  "prompt": "Use a 'genetic algorithm' approach for the initial placement. The genome is a set of 26 (x, y) coordinates. Fitness is the sum of radii after a quick local optimization. Use a population of 10 and evolve for 5 generations before a final deep optimization.",
+  "response": "To maximize the sum of radii for 26 circles in a unit square, we employ a strategy that combines a Genetic Algorithm for global positioning with a constrained optimization step. The fitness function calculates the maximum possible radii for a given set of centers by solving a linear program or using a greedy boundary-aware calculation, followed by a local refinement to ensure no overlaps and boundary compliance.\n\n```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    n = 26\n    \n    def get_radii(centers):\n        \"\"\"Calculates maximum valid radii for fixed centers.\"\"\"\n        # Distance to boundaries\n        r_bound = np.min(np.concatenate([centers, 1 - centers], axis=1), axis=1)\n        r = r_bound.copy()\n        \n        # Pairwise distances to prevent overlap: r_i + r_j <= dist(c_i, c_j)\n        # This is a simplification: we solve for r such that all constraints hold.\n        # For the GA fitness, we use a heuristic; for the final, we optimize.\n        for i in range(n):\n            for j in range(i + 1, n):\n                dist = np.linalg.norm(centers[i] - centers[j])\n                if r[i] + r[j] > dist:\n                    # Shrink both proportionally to current size\n                    ratio = dist / (r[i] + r[j])\n                    r[i] *= ratio\n                    r[j] *= ratio\n        return r\n\n    def objective(coords):\n        centers = coords.reshape((n, 2))\n        # Penalty for being outside square\n        penalty = np.sum(np.maximum(0, -centers)) + np.sum(np.maximum(0, centers - 1))\n        if penalty > 0: return 10 + penalty\n        \n        r = get_radii(centers)\n        return -np.sum(r)\n\n    # Simple Genetic Algorithm\n    pop_size = 10\n    generations = 5\n    population = [np.random.rand(n * 2) for _ in range(pop_size)]\n    \n    for _ in range(generations):\n        # Evaluate\n        fitness = [objective(ind) for ind in population]\n        sorted_idx = np.argsort(fitness)\n        population = [population[i] for i in sorted_idx]\n        \n        # Crossover and Mutation\n        new_pop = population[:2] # Elitism\n        while len(new_pop) < pop_size:\n            p1, p2 = population[np.random.randint(0, 5)], population[np.random.randint(0, 5)]\n            child = (p1 + p2) / 2 + np.random.normal(0, 0.05, n * 2)\n            new_pop.append(np.clip(child, 0, 1))\n        population = new_pop\n\n    # Final deep optimization\n    res = minimize(objective, population[0], method='L-BFGS-B', bounds=[(0, 1)] * (n * 2))\n    \n    final_centers = res.x.reshape((n, 2))\n    \n    # Refine radii calculation to be strictly valid\n    def compute_valid_radii(centers):\n        # Linear programming approach to maximize sum(r) subject to:\n        # r_i + r_j <= dist_ij\n        # r_i <= x_i, r_i <= 1-x_i, r_i <= y_i, r_i <= 1-y_i\n        from scipy.optimize import linprog\n        c = -np.ones(n)\n        A_ub = []\n        b_ub = []\n        \n        # Boundary constraints\n        bounds = []\n        for i in range(n):\n            max_r = min(centers[i, 0], 1 - centers[i, 0], centers[i, 1], 1 - centers[i, 1])\n            bounds.append((0, max(0, max_r)))\n            \n        # Overlap constraints\n        for i in range(n):\n            for j in range(i + 1, n):\n                dist = np.linalg.norm(centers[i] - centers[j])\n                row = np.zeros(n)\n                row[i] = 1\n                row[j] = 1\n                A_ub.append(row)\n                b_ub.append(dist)\n        \n        lp_res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs')\n        return lp_res.x if lp_res.success else get_radii(centers)\n\n    radii = compute_valid_radii(final_centers)\n    sum_radii = np.sum(radii)\n    \n    return final_centers, radii, sum_radii\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "To maximize the sum of radii for 26 circles in a unit square, we employ a strategy that combines a Genetic Algorithm for global positioning with a constrained optimization step. The fitness function calculates the maximum possible radii for a given set of centers by solving a linear program or using a greedy boundary-aware calculation, followed by a local refinement to ensure no overlaps and boundary compliance.",
+  "timestamp": "2025-12-25T00:13:15.543841",
+  "cost_data": null
+}

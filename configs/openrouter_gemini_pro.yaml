@@ -1,0 +1,35 @@
+# OpenRouter config using Google Gemini 3 Flash Preview
+# Very fast and cost-effective for experimentation
+#
+# Requires: OPENROUTER_API_KEY environment variable
+# Pricing: https://openrouter.ai/google/gemini-3-flash-preview
+
+experiment:
+  name: "circle_packing_gemini_flash"
+  output_dir: "./experiments"
+
+root_llm:
+  provider: "openrouter"
+  model: "google/gemini-3-pro-preview"
+  cost_per_million_input_tokens: 2.00
+  cost_per_million_output_tokens: 12.00
+  max_iterations: 30
+
+child_llm:
+  provider: "openrouter"
+  model: "google/gemini-3-pro-preview"
+  cost_per_million_input_tokens: 2.00
+  cost_per_million_output_tokens: 12.00
+
+evaluation:
+  evaluator_fn: "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator"
+  evaluator_kwargs:
+    n_circles: 26
+    timeout_seconds: 300
+
+evolution:
+  max_generations: 10
+  max_children_per_generation: 15
+
+budget:
+  max_total_cost: 15.0  # Lower budget since Gemini is much cheaper

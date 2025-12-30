@@ -1,0 +1,421 @@
+{
+  "experiment_id": "circle_packing_gemini_flash_20251225_001221",
+  "config": {
+    "experiment": {
+      "name": "circle_packing_gemini_flash",
+      "output_dir": "./experiments",
+      "seed": null
+    },
+    "root_llm": {
+      "model": "google/gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "openrouter",
+      "max_iterations": 30
+    },
+    "child_llm": {
+      "model": "google/gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "openrouter",
+      "max_iterations": null
+    },
+    "evaluation": {
+      "evaluator_fn": "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+      "evaluator_kwargs": {
+        "n_circles": 26,
+        "timeout_seconds": 300
+      }
+    },
+    "evolution": {
+      "max_generations": 10,
+      "max_children_per_generation": 15
+    },
+    "budget": {
+      "max_total_cost": 5.0
+    }
+  },
+  "start_time": "2025-12-25T00:12:21.077755",
+  "end_time": "2025-12-25T00:32:41.062153",
+  "termination_reason": "max_generations_reached",
+  "num_generations": 10,
+  "total_trials": 0,
+  "best_trial": {
+    "trial_id": "trial_5_11",
+    "score": 2.632341639622921,
+    "generation": 5
+  },
+  "scratchpad": "### Active Approaches\n- 27-Circle Re-tiling (trial_8_2): Inserting an extra circle to force reorganization, then pruning.\n- Lamarckian CMA-ES (trial_8_1): High-dimensional evolutionary search with local refinement.\n- Medial Axis Gap Filling (trial_8_13): Using geometric skeletons to find optimal insertion points.\n- Multi-Resolution Grid (trial_8_14): Discretizing the search space to bypass continuous local minima.\n\n### Key Insights\n- The 2.6323 state is incredibly resilient. It likely corresponds to a configuration where 25 circles form a near-perfect 5x5 grid and the 26th is squeezed into a corner or side.\n- To reach 2.6359, we need a \"Hexagonal Staggering\" where rows are shifted relative to each other.\n- Standard optimizers cannot \"shift\" a whole row because it requires moving multiple circles simultaneously against their constraints.\n\n### To Try Next\n- \"Row-Shift Mutation\": Explicitly take a row of circles and shift it by 0.5 * radius, then let the optimizer resolve the resulting overlaps.\n- \"Thermal Expansion with Pressure\": Increase all radii globally (the 'pressure') while using a repulsive force, then normalize back to the unit square.\n- \"Voronoi Centroidal Relaxation\": Use Lloyd's algorithm but weighted by the current circle radii to 'spread out' the dense clusters.\n",
+  "generations": [
+    {
+      "generation_num": 0,
+      "num_trials": 15,
+      "num_successful_trials": 13,
+      "best_trial_id": "trial_0_2",
+      "best_score": 2.6206087875890463,
+      "selected_trial_ids": [
+        "trial_0_2",
+        "trial_0_14",
+        "trial_0_12",
+        "trial_0_4"
+      ],
+      "selection_reasoning": "Selected the top two performers which use grid/optimization hybrids, along with a physics-based model and a greedy-hybrid model to maintain algorithmic diversity for the next generation.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_0_2",
+          "reasoning": "Highest score (2.6206) using a hexagonal initialization combined with a 'gravity' force and constrained optimization. This is very close to the benchmark.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_0_14",
+          "reasoning": "Strong performance (2.5828) using a perturbed grid approach. It offers a slightly different geometric starting point than trial_0_2.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_0_12",
+          "reasoning": "Uses a force-directed/physics-based growth model. While the score (2.5571) is lower, this approach often explores the configuration space differently than pure gradient-based optimizers.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_0_4",
+          "reasoning": "Combines structured dense packing with greedy local search. This hybrid approach has potential for refinement in how it fills gaps.",
+          "category": "potential"
+        }
+      ],
+      "timestamp": "2025-12-25T00:12:48.358462"
+    },
+    {
+      "generation_num": 1,
+      "num_trials": 15,
+      "num_successful_trials": 13,
+      "best_trial_id": "trial_1_3",
+      "best_score": 2.6246627245958547,
+      "selected_trial_ids": [
+        "trial_1_3",
+        "trial_1_0",
+        "trial_1_6",
+        "trial_1_13"
+      ],
+      "selection_reasoning": "Selected the new top performer (trial_1_3) and a variety of refinement strategies (stochastic search, randomized greedy, and concentric filling) to push toward the 2.636 benchmark.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_1_3",
+          "reasoning": "Highest score achieved so far (2.6247). It successfully improved upon the previous best by refining the grid aspect ratios and hexagonal tilts.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_1_0",
+          "reasoning": "Used a multi-start local optimization with Gaussian noise. While it matched the parent score (2.6206), the framework for stochastic local search is robust for further refinement.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_1_6",
+          "reasoning": "Achieved a solid score (2.6104) using a randomized greedy order for the final circles. This approach helps in exploring configurations that rigid grids might miss.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_1_13",
+          "reasoning": "Uses a 'concentric' packing/greedy-filling logic. Although the score (2.5961) is lower, this structural alternative to hexagonal grids is worth keeping for diversity.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-25T00:13:24.372016"
+    },
+    {
+      "generation_num": 2,
+      "num_trials": 15,
+      "num_successful_trials": 12,
+      "best_trial_id": "trial_2_6",
+      "best_score": 2.632341575636144,
+      "selected_trial_ids": [
+        "trial_2_6",
+        "trial_2_0",
+        "trial_2_11",
+        "trial_2_4"
+      ],
+      "selection_reasoning": "The breakthrough in trial_2_6 using 'Growth and Pruning' is the primary focus. I've also selected the previous best grid approach, a recursive bisection method for topological diversity, and a randomized greedy hybrid to ensure multiple paths toward the benchmark.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_6",
+          "reasoning": "Significant jump in score (2.6323), very close to the benchmark. The 'Growth and Pruning' strategy successfully found a superior configuration by starting with more circles and eliminating the least efficient ones.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_2_0",
+          "reasoning": "Maintains the strong baseline (2.6247) from the previous generation's best. It serves as a reliable fallback for grid-based refinements.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_2_11",
+          "reasoning": "Uses a recursive subdivision strategy. While the score is lower (2.6159), the topology generated by bisection is fundamentally different from hexagonal grids and could be a fruitful path for further optimization.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_2_4",
+          "reasoning": "Combines grid optimization with randomized greedy filling. This hybrid approach is useful for exploring non-symmetrical configurations that might break the 2.632 plateau.",
+          "category": "potential"
+        }
+      ],
+      "timestamp": "2025-12-25T00:18:50.688818"
+    },
+    {
+      "generation_num": 3,
+      "num_trials": 15,
+      "num_successful_trials": 14,
+      "best_trial_id": "trial_3_11",
+      "best_score": 2.632341639597087,
+      "selected_trial_ids": [
+        "trial_3_0",
+        "trial_3_1",
+        "trial_3_13",
+        "trial_3_7"
+      ],
+      "selection_reasoning": "We are currently plateauing at 2.6323. I've selected the best-performing refinement (trial_3_0) along with three trials that introduce significant procedural or topological diversity (Voronoi pruning, iterative deepening, and hybrid tiling) to find the final 0.003 improvement needed for the benchmark.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_3_0",
+          "reasoning": "Maintains the current best score (2.6323). This trial implemented a simulated annealing refinement on the growth-and-pruning backbone, which is a robust framework for squeezing out more performance.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_3_1",
+          "reasoning": "Explored varying the initial circle count and pruning criteria (Voronoi area). While slightly lower in this run, this methodological diversity is key to breaking the 2.632 plateau.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_3_13",
+          "reasoning": "Implemented an 'Iterative Deepening' pruning strategy. Although the score is 2.6109, the logic of exploring the 'path' to 26 circles is a novel way to search the configuration space.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_3_7",
+          "reasoning": "Uses a hybrid tiling approach (hexagonal and square lattices in different regions). This breaks symmetry and could lead to the asymmetric configurations often found in optimal packings.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-25T00:19:43.597835"
+    },
+    {
+      "generation_num": 4,
+      "num_trials": 15,
+      "num_successful_trials": 15,
+      "best_trial_id": "trial_4_2",
+      "best_score": 2.6323416396016124,
+      "selected_trial_ids": [
+        "trial_4_6",
+        "trial_4_2",
+        "trial_4_1",
+        "trial_4_13"
+      ],
+      "selection_reasoning": "We are still stuck at 2.6323. I am selecting trials that focus on escaping local minima: 'Jiggle and Regrow' for structural changes, 'Successive Relaxation' for smoother optimization landscapes, and Voronoi/Sobol methods for topological diversity.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_4_6",
+          "reasoning": "Maintains the 2.6323 score using a 'Jiggle and Regrow' strategy. This approach is specifically designed to break local optima by removing and re-inserting circles, which is exactly what we need to move past the current plateau.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_4_2",
+          "reasoning": "Uses a 'Successive Relaxation' (penalty method) approach. This is a powerful optimization technique that allows the system to explore 'invalid' states to find better 'valid' ones, potentially discovering the 2.6359 configuration.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_4_1",
+          "reasoning": "Implemented Voronoi-area based pruning. While the score (2.6304) is slightly lower than the best, the logic is sound and provides a more geometric basis for pruning than simple radius size.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_4_13",
+          "reasoning": "Uses Sobol sequences for high-dimensional quasi-random initialization. This provides a very different set of starting points compared to the grid-based or growth-based methods used so far.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-25T00:20:33.771525"
+    },
+    {
+      "generation_num": 5,
+      "num_trials": 15,
+      "num_successful_trials": 15,
+      "best_trial_id": "trial_5_11",
+      "best_score": 2.632341639622921,
+      "selected_trial_ids": [
+        "trial_5_14",
+        "trial_5_4",
+        "trial_5_1",
+        "trial_5_10"
+      ],
+      "selection_reasoning": "We are consistently hitting the 2.6323 limit. I am selecting trials that introduce structural perturbations (ILS, Shear, Coordinate Descent) to 'shake' the configuration into a new basin, while keeping the density-weighted approach for topological variety.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_5_14",
+          "reasoning": "Successfully implemented an Iterative Local Search (ILS) that maintains the 2.6323 score. The 'Perturb and Optimize' cycle is the most promising way to break the current plateau by forcing the configuration out of the local optimum.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_5_4",
+          "reasoning": "Implemented a Coordinate Descent approach. By optimizing one circle at a time, it can navigate the complex constraint surface differently than the simultaneous SLSQP, potentially finding small gaps for expansion.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_5_1",
+          "reasoning": "Used 'Symmetry Breaking' via shear transformations. This is a clever way to distort the rigid grid-like structures that seem to be trapping the optimizer at 2.6323.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_5_10",
+          "reasoning": "Uses a density-weighted Voronoi initialization. While the score is lower (2.5766), the methodology of favoring corners and edges is a known characteristic of optimal packings and provides a fresh starting point.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-25T00:21:39.385617"
+    },
+    {
+      "generation_num": 6,
+      "num_trials": 15,
+      "num_successful_trials": 14,
+      "best_trial_id": "trial_6_5",
+      "best_score": 2.632341639596923,
+      "selected_trial_ids": [
+        "trial_6_11",
+        "trial_6_5",
+        "trial_6_2",
+        "trial_6_3"
+      ],
+      "selection_reasoning": "We are maintaining the 2.6323 baseline while introducing more sophisticated global search and perturbation techniques. CMA-ES and Circle Migration represent the best 'heavy' tools for local escape, while Poisson Sampling and Warping provide the necessary topological diversity.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_11",
+          "reasoning": "Successfully implemented a constrained CMA-ES (Covariance Matrix Adaptation Evolution Strategy) initialized at the 2.6323 state. CMA-ES is one of the most powerful derivative-free optimizers for high-dimensional, non-convex landscapes and could find the narrow path to the benchmark.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_6_5",
+          "reasoning": "Implemented 'Circle Migration' by deleting small circles and re-inserting them into Voronoi gaps. This structural 'shuffling' is essential for escaping the 2.6323 local optimum which likely has a suboptimal topology.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_6_2",
+          "reasoning": "Uses 'Sinusoidal Warping' to break the symmetry of the current best packing. By distorting the grid and then re-optimizing with high precision (1000 iterations), it tests if a nearby basin has a better configuration.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_6_3",
+          "reasoning": "Uses Poisson Disk Sampling for initialization. Although the score (2.6004) is lower, this 'blue noise' distribution is fundamentally different from the grid-based starts and may lead to the more asymmetric, interlocked patterns found in global optima.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-25T00:27:10.586331"
+    },
+    {
+      "generation_num": 7,
+      "num_trials": 15,
+      "num_successful_trials": 11,
+      "best_trial_id": "trial_7_6",
+      "best_score": 2.632341639599908,
+      "selected_trial_ids": [
+        "trial_7_1",
+        "trial_7_0",
+        "trial_7_2",
+        "trial_7_5"
+      ],
+      "selection_reasoning": "We continue to hit the 2.6323 plateau. The selection focuses on methods that explicitly allow for 'non-local' moves: Topological Melting (ghosting through neighbors), Radius Swapping (trading roles), and Lamarckian CMA-ES (global search with local refinement).",
+      "trial_selections": [
+        {
+          "trial_id": "trial_7_1",
+          "reasoning": "Implemented 'Topological Melting' which allows circles to overlap significantly before gradually increasing the penalty. This is the most theoretically sound way to transition between different packing topologies without getting stuck in the 2.6323 basin.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_7_0",
+          "reasoning": "Uses a 'Lamarckian' CMA-ES approach where each candidate is refined by SLSQP. This combines the global search power of evolution strategies with the local precision of gradient descent, maintaining the 2.6323 baseline while searching for higher peaks.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_7_2",
+          "reasoning": "Implemented 'Stochastic Radius Swapping'. By explicitly forcing large and small circles to trade places, it forces the optimizer to explore configurations that are spatially distant from the current 2.6323 attractor.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_7_5",
+          "reasoning": "Uses a hexagonal lattice with Perlin noise jitter. While the score (2.6242) is slightly lower, the use of noise fields to perturb structured grids is a diverse way to explore 'staggered' configurations that might be more efficient than the standard grid.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-25T00:28:07.775784"
+    },
+    {
+      "generation_num": 8,
+      "num_trials": 15,
+      "num_successful_trials": 15,
+      "best_trial_id": "trial_8_3",
+      "best_score": 2.63234163960013,
+      "selected_trial_ids": [
+        "trial_8_2",
+        "trial_8_1",
+        "trial_8_13",
+        "trial_8_14"
+      ],
+      "selection_reasoning": "We are still at the 2.6323 plateau, but the tools are becoming more specialized. I'm selecting the '27th Circle' method and Medial Axis filling for their topological flexibility, CMA-ES for its global search, and Multi-Resolution search for its ability to bypass gradient-based traps.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_8_2",
+          "reasoning": "Successfully implemented the '27th Circle' strategy, which is a powerful topological re-shuffling method. It maintains the 2.6323 baseline but provides the machinery to 're-tile' the square by inserting and then pruning circles, which is the most likely way to find the 2.6359 configuration.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_8_1",
+          "reasoning": "Improved the Lamarckian CMA-ES with adaptive precision and catastrophic mutation. This is our best 'heavy-duty' global optimizer for navigating the high-dimensional landscape around the current best solution.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_8_13",
+          "reasoning": "Implemented Medial Axis Gap Filling. This geometric approach is excellent for identifying exactly where the 'slop' in the current 2.6323 packing is and attempting to re-center circles to exploit it.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_8_14",
+          "reasoning": "The multi-resolution grid search approach (score 2.5963) is a fundamentally different way of looking at the problem\u2014discretizing the space to jump over the continuous 'ridges' that trap SLSQP. It's worth refining to see if a finer grid can bridge the gap.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-25T00:29:48.016907"
+    },
+    {
+      "generation_num": 9,
+      "num_trials": 15,
+      "num_successful_trials": 14,
+      "best_trial_id": "trial_9_0",
+      "best_score": 2.6323416396001456,
+      "selected_trial_ids": [
+        "trial_9_0",
+        "trial_9_13",
+        "trial_9_6",
+        "trial_9_7"
+      ],
+      "selection_reasoning": "As we enter the final generation, we are carrying forward the most robust 'basin-jumping' techniques. The selection includes topological re-tiling (Add-2-Prune-2), high-variance stochastic perturbation (Shake and Bake), Metropolis-based global search (Heavy-Kick), and graph-based annealing.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_9_0",
+          "reasoning": "Implemented the 'Add-2-Prune-2' cycle which is the most aggressive topological search we have. It maintains the 2.6323 baseline while successfully exploring the neighbor configurations of the 5x5+1 attractor.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_9_13",
+          "reasoning": "The 'Shake and Bake' method uses large Gaussian noise (sigma=0.05) to physically displace the packing before re-optimizing. This is a robust way to test if the 2.6323 basin is truly the global optimum or just a very wide local one.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_9_6",
+          "reasoning": "Uses 'Heavy-Kick Basin Hopping' with a Metropolis acceptance criterion. This is the only trial that explicitly allows for temporary score decreases to jump across the high-energy barriers between packing topologies.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_9_7",
+          "reasoning": "Attempts 'Topological Simulated Annealing' by focusing on the adjacency graph. While the current score is lower (2.4943), this approach is fundamentally different from coordinate-based search and could lead to a breakthrough if the graph-to-geometry mapping is refined.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-25T00:32:41.056563"
+    }
+  ]
+}

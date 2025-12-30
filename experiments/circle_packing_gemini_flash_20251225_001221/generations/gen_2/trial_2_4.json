@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_2_4",
+  "generation": 2,
+  "parent_id": "trial_1_6",
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square.\n    Combines a grid-based initialization for 20 circles with a \n    randomized greedy fill for the remaining 6, followed by \n    SLSQP optimization to maximize the sum of radii.\n    \"\"\"\n    n = 26\n    \n    def get_packing_sum(initial_centers, initial_radii):\n        # Optimization target: Maximize sum of radii\n        def objective(params):\n            return -np.sum(params[2*n:])\n\n        def constraints(params):\n            c = params[:2*n].reshape((n, 2))\n            r = params[2*n:]\n            cons = []\n            # Boundary constraints: center +/- radius must be in [0, 1]\n            for i in range(n):\n                cons.append(c[i, 0] - r[i])\n                cons.append(1.0 - c[i, 0] - r[i])\n                cons.append(c[i, 1] - r[i])\n                cons.append(1.0 - c[i, 1] - r[i])\n                cons.append(r[i])\n            \n            # Non-overlap constraints: dist(ci, cj) >= ri + rj\n            for i in range(n):\n                for j in range(i + 1, n):\n                    # Using squared distances can be more stable, \n                    # but norm is standard for this formulation.\n                    dist = np.linalg.norm(c[i] - c[j])\n                    cons.append(dist - (r[i] + r[j]))\n            return np.array(cons)\n\n        init_p = np.concatenate([initial_centers.flatten(), initial_radii])\n        \n        # SLSQP is effective for constrained non-linear optimization\n        res = minimize(\n            objective, \n            init_p, \n            method='SLSQP',\n            constraints={'type': 'ineq', 'fun': constraints},\n            options={'maxiter': 50, 'disp': False}\n        )\n        \n        # Post-process to ensure strict feasibility and valid return types\n        p = res.x\n        c_opt = p[:2*n].reshape((n, 2))\n        r_opt = p[2*n:]\n        \n        # Final cleanup for constraints\n        for i in range(n):\n            c_opt[i] = np.clip(c_opt[i], 0, 1)\n            r_opt[i] = max(0, r_opt[i])\n            r_opt[i] = min(r_opt[i], c_opt[i, 0], 1 - c_opt[i, 0], c_opt[i, 1], 1 - c_opt[i, 1])\n            for j in range(i):\n                d = np.linalg.norm(c_opt[i] - c_opt[j])\n                if r_opt[i] + r_opt[j] > d:\n                    # Adjust the smaller one or just reduce current\n                    r_opt[i] = max(0, d - r_opt[j] - 1e-12)\n                    \n        return c_opt, r_opt, np.sum(r_opt)\n\n    # 1. Structured placement for the first 20 circles (approx 5x4 grid)\n    # This provides a high-density base.\n    x_coords = np.linspace(0.12, 0.88, 5)\n    y_coords = np.linspace(0.12, 0.88, 4)\n    grid_centers = np.array([[x, y] for y in y_coords for x in x_coords])\n    grid_radii = np.full(20, 0.08)\n    \n    best_overall_sum = -1\n    best_centers = None\n    best_radii = None\n\n    # 2. Randomized Greedy trials for the remaining 6 circles\n    # We run a few trials to explore different gap-filling configurations\n    for _ in range(3): \n        current_centers = list(grid_centers.copy())\n        current_radii = list(grid_radii.copy())\n        \n        # Fill remaining 6 circles greedily\n        for _ in range(6):\n            best_r = -1\n            best_c = np.array([0.5, 0.5])\n            # Sample many points to find the largest possible empty space\n            samples = np.random.rand(500, 2)\n            for pt in samples:\n                r_bound = min(pt[0], 1 - pt[0], pt[1], 1 - pt[1])\n                r_circ = 1.0\n                for j in range(len(current_centers)):\n                    dist = np.linalg.norm(pt - current_centers[j]) - current_radii[j]\n                    if dist < r_circ: \n                        r_circ = dist\n                r_cand = min(r_bound, r_circ)\n                if r_cand > best_r:\n                    best_r = r_cand\n                    best_c = pt\n            current_centers.append(best_c)\n            current_radii.append(max(0, best_r))\n            \n        # 3. Local Optimization\n        c_res, r_res, s_res = get_packing_sum(np.array(current_centers), np.array(current_radii))\n        \n        if s_res > best_overall_sum:\n            best_overall_sum = s_res\n            best_centers = c_res\n            best_radii = r_res\n\n    return best_centers, best_radii, best_overall_sum\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.61457283252396,
+    "eval_time": 1.5267329216003418,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.1366469362899429,
+            0.13664693632031694
+          ],
+          [
+            0.3719131521306875,
+            0.10126497078496481
+          ],
+          [
+            0.5642821882694091,
+            0.0913589508195684
+          ],
+          [
+            0.7183451903029683,
+            0.06495096603009662
+          ],
+          [
+            0.8885257801658836,
+            0.11147421987364217
+          ],
+          [
+            0.13982283232860016,
+            0.4130983586195926
+          ],
+          [
+            0.3792228911910832,
+            0.43594567453114175
+          ],
+          [
+            0.5950886377683786,
+            0.4535674297118607
+          ],
+          [
+            0.7756654275221673,
+            0.41812352934315655
+          ],
+          [
+            0.9046362021690151,
+            0.31768386952790817
+          ],
+          [
+            0.10829550466652162,
+            0.6592055164418078
+          ],
+          [
+            0.4565953477777418,
+            0.6309311879701036
+          ],
+          [
+            0.6531058047470366,
+            0.7017525917283587
+          ],
+          [
+            0.7537381509557068,
+            0.5592304687198529
+          ],
+          [
+            0.9093949900947718,
+            0.5035917804507296
+          ],
+          [
+            0.11632120368620344,
+            0.8836787962567432
+          ],
+          [
+            0.29900709832498307,
+            0.9282715985945688
+          ],
+          [
+            0.4931559394225712,
+            0.868623266208096
+          ],
+          [
+            0.7298878446880263,
+            0.8933563173959784
+          ],
+          [
+            0.917492634637545,
+            0.9174926346754049
+          ],
+          [
+            0.48697806112331693,
+            0.2665324964559151
+          ],
+          [
+            0.29108463195155837,
+            0.7574866868476114
+          ],
+          [
+            0.30697155071252286,
+            0.27042783321195707
+          ],
+          [
+            0.70379168488315,
+            0.24690735388989807
+          ],
+          [
+            0.876230936105548,
+            0.7153850971507549
+          ],
+          [
+            0.27685136378082464,
+            0.5815203004718701
+          ]
+        ],
+        "radii": [
+          0.1366469362899429,
+          0.10126497078496481,
+          0.0913589508195684,
+          0.06495096603009662,
+          0.11147421983411643,
+          0.1398227278802656,
+          0.1006649897254851,
+          0.1159188203818014,
+          0.06810358710055825,
+          0.0953637972402126,
+          0.10829550466652162,
+          0.1091107178502263,
+          0.09977209347358933,
+          0.07469688131457017,
+          0.09060500703640045,
+          0.11632120262654587,
+          0.07172840140543124,
+          0.13137670576696603,
+          0.10664367469056855,
+          0.08250736532459513,
+          0.10011349904328581,
+          0.09924016337525117,
+          0.07993515393238682,
+          0.11758650938154533,
+          0.12376906389445197,
+          0.07730092265461223
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.614573)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.136647 | 0.136647 | 0.136647 |\n|  1 | 0.371913 | 0.101265 | 0.101265 |\n|  2 | 0.564282 | 0.091359 | 0.091359 |\n|  3 | 0.718345 | 0.064951 | 0.064951 |\n|  4 | 0.888526 | 0.111474 | 0.111474 |\n|  5 | 0.139823 | 0.413098 | 0.139823 |\n|  6 | 0.379223 | 0.435946 | 0.100665 |\n|  7 | 0.595089 | 0.453567 | 0.115919 |\n|  8 | 0.775665 | 0.418124 | 0.068104 |\n|  9 | 0.904636 | 0.317684 | 0.095364 |\n| 10 | 0.108296 | 0.659206 | 0.108296 |\n| 11 | 0.456595 | 0.630931 | 0.109111 |\n| 12 | 0.653106 | 0.701753 | 0.099772 |\n| 13 | 0.753738 | 0.559230 | 0.074697 |\n| 14 | 0.909395 | 0.503592 | 0.090605 |\n| 15 | 0.116321 | 0.883679 | 0.116321 |\n| 16 | 0.299007 | 0.928272 | 0.071728 |\n| 17 | 0.493156 | 0.868623 | 0.131377 |\n| 18 | 0.729888 | 0.893356 | 0.106644 |\n| 19 | 0.917493 | 0.917493 | 0.082507 |\n| 20 | 0.486978 | 0.266532 | 0.100113 |\n| 21 | 0.291085 | 0.757487 | 0.099240 |\n| 22 | 0.306972 | 0.270428 | 0.079935 |\n| 23 | 0.703792 | 0.246907 | 0.117587 |\n| 24 | 0.876231 | 0.715385 | 0.123769 |\n| 25 | 0.276851 | 0.581520 | 0.077301 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.136647, 0.136647],\n    [0.371913, 0.101265],\n    [0.564282, 0.091359],\n    [0.718345, 0.064951],\n    [0.888526, 0.111474],\n    [0.139823, 0.413098],\n    [0.379223, 0.435946],\n    [0.595089, 0.453567],\n    [0.775665, 0.418124],\n    [0.904636, 0.317684],\n    [0.108296, 0.659206],\n    [0.456595, 0.630931],\n    [0.653106, 0.701753],\n    [0.753738, 0.559230],\n    [0.909395, 0.503592],\n    [0.116321, 0.883679],\n    [0.299007, 0.928272],\n    [0.493156, 0.868623],\n    [0.729888, 0.893356],\n    [0.917493, 0.917493],\n    [0.486978, 0.266532],\n    [0.291085, 0.757487],\n    [0.306972, 0.270428],\n    [0.703792, 0.246907],\n    [0.876231, 0.715385],\n    [0.276851, 0.581520]\n])\n\nradii = np.array([\n    0.136647,\n    0.101265,\n    0.091359,\n    0.064951,\n    0.111474,\n    0.139823,\n    0.100665,\n    0.115919,\n    0.068104,\n    0.095364,\n    0.108296,\n    0.109111,\n    0.099772,\n    0.074697,\n    0.090605,\n    0.116321,\n    0.071728,\n    0.131377,\n    0.106644,\n    0.082507,\n    0.100113,\n    0.099240,\n    0.079935,\n    0.117587,\n    0.123769,\n    0.077301\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.614573"
+    }
+  },
+  "prompt": "Combine the randomized greedy strategy of trial_1_6 with the grid optimization of trial_1_3.\n{{import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square.\n    Uses a structured initial placement followed by randomized trials\n    and local optimization to maximize the sum of radii.\n    \"\"\"\n    n = 26\n    \n    def get_packing_sum(initial_centers, initial_radii):\n        # Local optimization to maximize sum of radii\n        # params: [x1, y1, ..., xn, yn, r1, ..., rn]\n        def objective(params):\n            return -np.sum(params[2*n:])\n\n        def constraints(params):\n            c = params[:2*n].reshape((n, 2))\n            r = params[2*n:]\n            cons = []\n            # Boundaries: r <= x, r <= 1-x, r <= y, r <= 1-y\n            for i in range(n):\n                cons.append(c[i, 0] - r[i])\n                cons.append(1.0 - c[i, 0] - r[i])\n                cons.append(c[i, 1] - r[i])\n                cons.append(1.0 - c[i, 1] - r[i])\n                cons.append(r[i])\n            \n            # Non-overlap: dist(ci, cj) >= ri + rj\n            for i in range(n):\n                for j in range(i + 1, n):\n                    dist = np.linalg.norm(c[i] - c[j])\n                    cons.append(dist - (r[i] + r[j]))\n            return np.array(cons)\n\n        init_p = np.concatenate([initial_centers.flatten(), initial_radii])\n        res = minimize(\n            objective, \n            init_p, \n            method='SLSQP',\n            constraints={'type': 'ineq', 'fun': constraints},\n            options={'maxiter': 40, 'disp': False}\n        )\n        \n        # Post-process to ensure strict feasibility\n        p = res.x\n        c_opt = p[:2*n].reshape((n, 2))\n        r_opt = p[2*n:]\n        \n        for i in range(n):\n            c_opt[i] = np.clip(c_opt[i], 0, 1)\n            r_opt[i] = max(0, r_opt[i])\n            r_opt[i] = min(r_opt[i], c_opt[i, 0], 1 - c_opt[i, 0], c_opt[i, 1], 1 - c_opt[i, 1])\n            for j in range(i):\n                d = np.linalg.norm(c_opt[i] - c_opt[j])\n                if r_opt[i] + r_opt[j] > d:\n                    r_opt[i] = max(0, d - r_opt[j] - 1e-10)\n                    \n        return c_opt, r_opt, np.sum(r_opt)\n\n    # 1. Structured placement for the first 20 circles (approx 4x5 grid)\n    grid_size = 5\n    x_coords = np.linspace(0.1, 0.9, 5)\n    y_coords = np.linspace(0.1, 0.9, 4)\n    grid_centers = np.array([[x, y] for y in y_coords for x in x_coords])\n    \n    # 2. Randomized Greedy search for the remaining 6 circles\n    best_overall_sum = -1\n    best_centers = None\n    best_radii = None\n\n    # We perform a few trials of filling the remaining space and optimizing\n    for _ in range(5): # Reduced trials to stay within time limits while performing optimization\n        current_centers = list(grid_centers.copy())\n        current_radii = [0.05] * 20\n        \n        # Fill remaining 6 circles greedily with random sampling\n        for _ in range(6):\n            best_r = -1\n            best_c = np.array([0.5, 0.5])\n            samples = np.random.rand(400, 2)\n            for pt in samples:\n                r_bound = min(pt[0], 1 - pt[0], pt[1], 1 - pt[1])\n                r_circ = 1.0\n                for j in range(len(current_centers)):\n                    dist = np.linalg.norm(pt - current_centers[j]) - current_radii[j]\n                    if dist < r_circ: r_circ = dist\n                r_cand = min(r_bound, r_circ)\n                if r_cand > best_r:\n                    best_r = r_cand\n                    best_c = pt\n            current_centers.append(best_c)\n            current_radii.append(max(0, best_r))\n            \n        c_res, r_res, s_res = get_packing_sum(np.array(current_centers), np.array(current_radii))\n        \n        if s_res > best_overall_sum:\n            best_overall_sum = s_res\n            best_centers = c_res\n            best_radii = r_res\n\n    return best_centers, best_radii, best_overall_sum\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()}}\n1. Start by placing 20 circles in the optimized grid found in trial_1_3.\n2. For the remaining 6 circles, use the parent's randomized greedy placement to find the best gaps.\n3. Run a final global optimization on all 26 circles.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square.\n    Combines a grid-based initialization for 20 circles with a \n    randomized greedy fill for the remaining 6, followed by \n    SLSQP optimization to maximize the sum of radii.\n    \"\"\"\n    n = 26\n    \n    def get_packing_sum(initial_centers, initial_radii):\n        # Optimization target: Maximize sum of radii\n        def objective(params):\n            return -np.sum(params[2*n:])\n\n        def constraints(params):\n            c = params[:2*n].reshape((n, 2))\n            r = params[2*n:]\n            cons = []\n            # Boundary constraints: center +/- radius must be in [0, 1]\n            for i in range(n):\n                cons.append(c[i, 0] - r[i])\n                cons.append(1.0 - c[i, 0] - r[i])\n                cons.append(c[i, 1] - r[i])\n                cons.append(1.0 - c[i, 1] - r[i])\n                cons.append(r[i])\n            \n            # Non-overlap constraints: dist(ci, cj) >= ri + rj\n            for i in range(n):\n                for j in range(i + 1, n):\n                    # Using squared distances can be more stable, \n                    # but norm is standard for this formulation.\n                    dist = np.linalg.norm(c[i] - c[j])\n                    cons.append(dist - (r[i] + r[j]))\n            return np.array(cons)\n\n        init_p = np.concatenate([initial_centers.flatten(), initial_radii])\n        \n        # SLSQP is effective for constrained non-linear optimization\n        res = minimize(\n            objective, \n            init_p, \n            method='SLSQP',\n            constraints={'type': 'ineq', 'fun': constraints},\n            options={'maxiter': 50, 'disp': False}\n        )\n        \n        # Post-process to ensure strict feasibility and valid return types\n        p = res.x\n        c_opt = p[:2*n].reshape((n, 2))\n        r_opt = p[2*n:]\n        \n        # Final cleanup for constraints\n        for i in range(n):\n            c_opt[i] = np.clip(c_opt[i], 0, 1)\n            r_opt[i] = max(0, r_opt[i])\n            r_opt[i] = min(r_opt[i], c_opt[i, 0], 1 - c_opt[i, 0], c_opt[i, 1], 1 - c_opt[i, 1])\n            for j in range(i):\n                d = np.linalg.norm(c_opt[i] - c_opt[j])\n                if r_opt[i] + r_opt[j] > d:\n                    # Adjust the smaller one or just reduce current\n                    r_opt[i] = max(0, d - r_opt[j] - 1e-12)\n                    \n        return c_opt, r_opt, np.sum(r_opt)\n\n    # 1. Structured placement for the first 20 circles (approx 5x4 grid)\n    # This provides a high-density base.\n    x_coords = np.linspace(0.12, 0.88, 5)\n    y_coords = np.linspace(0.12, 0.88, 4)\n    grid_centers = np.array([[x, y] for y in y_coords for x in x_coords])\n    grid_radii = np.full(20, 0.08)\n    \n    best_overall_sum = -1\n    best_centers = None\n    best_radii = None\n\n    # 2. Randomized Greedy trials for the remaining 6 circles\n    # We run a few trials to explore different gap-filling configurations\n    for _ in range(3): \n        current_centers = list(grid_centers.copy())\n        current_radii = list(grid_radii.copy())\n        \n        # Fill remaining 6 circles greedily\n        for _ in range(6):\n            best_r = -1\n            best_c = np.array([0.5, 0.5])\n            # Sample many points to find the largest possible empty space\n            samples = np.random.rand(500, 2)\n            for pt in samples:\n                r_bound = min(pt[0], 1 - pt[0], pt[1], 1 - pt[1])\n                r_circ = 1.0\n                for j in range(len(current_centers)):\n                    dist = np.linalg.norm(pt - current_centers[j]) - current_radii[j]\n                    if dist < r_circ: \n                        r_circ = dist\n                r_cand = min(r_bound, r_circ)\n                if r_cand > best_r:\n                    best_r = r_cand\n                    best_c = pt\n            current_centers.append(best_c)\n            current_radii.append(max(0, best_r))\n            \n        # 3. Local Optimization\n        c_res, r_res, s_res = get_packing_sum(np.array(current_centers), np.array(current_radii))\n        \n        if s_res > best_overall_sum:\n            best_overall_sum = s_res\n            best_centers = c_res\n            best_radii = r_res\n\n    return best_centers, best_radii, best_overall_sum\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-25T00:13:56.593459",
+  "cost_data": null
+}

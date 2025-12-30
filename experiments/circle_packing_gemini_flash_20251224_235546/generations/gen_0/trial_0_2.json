@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_0_2",
+  "generation": 0,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    n = 26\n    centers = []\n    radii = []\n\n    # 1. Greedy Initial Placement\n    # We place circles one by one, maximizing the radius of the current circle\n    for i in range(n):\n        best_r = -1\n        best_pos = (0.5, 0.5)\n        \n        # Sample points to find a good starting position for the new circle\n        # Increasing grid density improves the greedy start\n        samples = 40 \n        x_range = np.linspace(0.01, 0.99, samples)\n        y_range = np.linspace(0.01, 0.99, samples)\n        \n        for x in x_range:\n            for y in y_range:\n                # Radius constrained by square boundaries\n                r = min(x, 1-x, y, 1-y)\n                \n                # Radius constrained by existing circles\n                for j in range(len(centers)):\n                    dist = np.sqrt((x - centers[j][0])**2 + (y - centers[j][1])**2)\n                    r = min(r, dist - radii[j])\n                \n                if r > best_r:\n                    best_r = r\n                    best_pos = (x, y)\n        \n        if best_r < 1e-7: best_r = 1e-7 # Ensure non-negative\n        centers.append(best_pos)\n        radii.append(best_r)\n\n    # 2. Local Optimization Refinement\n    # Flatten variables for scipy: [x0, y0, r0, x1, y1, r1, ...]\n    initial_params = []\n    for i in range(n):\n        initial_params.extend([centers[i][0], centers[i][1], radii[i]])\n    \n    def objective(params):\n        # Maximize sum of radii = Minimize negative sum\n        r_vals = params[2::3]\n        return -np.sum(r_vals)\n\n    def constraints(params):\n        cons = []\n        # Extract components\n        xs = params[0::3]\n        ys = params[1::3]\n        rs = params[2::3]\n        \n        for i in range(n):\n            # Boundary constraints: center +/- radius within [0, 1]\n            cons.append(xs[i] - rs[i])          # x - r >= 0\n            cons.append(1.0 - (xs[i] + rs[i]))  # 1 - (x + r) >= 0\n            cons.append(ys[i] - rs[i])          # y - r >= 0\n            cons.append(1.0 - (ys[i] + rs[i]))  # 1 - (y + r) >= 0\n            cons.append(rs[i])                  # r >= 0\n            \n            # Non-overlap constraints\n            for j in range(i + 1, n):\n                dist_sq = (xs[i] - xs[j])**2 + (ys[i] - ys[j])**2\n                # Distance >= sum of radii\n                cons.append(np.sqrt(dist_sq + 1e-12) - (rs[i] + rs[j]))\n        return np.array(cons)\n\n    # Use SLSQP for constrained optimization\n    res = minimize(\n        objective, \n        initial_params, \n        method='SLSQP', \n        constraints={'type': 'ineq', 'fun': constraints},\n        options={'maxiter': 100, 'ftol': 1e-6}\n    )\n    \n    final_params = res.x\n    final_centers = np.zeros((n, 2))\n    final_radii = np.zeros(n)\n    \n    for i in range(n):\n        final_centers[i] = [final_params[3*i], final_params[3*i+1]]\n        final_radii[i] = final_params[3*i+2]\n    \n    # Final safety check to ensure strict feasibility\n    # Small shrinkage to account for float precision if necessary\n    for i in range(n):\n        final_radii[i] = max(0, final_radii[i])\n        # Boundary clamp\n        final_radii[i] = min(final_radii[i], final_centers[i][0], 1-final_centers[i][0], \n                             final_centers[i][1], 1-final_centers[i][1])\n        # Overlap clamp\n        for j in range(i):\n            d = np.linalg.norm(final_centers[i] - final_centers[j])\n            if final_radii[i] + final_radii[j] > d:\n                # Reduce the current radius to fit\n                final_radii[i] = max(0, d - final_radii[j])\n\n    return final_centers, final_radii, np.sum(final_radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.514722660129136,
+    "eval_time": 0.909416913986206,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.5628294516284854,
+            0.5628294516279647
+          ],
+          [
+            0.9210319482389328,
+            0.9210319482395124
+          ],
+          [
+            0.10725207100404469,
+            0.8927479289948836
+          ],
+          [
+            0.8927479289948822,
+            0.10725207100400488
+          ],
+          [
+            0.15272255119581973,
+            0.15272255119582068
+          ],
+          [
+            0.9453726432196495,
+            0.789672655649645
+          ],
+          [
+            0.27427341679632494,
+            0.9349753116843732
+          ],
+          [
+            0.7896726556527318,
+            0.9453726432220375
+          ],
+          [
+            0.934975311684471,
+            0.2742734167962106
+          ],
+          [
+            0.09377430536806479,
+            0.6921738683100662
+          ],
+          [
+            0.6921738683097177,
+            0.09377430536839018
+          ],
+          [
+            0.0694243578741869,
+            0.3586610376072603
+          ],
+          [
+            0.35866103760723306,
+            0.06942435787421648
+          ],
+          [
+            0.4395024407980891,
+            0.8950374424114551
+          ],
+          [
+            0.6429218920484663,
+            0.901442299774321
+          ],
+          [
+            0.8950374424116329,
+            0.439502440797689
+          ],
+          [
+            0.9014422997746636,
+            0.6429218920476938
+          ],
+          [
+            0.23383689174125566,
+            0.5883356373349996
+          ],
+          [
+            0.5883356373349644,
+            0.23383689174082534
+          ],
+          [
+            0.08567537163022564,
+            0.5129070444930365
+          ],
+          [
+            0.5129070444929952,
+            0.08567537163001575
+          ],
+          [
+            0.24378696347332018,
+            0.39856812238877154
+          ],
+          [
+            0.39856812238791217,
+            0.24378696347416529
+          ],
+          [
+            0.27569205406219327,
+            0.7670184813669567
+          ],
+          [
+            0.8021869336334017,
+            0.8021869336436911
+          ],
+          [
+            0.7670184813674015,
+            0.27569205406209357
+          ]
+        ],
+        "radii": [
+          0.2493984176148309,
+          0.07896805176016966,
+          0.10725207100404469,
+          0.10725207100400488,
+          0.15272255119581973,
+          0.054627356775658,
+          0.06502468830802577,
+          0.05462735677238234,
+          0.06502468830801764,
+          0.09377430534029282,
+          0.09377430534065442,
+          0.06942435784430809,
+          0.06942435784427295,
+          0.10496255757962292,
+          0.09855770022507077,
+          0.10496255757925949,
+          0.0985577002248395,
+          0.0805813837368888,
+          0.08058138373573354,
+          0.08567537149347709,
+          0.08567537149443868,
+          0.10944680463518791,
+          0.10944680463460532,
+          0.10293813298930476,
+          0.08910417969937362,
+          0.1029381329888519
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.514723)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.562829 | 0.562829 | 0.249398 |\n|  1 | 0.921032 | 0.921032 | 0.078968 |\n|  2 | 0.107252 | 0.892748 | 0.107252 |\n|  3 | 0.892748 | 0.107252 | 0.107252 |\n|  4 | 0.152723 | 0.152723 | 0.152723 |\n|  5 | 0.945373 | 0.789673 | 0.054627 |\n|  6 | 0.274273 | 0.934975 | 0.065025 |\n|  7 | 0.789673 | 0.945373 | 0.054627 |\n|  8 | 0.934975 | 0.274273 | 0.065025 |\n|  9 | 0.093774 | 0.692174 | 0.093774 |\n| 10 | 0.692174 | 0.093774 | 0.093774 |\n| 11 | 0.069424 | 0.358661 | 0.069424 |\n| 12 | 0.358661 | 0.069424 | 0.069424 |\n| 13 | 0.439502 | 0.895037 | 0.104963 |\n| 14 | 0.642922 | 0.901442 | 0.098558 |\n| 15 | 0.895037 | 0.439502 | 0.104963 |\n| 16 | 0.901442 | 0.642922 | 0.098558 |\n| 17 | 0.233837 | 0.588336 | 0.080581 |\n| 18 | 0.588336 | 0.233837 | 0.080581 |\n| 19 | 0.085675 | 0.512907 | 0.085675 |\n| 20 | 0.512907 | 0.085675 | 0.085675 |\n| 21 | 0.243787 | 0.398568 | 0.109447 |\n| 22 | 0.398568 | 0.243787 | 0.109447 |\n| 23 | 0.275692 | 0.767018 | 0.102938 |\n| 24 | 0.802187 | 0.802187 | 0.089104 |\n| 25 | 0.767018 | 0.275692 | 0.102938 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.562829, 0.562829],\n    [0.921032, 0.921032],\n    [0.107252, 0.892748],\n    [0.892748, 0.107252],\n    [0.152723, 0.152723],\n    [0.945373, 0.789673],\n    [0.274273, 0.934975],\n    [0.789673, 0.945373],\n    [0.934975, 0.274273],\n    [0.093774, 0.692174],\n    [0.692174, 0.093774],\n    [0.069424, 0.358661],\n    [0.358661, 0.069424],\n    [0.439502, 0.895037],\n    [0.642922, 0.901442],\n    [0.895037, 0.439502],\n    [0.901442, 0.642922],\n    [0.233837, 0.588336],\n    [0.588336, 0.233837],\n    [0.085675, 0.512907],\n    [0.512907, 0.085675],\n    [0.243787, 0.398568],\n    [0.398568, 0.243787],\n    [0.275692, 0.767018],\n    [0.802187, 0.802187],\n    [0.767018, 0.275692]\n])\n\nradii = np.array([\n    0.249398,\n    0.078968,\n    0.107252,\n    0.107252,\n    0.152723,\n    0.054627,\n    0.065025,\n    0.054627,\n    0.065025,\n    0.093774,\n    0.093774,\n    0.069424,\n    0.069424,\n    0.104963,\n    0.098558,\n    0.104963,\n    0.098558,\n    0.080581,\n    0.080581,\n    0.085675,\n    0.085675,\n    0.109447,\n    0.109447,\n    0.102938,\n    0.089104,\n    0.102938\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.514723"
+    }
+  },
+  "prompt": "Implement a greedy algorithm: place 26 circles one by one. For each circle, find the position (x, y) that allows for the largest possible radius given previously placed circles and square boundaries. Refine the final result using a local optimizer.",
+  "response": "To maximize the sum of radii for 26 circles in a unit square, we employ a strategy that combines a greedy initial placement with a non-linear optimization refinement. The greedy phase uses a dense sampling grid to find the best possible position for each subsequent circle, while the refinement phase uses the `SLSQP` algorithm to adjust centers and radii simultaneously to satisfy non-overlap and boundary constraints.\n\n```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    n = 26\n    centers = []\n    radii = []\n\n    # 1. Greedy Initial Placement\n    # We place circles one by one, maximizing the radius of the current circle\n    for i in range(n):\n        best_r = -1\n        best_pos = (0.5, 0.5)\n        \n        # Sample points to find a good starting position for the new circle\n        # Increasing grid density improves the greedy start\n        samples = 40 \n        x_range = np.linspace(0.01, 0.99, samples)\n        y_range = np.linspace(0.01, 0.99, samples)\n        \n        for x in x_range:\n            for y in y_range:\n                # Radius constrained by square boundaries\n                r = min(x, 1-x, y, 1-y)\n                \n                # Radius constrained by existing circles\n                for j in range(len(centers)):\n                    dist = np.sqrt((x - centers[j][0])**2 + (y - centers[j][1])**2)\n                    r = min(r, dist - radii[j])\n                \n                if r > best_r:\n                    best_r = r\n                    best_pos = (x, y)\n        \n        if best_r < 1e-7: best_r = 1e-7 # Ensure non-negative\n        centers.append(best_pos)\n        radii.append(best_r)\n\n    # 2. Local Optimization Refinement\n    # Flatten variables for scipy: [x0, y0, r0, x1, y1, r1, ...]\n    initial_params = []\n    for i in range(n):\n        initial_params.extend([centers[i][0], centers[i][1], radii[i]])\n    \n    def objective(params):\n        # Maximize sum of radii = Minimize negative sum\n        r_vals = params[2::3]\n        return -np.sum(r_vals)\n\n    def constraints(params):\n        cons = []\n        # Extract components\n        xs = params[0::3]\n        ys = params[1::3]\n        rs = params[2::3]\n        \n        for i in range(n):\n            # Boundary constraints: center +/- radius within [0, 1]\n            cons.append(xs[i] - rs[i])          # x - r >= 0\n            cons.append(1.0 - (xs[i] + rs[i]))  # 1 - (x + r) >= 0\n            cons.append(ys[i] - rs[i])          # y - r >= 0\n            cons.append(1.0 - (ys[i] + rs[i]))  # 1 - (y + r) >= 0\n            cons.append(rs[i])                  # r >= 0\n            \n            # Non-overlap constraints\n            for j in range(i + 1, n):\n                dist_sq = (xs[i] - xs[j])**2 + (ys[i] - ys[j])**2\n                # Distance >= sum of radii\n                cons.append(np.sqrt(dist_sq + 1e-12) - (rs[i] + rs[j]))\n        return np.array(cons)\n\n    # Use SLSQP for constrained optimization\n    res = minimize(\n        objective, \n        initial_params, \n        method='SLSQP', \n        constraints={'type': 'ineq', 'fun': constraints},\n        options={'maxiter': 100, 'ftol': 1e-6}\n    )\n    \n    final_params = res.x\n    final_centers = np.zeros((n, 2))\n    final_radii = np.zeros(n)\n    \n    for i in range(n):\n        final_centers[i] = [final_params[3*i], final_params[3*i+1]]\n        final_radii[i] = final_params[3*i+2]\n    \n    # Final safety check to ensure strict feasibility\n    # Small shrinkage to account for float precision if necessary\n    for i in range(n):\n        final_radii[i] = max(0, final_radii[i])\n        # Boundary clamp\n        final_radii[i] = min(final_radii[i], final_centers[i][0], 1-final_centers[i][0], \n                             final_centers[i][1], 1-final_centers[i][1])\n        # Overlap clamp\n        for j in range(i):\n            d = np.linalg.norm(final_centers[i] - final_centers[j])\n            if final_radii[i] + final_radii[j] > d:\n                # Reduce the current radius to fit\n                final_radii[i] = max(0, d - final_radii[j])\n\n    return final_centers, final_radii, np.sum(final_radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "To maximize the sum of radii for 26 circles in a unit square, we employ a strategy that combines a greedy initial placement with a non-linear optimization refinement. The greedy phase uses a dense sampling grid to find the best possible position for each subsequent circle, while the refinement phase uses the `SLSQP` algorithm to adjust centers and radii simultaneously to satisfy non-overlap and boundary constraints.",
+  "timestamp": "2025-12-24T23:56:05.355736",
+  "cost_data": null
+}

@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_3_4",
+  "generation": 3,
+  "parent_id": "trial_2_6",
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square.\n    Uses iterative pruning with Force-Directed Relaxation (repulsion) \n    and SLSQP optimization to maximize the sum of radii.\n    \"\"\"\n    n_target = 26\n    n_start = 32 # Start slightly higher to allow pruning\n    \n    # 1. Initialization: Grid layout\n    grid_size = int(np.ceil(np.sqrt(n_start)))\n    x = np.linspace(0.1, 0.9, grid_size)\n    y = np.linspace(0.1, 0.9, grid_size)\n    xv, yv = np.meshgrid(x, y)\n    centers = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n_start]\n    radii = np.full(n_start, 0.05)\n\n    def force_directed_relaxation(pts, iterations=20, step=0.02):\n        \"\"\"Apply repulsion forces to redistribute centers.\"\"\"\n        curr_pts = pts.copy()\n        for _ in range(iterations):\n            forces = np.zeros_like(curr_pts)\n            # Repulsion between circles\n            for i in range(len(curr_pts)):\n                for j in range(len(curr_pts)):\n                    if i == j: continue\n                    diff = curr_pts[i] - curr_pts[j]\n                    dist_sq = np.sum(diff**2) + 1e-6\n                    forces[i] += diff / (dist_sq * np.sqrt(dist_sq))\n                \n                # Repulsion from boundaries\n                forces[i, 0] += 1.0 / (curr_pts[i, 0]**2 + 1e-6)\n                forces[i, 0] -= 1.0 / ((1.0 - curr_pts[i, 0])**2 + 1e-6)\n                forces[i, 1] += 1.0 / (curr_pts[i, 1]**2 + 1e-6)\n                forces[i, 1] -= 1.0 / ((1.0 - curr_pts[i, 1])**2 + 1e-6)\n            \n            # Update positions with damping\n            force_mag = np.linalg.norm(forces, axis=1, keepdims=True)\n            max_f = np.max(force_mag)\n            if max_f > 0:\n                curr_pts += (forces / max_f) * step\n            curr_pts = np.clip(curr_pts, 0.01, 0.99)\n        return curr_pts\n\n    def objective(params, n_curr):\n        # Minimize negative sum of radii\n        return -np.sum(params[n_curr*2:])\n\n    def constraints(params, n_curr):\n        pts = params[:n_curr*2].reshape((n_curr, 2))\n        r = params[n_curr*2:]\n        \n        # Pre-allocate constraint array for speed\n        # 4 boundary per circle + n*(n-1)/2 overlaps\n        num_overlap = n_curr * (n_curr - 1) // 2\n        cons = np.zeros(4 * n_curr + num_overlap)\n        \n        idx = 0\n        for i in range(n_curr):\n            cons[idx] = pts[i, 0] - r[i]\n            cons[idx+1] = 1.0 - (pts[i, 0] + r[i])\n            cons[idx+2] = pts[i, 1] - r[i]\n            cons[idx+3] = 1.0 - (pts[i, 1] + r[i])\n            idx += 4\n            \n        for i in range(n_curr):\n            for j in range(i + 1, n_curr):\n                dist = np.sqrt(np.sum((pts[i] - pts[j])**2))\n                cons[idx] = dist - (r[i] + r[j])\n                idx += 1\n        return cons\n\n    curr_n = n_start\n    curr_centers = centers\n    curr_radii = radii\n\n    # 2. Iterative Pruning and Optimization\n    while curr_n >= n_target:\n        # Optimization\n        initial_guess = np.concatenate([curr_centers.flatten(), curr_radii])\n        bounds = [(0, 1)] * (curr_n * 2) + [(0.001, 0.5)] * curr_n\n        \n        res = minimize(\n            objective, \n            initial_guess, \n            args=(curr_n,),\n            method='SLSQP',\n            bounds=bounds,\n            constraints={'type': 'ineq', 'fun': constraints, 'args': (curr_n,)},\n            options={'maxiter': 60, 'ftol': 1e-5}\n        )\n        \n        params = res.x\n        curr_centers = params[:curr_n*2].reshape((curr_n, 2))\n        curr_radii = params[curr_n*2:]\n        \n        if curr_n == n_target:\n            break\n            \n        # Pruning: Remove circle with smallest radius\n        keep_indices = np.argsort(curr_radii)[1:]\n        curr_centers = curr_centers[keep_indices]\n        curr_radii = curr_radii[keep_indices]\n        curr_n -= 1\n        \n        # Force-Directed Relaxation to redistribute centers into space\n        curr_centers = force_directed_relaxation(curr_centers)\n\n    # 3. Final Polish\n    res_final = minimize(\n        objective,\n        np.concatenate([curr_centers.flatten(), curr_radii]),\n        args=(n_target,),\n        method='SLSQP',\n        constraints={'type': 'ineq', 'fun': constraints, 'args': (n_target,)},\n        options={'maxiter': 150, 'ftol': 1e-7}\n    )\n    \n    final_params = res_final.x\n    final_centers = final_params[:n_target*2].reshape((n_target, 2))\n    final_radii = final_params[n_target*2:]\n    \n    # Ensure strict feasibility for the evaluator\n    final_radii -= 1e-9 \n    \n    return final_centers, final_radii, np.sum(final_radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.6097667774761164,
+    "eval_time": 14.913572072982788,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.06706008652544751,
+            0.7030770395352486
+          ],
+          [
+            0.9375444044837339,
+            0.9375444044837336
+          ],
+          [
+            0.9308289532594585,
+            0.6442458390971485
+          ],
+          [
+            0.9339681508446014,
+            0.06603184915539971
+          ],
+          [
+            0.27237735630844784,
+            0.06032251494774655
+          ],
+          [
+            0.10969012219600426,
+            0.10969012219600506
+          ],
+          [
+            0.9182535364437909,
+            0.7946385044970363
+          ],
+          [
+            0.1000215319319407,
+            0.5392789615762726
+          ],
+          [
+            0.7813276469590059,
+            0.08821168771003067
+          ],
+          [
+            0.7855487760325253,
+            0.9075236138679548
+          ],
+          [
+            0.4165630719293034,
+            0.08615987167936431
+          ],
+          [
+            0.11005870418802921,
+            0.32943863947081425
+          ],
+          [
+            0.287502900169806,
+            0.21891611891258358
+          ],
+          [
+            0.9042611929832294,
+            0.2250514764125304
+          ],
+          [
+            0.24139537219829063,
+            0.6914200792911832
+          ],
+          [
+            0.5978722834880608,
+            0.09538381834641332
+          ],
+          [
+            0.5903469754709819,
+            0.4688840235379019
+          ],
+          [
+            0.4882521726625014,
+            0.26566325636212407
+          ],
+          [
+            0.3523863949597189,
+            0.8847444781088787
+          ],
+          [
+            0.11857723377643346,
+            0.8814227662235733
+          ],
+          [
+            0.5808782570014654,
+            0.8867548162494445
+          ],
+          [
+            0.47052604013436244,
+            0.6792364644617096
+          ],
+          [
+            0.8659273776868207,
+            0.45164320542198966
+          ],
+          [
+            0.7044154377054404,
+            0.2698887691079646
+          ],
+          [
+            0.3279629763578679,
+            0.4568556969640364
+          ],
+          [
+            0.7290222436437787,
+            0.6853467235545757
+          ]
+        ],
+        "radii": [
+          0.06706008552544436,
+          0.06245559451626494,
+          0.06917104574054077,
+          0.06603184815539766,
+          0.0603225139477431,
+          0.10969012119600262,
+          0.08174646255620749,
+          0.10002153093194063,
+          0.08821168671003,
+          0.09247638513204269,
+          0.08615987067936098,
+          0.1100587031880292,
+          0.0989907392937992,
+          0.09573880601676762,
+          0.1076644858829923,
+          0.09538381734641087,
+          0.12029524687129131,
+          0.10712952764176399,
+          0.11525552089111958,
+          0.11857723277642457,
+          0.11324518275055342,
+          0.12178987241365079,
+          0.1340726213131767,
+          0.10907503116116452,
+          0.14236430955131033,
+          0.13677853528668701
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.609767)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.067060 | 0.703077 | 0.067060 |\n|  1 | 0.937544 | 0.937544 | 0.062456 |\n|  2 | 0.930829 | 0.644246 | 0.069171 |\n|  3 | 0.933968 | 0.066032 | 0.066032 |\n|  4 | 0.272377 | 0.060323 | 0.060323 |\n|  5 | 0.109690 | 0.109690 | 0.109690 |\n|  6 | 0.918254 | 0.794639 | 0.081746 |\n|  7 | 0.100022 | 0.539279 | 0.100022 |\n|  8 | 0.781328 | 0.088212 | 0.088212 |\n|  9 | 0.785549 | 0.907524 | 0.092476 |\n| 10 | 0.416563 | 0.086160 | 0.086160 |\n| 11 | 0.110059 | 0.329439 | 0.110059 |\n| 12 | 0.287503 | 0.218916 | 0.098991 |\n| 13 | 0.904261 | 0.225051 | 0.095739 |\n| 14 | 0.241395 | 0.691420 | 0.107664 |\n| 15 | 0.597872 | 0.095384 | 0.095384 |\n| 16 | 0.590347 | 0.468884 | 0.120295 |\n| 17 | 0.488252 | 0.265663 | 0.107130 |\n| 18 | 0.352386 | 0.884744 | 0.115256 |\n| 19 | 0.118577 | 0.881423 | 0.118577 |\n| 20 | 0.580878 | 0.886755 | 0.113245 |\n| 21 | 0.470526 | 0.679236 | 0.121790 |\n| 22 | 0.865927 | 0.451643 | 0.134073 |\n| 23 | 0.704415 | 0.269889 | 0.109075 |\n| 24 | 0.327963 | 0.456856 | 0.142364 |\n| 25 | 0.729022 | 0.685347 | 0.136779 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.067060, 0.703077],\n    [0.937544, 0.937544],\n    [0.930829, 0.644246],\n    [0.933968, 0.066032],\n    [0.272377, 0.060323],\n    [0.109690, 0.109690],\n    [0.918254, 0.794639],\n    [0.100022, 0.539279],\n    [0.781328, 0.088212],\n    [0.785549, 0.907524],\n    [0.416563, 0.086160],\n    [0.110059, 0.329439],\n    [0.287503, 0.218916],\n    [0.904261, 0.225051],\n    [0.241395, 0.691420],\n    [0.597872, 0.095384],\n    [0.590347, 0.468884],\n    [0.488252, 0.265663],\n    [0.352386, 0.884744],\n    [0.118577, 0.881423],\n    [0.580878, 0.886755],\n    [0.470526, 0.679236],\n    [0.865927, 0.451643],\n    [0.704415, 0.269889],\n    [0.327963, 0.456856],\n    [0.729022, 0.685347]\n])\n\nradii = np.array([\n    0.067060,\n    0.062456,\n    0.069171,\n    0.066032,\n    0.060323,\n    0.109690,\n    0.081746,\n    0.100022,\n    0.088212,\n    0.092476,\n    0.086160,\n    0.110059,\n    0.098991,\n    0.095739,\n    0.107664,\n    0.095384,\n    0.120295,\n    0.107130,\n    0.115256,\n    0.118577,\n    0.113245,\n    0.121790,\n    0.134073,\n    0.109075,\n    0.142364,\n    0.136779\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.609767"
+    }
+  },
+  "prompt": "Refine trial_2_6 using a 'Force-Directed relaxation' during the pruning phase.\n{{import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square using \n    Growth and Pruning with constrained optimization.\n    \"\"\"\n    n_target = 26\n    n_start = 35\n    \n    # Initialize centers in a grid with small initial radii\n    grid_size = int(np.ceil(np.sqrt(n_start)))\n    x = np.linspace(0.1, 0.9, grid_size)\n    y = np.linspace(0.1, 0.9, grid_size)\n    xv, yv = np.meshgrid(x, y)\n    centers = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n_start]\n    radii = np.full(n_start, 0.01)\n\n    def objective(params, n_curr):\n        # We want to maximize sum of radii, so minimize negative sum\n        return -np.sum(params[n_curr*2:])\n\n    def constraints(params, n_curr):\n        pts = params[:n_curr*2].reshape((n_curr, 2))\n        r = params[n_curr*2:]\n        cons = []\n        \n        # Boundary constraints: center_i - r_i >= 0 and center_i + r_i <= 1\n        for i in range(n_curr):\n            cons.append(pts[i, 0] - r[i])\n            cons.append(1.0 - (pts[i, 0] + r[i]))\n            cons.append(pts[i, 1] - r[i])\n            cons.append(1.0 - (pts[i, 1] + r[i]))\n            \n        # Non-overlap: dist(c_i, c_j) >= r_i + r_j\n        for i in range(n_curr):\n            for j in range(i + 1, n_curr):\n                dist = np.sqrt(np.sum((pts[i] - pts[j])**2))\n                cons.append(dist - (r[i] + r[j]))\n        return np.array(cons)\n\n    current_n = n_start\n    curr_centers = centers\n    curr_radii = radii\n\n    # Iterative pruning loop\n    while current_n >= n_target:\n        initial_guess = np.concatenate([curr_centers.flatten(), curr_radii])\n        \n        # Optimization bounds\n        bounds = [(0, 1)] * (current_n * 2) + [(0, 0.5)] * current_n\n        \n        res = minimize(\n            objective, \n            initial_guess, \n            args=(current_n,),\n            method='SLSQP',\n            bounds=bounds,\n            constraints={'type': 'ineq', 'fun': constraints, 'args': (current_n,)},\n            options={'maxiter': 50, 'ftol': 1e-4}\n        )\n        \n        optimized_params = res.x\n        curr_centers = optimized_params[:current_n*2].reshape((current_n, 2))\n        curr_radii = optimized_params[current_n*2:]\n        \n        if current_n == n_target:\n            break\n            \n        # Prune the circle with the smallest radius\n        idx_to_keep = np.argsort(curr_radii)[1:]\n        curr_centers = curr_centers[idx_to_keep]\n        curr_radii = curr_radii[idx_to_keep]\n        current_n -= 1\n\n    # Final polish for the 26 circles\n    res = minimize(\n        objective,\n        np.concatenate([curr_centers.flatten(), curr_radii]),\n        args=(n_target,),\n        method='SLSQP',\n        constraints={'type': 'ineq', 'fun': constraints, 'args': (n_target,)},\n        options={'maxiter': 100}\n    )\n    \n    final_params = res.x\n    final_centers = final_params[:n_target*2].reshape((n_target, 2))\n    final_radii = final_params[n_target*2:]\n    \n    return final_centers, final_radii, np.sum(final_radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()}}\nBetween each pruning step, apply a few iterations of a 'repulsion' force where circles push each other and the boundaries, proportional to $1/d^2$. This helps the remaining circles redistribute into the newly created space before the next optimization pass.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square.\n    Uses iterative pruning with Force-Directed Relaxation (repulsion) \n    and SLSQP optimization to maximize the sum of radii.\n    \"\"\"\n    n_target = 26\n    n_start = 32 # Start slightly higher to allow pruning\n    \n    # 1. Initialization: Grid layout\n    grid_size = int(np.ceil(np.sqrt(n_start)))\n    x = np.linspace(0.1, 0.9, grid_size)\n    y = np.linspace(0.1, 0.9, grid_size)\n    xv, yv = np.meshgrid(x, y)\n    centers = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n_start]\n    radii = np.full(n_start, 0.05)\n\n    def force_directed_relaxation(pts, iterations=20, step=0.02):\n        \"\"\"Apply repulsion forces to redistribute centers.\"\"\"\n        curr_pts = pts.copy()\n        for _ in range(iterations):\n            forces = np.zeros_like(curr_pts)\n            # Repulsion between circles\n            for i in range(len(curr_pts)):\n                for j in range(len(curr_pts)):\n                    if i == j: continue\n                    diff = curr_pts[i] - curr_pts[j]\n                    dist_sq = np.sum(diff**2) + 1e-6\n                    forces[i] += diff / (dist_sq * np.sqrt(dist_sq))\n                \n                # Repulsion from boundaries\n                forces[i, 0] += 1.0 / (curr_pts[i, 0]**2 + 1e-6)\n                forces[i, 0] -= 1.0 / ((1.0 - curr_pts[i, 0])**2 + 1e-6)\n                forces[i, 1] += 1.0 / (curr_pts[i, 1]**2 + 1e-6)\n                forces[i, 1] -= 1.0 / ((1.0 - curr_pts[i, 1])**2 + 1e-6)\n            \n            # Update positions with damping\n            force_mag = np.linalg.norm(forces, axis=1, keepdims=True)\n            max_f = np.max(force_mag)\n            if max_f > 0:\n                curr_pts += (forces / max_f) * step\n            curr_pts = np.clip(curr_pts, 0.01, 0.99)\n        return curr_pts\n\n    def objective(params, n_curr):\n        # Minimize negative sum of radii\n        return -np.sum(params[n_curr*2:])\n\n    def constraints(params, n_curr):\n        pts = params[:n_curr*2].reshape((n_curr, 2))\n        r = params[n_curr*2:]\n        \n        # Pre-allocate constraint array for speed\n        # 4 boundary per circle + n*(n-1)/2 overlaps\n        num_overlap = n_curr * (n_curr - 1) // 2\n        cons = np.zeros(4 * n_curr + num_overlap)\n        \n        idx = 0\n        for i in range(n_curr):\n            cons[idx] = pts[i, 0] - r[i]\n            cons[idx+1] = 1.0 - (pts[i, 0] + r[i])\n            cons[idx+2] = pts[i, 1] - r[i]\n            cons[idx+3] = 1.0 - (pts[i, 1] + r[i])\n            idx += 4\n            \n        for i in range(n_curr):\n            for j in range(i + 1, n_curr):\n                dist = np.sqrt(np.sum((pts[i] - pts[j])**2))\n                cons[idx] = dist - (r[i] + r[j])\n                idx += 1\n        return cons\n\n    curr_n = n_start\n    curr_centers = centers\n    curr_radii = radii\n\n    # 2. Iterative Pruning and Optimization\n    while curr_n >= n_target:\n        # Optimization\n        initial_guess = np.concatenate([curr_centers.flatten(), curr_radii])\n        bounds = [(0, 1)] * (curr_n * 2) + [(0.001, 0.5)] * curr_n\n        \n        res = minimize(\n            objective, \n            initial_guess, \n            args=(curr_n,),\n            method='SLSQP',\n            bounds=bounds,\n            constraints={'type': 'ineq', 'fun': constraints, 'args': (curr_n,)},\n            options={'maxiter': 60, 'ftol': 1e-5}\n        )\n        \n        params = res.x\n        curr_centers = params[:curr_n*2].reshape((curr_n, 2))\n        curr_radii = params[curr_n*2:]\n        \n        if curr_n == n_target:\n            break\n            \n        # Pruning: Remove circle with smallest radius\n        keep_indices = np.argsort(curr_radii)[1:]\n        curr_centers = curr_centers[keep_indices]\n        curr_radii = curr_radii[keep_indices]\n        curr_n -= 1\n        \n        # Force-Directed Relaxation to redistribute centers into space\n        curr_centers = force_directed_relaxation(curr_centers)\n\n    # 3. Final Polish\n    res_final = minimize(\n        objective,\n        np.concatenate([curr_centers.flatten(), curr_radii]),\n        args=(n_target,),\n        method='SLSQP',\n        constraints={'type': 'ineq', 'fun': constraints, 'args': (n_target,)},\n        options={'maxiter': 150, 'ftol': 1e-7}\n    )\n    \n    final_params = res_final.x\n    final_centers = final_params[:n_target*2].reshape((n_target, 2))\n    final_radii = final_params[n_target*2:]\n    \n    # Ensure strict feasibility for the evaluator\n    final_radii -= 1e-9 \n    \n    return final_centers, final_radii, np.sum(final_radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-25T00:19:28.773405",
+  "cost_data": null
+}

@@ -1,0 +1,329 @@
+{
+  "experiment_id": "circle_packing_gemini_flash_20251229_164849",
+  "config": {
+    "experiment": {
+      "name": "circle_packing_gemini_flash",
+      "output_dir": "./experiments",
+      "seed": null
+    },
+    "root_llm": {
+      "model": "google/gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "openrouter",
+      "max_iterations": 30
+    },
+    "child_llm": {
+      "model": "google/gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "openrouter",
+      "max_iterations": null
+    },
+    "evaluation": {
+      "evaluator_fn": "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+      "evaluator_kwargs": {
+        "n_circles": 26,
+        "timeout_seconds": 300
+      }
+    },
+    "evolution": {
+      "max_generations": 10,
+      "max_children_per_generation": 15
+    },
+    "budget": {
+      "max_total_cost": 5.0
+    }
+  },
+  "start_time": "2025-12-29T16:48:49.057564",
+  "end_time": "2025-12-29T16:54:49.177402",
+  "termination_reason": "max_generations_reached",
+  "num_generations": 8,
+  "total_trials": 0,
+  "best_trial": {
+    "trial_id": "trial_6_4",
+    "score": 2.635983085103819,
+    "generation": 6
+  },
+  "scratchpad": "\nGeneration 6 Analysis:\n- Trial 6_4 achieved 2.6360, surpassing the goal of 2.635.\n- The success came from 'melting' a top-tier configuration (3_6) using a fluid/Brownian motion approach and then re-solidifying it with high-precision optimization.\n- This suggests that the 2.63+ territory is highly sensitive to the exact topological arrangement of the 'rattlers' (circles not fully constrained).\n\nStrategy for Gen 7 (Final Push):\n- We will use 6_4 as the new gold standard.\n- We will attempt to 'polish' 6_4 using even higher precision and targeted 'surgical' adjustments.\n- We will also explore if the 'Boundary-Constrained' logic from 6_6 can be applied to the 6_4 configuration to eke out 2.637+.\n",
+  "generations": [
+    {
+      "generation_num": 0,
+      "num_trials": 10,
+      "num_successful_trials": 8,
+      "best_trial_id": "trial_0_3",
+      "best_score": 2.616041731306852,
+      "selected_trial_ids": [
+        "trial_0_3",
+        "trial_0_0",
+        "trial_0_8",
+        "trial_0_2"
+      ],
+      "selection_reasoning": "Selected the top two performers which use staged optimization and grid-based seeds, along with two diverse approaches (force-directed and greedy geometric) to maintain search breadth.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_0_3",
+          "reasoning": "Highest score (2.6160). The staged approach (global r maximization followed by individual r relaxation) is a proven strategy for this problem.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_0_0",
+          "reasoning": "Strong performance (2.5992) using a grid-based initialization. Grid perturbations can often escape local minima that staged global-r approaches might get stuck in.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_0_8",
+          "reasoning": "Uses a force-directed/shrinking boundary approach. While the score is lower (2.5606), the 'physics' of the movement provides a different search trajectory than pure gradient descent.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_0_2",
+          "reasoning": "Greedy geometric initialization. This approach often finds asymmetric packings that grid-based methods miss, which are frequently optimal for non-square numbers of circles.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-29T16:49:22.812731"
+    },
+    {
+      "generation_num": 1,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_1_7",
+      "best_score": 2.621097192449294,
+      "selected_trial_ids": [
+        "trial_1_7",
+        "trial_1_0",
+        "trial_1_4",
+        "trial_1_3"
+      ],
+      "selection_reasoning": "Selected the top performers using penalty methods and multi-start optimization, alongside Basin Hopping and greedy-swap strategies to ensure global search coverage.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_1_7",
+          "reasoning": "Highest score (2.6211). The penalty-based approach (log-barrier/soft constraints) successfully allowed circles to 'slide' into better configurations before hardening constraints.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_1_0",
+          "reasoning": "Strong performance (2.6209) using multi-start staged optimization. This confirms that the two-stage approach is robust but needs better global exploration.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_1_4",
+          "reasoning": "Uses a Basin Hopping wrapper. While the score (2.6105) is slightly lower, the stochastic 'hopping' logic is essential for breaking out of the local minima that the gradient-based solvers are currently hitting.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_1_3",
+          "reasoning": "Greedy strategy with re-insertion/swapping. This approach explores a different topological space than the grid-based or uniform-start methods.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-29T16:50:04.178832"
+    },
+    {
+      "generation_num": 2,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_2_4",
+      "best_score": 2.6254872888058336,
+      "selected_trial_ids": [
+        "trial_2_4",
+        "trial_2_2",
+        "trial_2_3",
+        "trial_2_7"
+      ],
+      "selection_reasoning": "Selected the top two performers (Growth simulation and CVT-based seeds) which are nearing the target, while retaining Basin Hopping and Differential Evolution for global exploration.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_4",
+          "reasoning": "Best score so far (2.6255). The 'Growth' simulation combined with penalty-based SLSQP is proving highly effective at finding dense, high-sum configurations.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_2_2",
+          "reasoning": "Second best score (2.6247). Centroidal Voronoi Tessellation (CVT) provides a much better topological starting point than random or grid seeds for non-square numbers like 26.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_2_3",
+          "reasoning": "Uses a Basin Hopping approach with circle swapping. This provides the necessary global search to escape the local optima that the growth/CVT methods might still fall into.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "Differential Evolution approach. Although the score is lower (2.5932), the population-based nature of DE explores the configuration space differently than the other gradient-heavy methods.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-29T16:51:21.009175"
+    },
+    {
+      "generation_num": 3,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_3_6",
+      "best_score": 2.6299143765011386,
+      "selected_trial_ids": [
+        "trial_3_6",
+        "trial_3_2",
+        "trial_3_0",
+        "trial_3_5"
+      ],
+      "selection_reasoning": "Selected the top three trials which are all very close to the 2.635 target, using jiggling, CVT, and growth strategies. Retained the DE-based max-min approach for topological diversity.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_3_6",
+          "reasoning": "Highest score (2.6299). The 'Circle Jiggling' local search is extremely effective at fine-tuning high-quality configurations.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_3_2",
+          "reasoning": "Very strong score (2.6296) using a robust multi-start CVT approach. This provides a high-quality alternative topology to the growth-based methods.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_3_0",
+          "reasoning": "Solid performance (2.6281) with a refined growth/repulsion simulation. This physics-based approach is good at discovering new packing structures.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_3_5",
+          "reasoning": "Uses a Max-Min distance objective via Differential Evolution. While the score is lower (2.6032), this approach is the best at finding fundamentally different global arrangements.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-29T16:52:08.913001"
+    },
+    {
+      "generation_num": 4,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_4_2",
+      "best_score": 2.620693662660234,
+      "selected_trial_ids": [
+        "trial_4_2",
+        "trial_4_0",
+        "trial_4_3",
+        "trial_4_7"
+      ],
+      "selection_reasoning": "While scores in this generation were slightly lower than the best of Gen 3, the hybridized CVT/Jiggling and Smart Basin Hopping methods show the most promise for reaching the 2.635 target by combining global topological search with intense local refinement.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_4_2",
+          "reasoning": "Top performer of this generation (2.6207). It successfully hybridizes CVT seeds with the jiggling refinement, showing that topological variety is key to breaking the 2.62 barrier.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_4_0",
+          "reasoning": "Strong performance (2.6202) using annealed jiggling. This method is essential for fine-tuning the best known configurations from previous generations.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_4_3",
+          "reasoning": "The 'Fluid Growth' strategy with Brownian motion (2.6129) provides a physically-inspired way to explore new packing topologies that gradient-only methods miss.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_4_7",
+          "reasoning": "Smart Basin Hopping (2.6191) targeting the smallest circles for relocation. This is a high-potential strategy for escaping local minima in the final stages.",
+          "category": "potential"
+        }
+      ],
+      "timestamp": "2025-12-29T16:52:44.667527"
+    },
+    {
+      "generation_num": 5,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_5_1",
+      "best_score": 2.6290925081084624,
+      "selected_trial_ids": [
+        "trial_5_1",
+        "trial_5_4",
+        "trial_5_2"
+      ],
+      "selection_reasoning": "Selected the all-time best (3_6) and the most successful Gen 5 variant (5_1). Added radius-biasing and Voronoi relocation as diverse strategies to break the current 2.630 plateau.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_5_1",
+          "reasoning": "Achieved 2.6291 using thermal annealing. This confirms that adding 'energy' to the system can help settle into high-quality configurations near the target.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_5_4",
+          "reasoning": "Radius-biased optimization (2.6252) is a promising heuristic for forcing the solver to prioritize smaller circles, which is often the bottleneck in sum-of-radii problems.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_5_2",
+          "reasoning": "Despite a lower score (2.5868), the logic of relocating the smallest circle to the largest Voronoi gap is a mathematically sound way to escape local optima that jiggling cannot fix.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-29T16:53:28.824126"
+    },
+    {
+      "generation_num": 6,
+      "num_trials": 8,
+      "num_successful_trials": 8,
+      "best_trial_id": "trial_6_4",
+      "best_score": 2.635983085103819,
+      "selected_trial_ids": [
+        "trial_6_4",
+        "trial_6_0",
+        "trial_6_6",
+        "trial_6_7"
+      ],
+      "selection_reasoning": "Trial 6_4 successfully reached the target score of 2.636. The next generation will focus on verifying this result, hardening the code, and seeing if further minor gains can be made using the boundary-locking and shake-and-bake techniques.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_4",
+          "reasoning": "Achieved a score of 2.6360, surpassing the target of 2.635. This 'Fluid Growth' hybridization with the best previous configuration successfully broke the plateau.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_6_0",
+          "reasoning": "Extremely close to the previous best (2.6298). The 'Shake and Bake' strategy with radius-biased weighting is a reliable local search for high-density packings.",
+          "category": "performance"
+        },
+        {
+          "trial_id": "trial_6_6",
+          "reasoning": "The 'Boundary-Constrained Refinement' (2.6281) offers a unique way to reduce search dimensionality by locking edge circles, which is often how optimal packings are structured.",
+          "category": "diversity"
+        },
+        {
+          "trial_id": "trial_6_7",
+          "reasoning": "Uses a potential-based distribution (2.6262) which provides a different topological starting point compared to the growth-based methods.",
+          "category": "diversity"
+        }
+      ],
+      "timestamp": "2025-12-29T16:54:18.335068"
+    },
+    {
+      "generation_num": 7,
+      "num_trials": 5,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_7_4",
+      "best_score": 2.6118640417972157,
+      "selected_trial_ids": [
+        "trial_7_4",
+        "trial_7_1"
+      ],
+      "selection_reasoning": "Gen 7 showed significant regression, likely due to over-aggressive jittering or constraints. I am reverting to the high-performing Gen 6 seeds while carrying forward the inflation and boundary-locking concepts with more conservative parameters.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_7_4",
+          "reasoning": "The best of the Gen 7 attempts (2.6119). Although lower than the parent, the 'Radius-Targeted Inflation' approach is a distinct optimization landscape that might find a better local peak with more iterations.",
+          "category": "potential"
+        },
+        {
+          "trial_id": "trial_7_1",
+          "reasoning": "Boundary-locking (2.6082) is a theoretically sound way to reduce dimensionality. The drop in score suggests the initial locking was too aggressive; refining the 'slack' detection is worth pursuing.",
+          "category": "potential"
+        }
+      ],
+      "timestamp": "2025-12-29T16:54:49.171270"
+    }
+  ]
+}
