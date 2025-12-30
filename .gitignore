@@ -76,4 +76,6 @@ runs/
 checkpoints/
 *.log
 # experiments/
-# logs/
+# logs/*.circles.json
+node_modules/
+node_modules/
