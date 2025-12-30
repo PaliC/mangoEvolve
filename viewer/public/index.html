@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MangoEvolve Viewer</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>MangoEvolve</h1>
+                <span class="subtitle">Circle Packing Viewer</span>
+            </div>
+            <div class="sidebar-content">
+                <h2>Experiments</h2>
+                <div class="model-filter">
+                    <label for="model-select">Root Model:</label>
+                    <select id="model-select">
+                        <option value="all">All Models</option>
+                    </select>
+                </div>
+                <div id="experiments-list" class="experiments-list">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div id="no-experiment" class="placeholder">
+                <h2>Select an experiment</h2>
+                <p>Choose an experiment from the sidebar to view its circle packings and LLM conversations.</p>
+            </div>
+
+            <div id="experiment-view" class="experiment-view hidden">
+                <!-- Experiment Header -->
+                <header class="experiment-header">
+                    <div class="experiment-info">
+                        <h2 id="experiment-name"></h2>
+                        <div class="experiment-meta">
+                            <span id="experiment-date"></span>
+                            <span class="separator">|</span>
+                            <span>Best: <strong id="experiment-best-score"></strong></span>
+                            <span class="separator">|</span>
+                            <span id="experiment-generations"></span>
+                            <span id="circles-loading" class="loading-indicator hidden">| Loading circles...</span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Tabs -->
+                <nav class="tabs">
+                    <button class="tab active" data-tab="generations">Generations</button>
+                    <button class="tab" data-tab="lineage">Lineage Tree</button>
+                    <button class="tab" data-tab="root-log">Root LLM Log</button>
+                </nav>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Generations View -->
+                    <div id="tab-generations" class="tab-panel active">
+                        <div class="generations-container">
+                            <div id="generations-list" class="generations-list"></div>
+                        </div>
+
+                        <div class="split-view">
+                            <!-- Circle Visualization -->
+                            <div class="visualization-panel">
+                                <h3>Circle Packing</h3>
+                                <div id="circle-canvas" class="circle-canvas">
+                                    <div class="placeholder-small">Select a trial to visualize</div>
+                                </div>
+                                <div id="circle-info" class="circle-info"></div>
+                            </div>
+
+                            <!-- Trial Details -->
+                            <div class="details-panel">
+                                <div id="trial-placeholder" class="placeholder-small">
+                                    Select a trial to view details
+                                </div>
+                                <div id="trial-details" class="trial-details hidden">
+                                    <div class="trial-header">
+                                        <h3 id="trial-title"></h3>
+                                        <div class="trial-meta">
+                                            <span class="score" id="trial-score"></span>
+                                            <span id="trial-valid"></span>
+                                        </div>
+                                    </div>
+                                    <div id="trial-parent" class="trial-parent"></div>
+
+                                    <!-- Detail Tabs -->
+                                    <nav class="detail-tabs">
+                                        <button class="detail-tab active" data-detail="prompt">Prompt</button>
+                                        <button class="detail-tab" data-detail="response">Response</button>
+                                        <button class="detail-tab" data-detail="code">Code</button>
+                                    </nav>
+
+                                    <div class="detail-content">
+                                        <div id="detail-prompt" class="detail-panel active">
+                                            <div class="markdown-content" id="prompt-content"></div>
+                                        </div>
+                                        <div id="detail-response" class="detail-panel">
+                                            <div class="markdown-content" id="response-content"></div>
+                                        </div>
+                                        <div id="detail-code" class="detail-panel">
+                                            <pre><code id="code-content" class="language-python"></code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lineage Tree View -->
+                    <div id="tab-lineage" class="tab-panel">
+                        <div class="lineage-container">
+                            <div id="lineage-tree" class="lineage-tree"></div>
+                        </div>
+                    </div>
+
+                    <!-- Root LLM Log View -->
+                    <div id="tab-root-log" class="tab-panel">
+                        <!-- Log Controls -->
+                        <div class="log-controls">
+                            <div class="log-filters">
+                                <button class="log-filter active" data-filter="all">All</button>
+                                <button class="log-filter" data-filter="assistant">Assistant</button>
+                                <button class="log-filter" data-filter="user">User</button>
+                                <button class="log-filter" data-filter="system">System</button>
+                            </div>
+                            <div class="log-navigation">
+                                <button id="log-prev" class="log-nav-btn" title="Previous entry">&larr; Prev</button>
+                                <span id="log-position" class="log-position">- / -</span>
+                                <button id="log-next" class="log-nav-btn" title="Next entry">Next &rarr;</button>
+                                <button id="log-view-all" class="log-nav-btn log-view-all-btn active" title="View all entries">View All</button>
+                            </div>
+                        </div>
+                        <div id="root-log-container" class="root-log-container">
+                            <div class="loading">Loading conversation...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/index.js"></script>
+</body>
+</html>
