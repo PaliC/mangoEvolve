@@ -22,6 +22,7 @@ from openai import RateLimitError as OpenAIRateLimitError
 from tenacity import (
     retry,
     retry_if_exception_type,
+    retry_if_result,
     stop_after_attempt,
     wait_exponential,
 )
@@ -140,6 +141,14 @@ def _make_anthropic_call_with_retry(
     return _call()
 
 
+def _is_empty_openrouter_response(response) -> bool:
+    """Check if OpenRouter response content is empty (triggers retry)."""
+    if not response.choices:
+        return True
+    content = response.choices[0].message.content
+    return not content or not content.strip()
+
+
 def _make_openrouter_call_with_retry(
     client: OpenAI,
     model: str,
@@ -167,8 +176,9 @@ def _make_openrouter_call_with_retry(
     @retry(
         stop=stop_after_attempt(max_retries + 1),
         wait=wait_exponential(multiplier=1, min=1, max=10),
-        retry=retry_if_exception_type(
-            (OpenAIRateLimitError, OpenAIAPIConnectionError)
+        retry=(
+            retry_if_exception_type((OpenAIRateLimitError, OpenAIAPIConnectionError))
+            | retry_if_result(_is_empty_openrouter_response)
         ),
         reraise=True,
     )
