@@ -1,0 +1,109 @@
+{
+  "total_cost": 0.0045085,
+  "max_budget": 5.0,
+  "cache_savings": 0.0,
+  "total_cache_creation_tokens": 0,
+  "total_cache_read_tokens": 0,
+  "usage_log": [
+    {
+      "input_tokens": 790,
+      "output_tokens": 0,
+      "cost": 0.000395,
+      "timestamp": "2025-12-29T17:10:11.378018",
+      "llm_type": "root",
+      "call_id": "d08309d9-3c91-44d8-b13e-729414832b8e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 815,
+      "output_tokens": 0,
+      "cost": 0.0004075,
+      "timestamp": "2025-12-29T17:10:19.345447",
+      "llm_type": "root",
+      "call_id": "5489e995-1fe9-43b8-8c5e-1e5f29c0f9ca",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 840,
+      "output_tokens": 0,
+      "cost": 0.00041999999999999996,
+      "timestamp": "2025-12-29T17:10:28.845547",
+      "llm_type": "root",
+      "call_id": "54f2658e-384c-43b3-9ecd-8e66d0180b0f",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 865,
+      "output_tokens": 0,
+      "cost": 0.0004325,
+      "timestamp": "2025-12-29T17:10:32.478659",
+      "llm_type": "root",
+      "call_id": "5090ddef-1ec0-4567-891f-a7f008edab05",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 888,
+      "output_tokens": 0,
+      "cost": 0.000444,
+      "timestamp": "2025-12-29T17:10:34.069061",
+      "llm_type": "root",
+      "call_id": "3928c9f2-8ad4-448f-80a0-f3c0a28ce6ac",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 913,
+      "output_tokens": 0,
+      "cost": 0.0004565,
+      "timestamp": "2025-12-29T17:10:35.003119",
+      "llm_type": "root",
+      "call_id": "b2936bb3-e771-41b2-a080-4a3824930d6e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 940,
+      "output_tokens": 0,
+      "cost": 0.00047,
+      "timestamp": "2025-12-29T17:10:55.382913",
+      "llm_type": "root",
+      "call_id": "de56c42e-1f32-4ca7-92d5-22823eefdde9",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 963,
+      "output_tokens": 0,
+      "cost": 0.0004815,
+      "timestamp": "2025-12-29T17:10:57.254265",
+      "llm_type": "root",
+      "call_id": "8fbad1d3-3a15-4cef-916f-5d829c15f80e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 988,
+      "output_tokens": 0,
+      "cost": 0.000494,
+      "timestamp": "2025-12-29T17:10:59.058792",
+      "llm_type": "root",
+      "call_id": "587dc927-bc0c-424f-aa4b-05eda5c843d5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1015,
+      "output_tokens": 0,
+      "cost": 0.0005075,
+      "timestamp": "2025-12-29T17:11:05.334373",
+      "llm_type": "root",
+      "call_id": "c731735f-663e-4743-a3be-9e7c58a11813",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    }
+  ]
+}

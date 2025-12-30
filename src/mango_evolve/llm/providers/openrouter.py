@@ -39,6 +39,7 @@ class OpenRouterProvider(BaseLLMProvider):
         cost_tracker: "CostTracker",
         llm_type: str,
         max_retries: int = 3,
+        reasoning_config: dict[str, Any] | None = None,
     ):
         """
         Initialize the OpenRouter provider.
@@ -48,6 +49,11 @@ class OpenRouterProvider(BaseLLMProvider):
             cost_tracker: CostTracker instance for budget enforcement
             llm_type: Either "root" or "child" - used for cost tracking
             max_retries: Maximum number of retries on transient errors
+            reasoning_config: Optional reasoning configuration dict with keys:
+                - enabled: bool - Enable reasoning at medium effort
+                - effort: str - "minimal", "low", "medium", "high", "xhigh"
+                - max_tokens: int - Direct token limit for reasoning
+                - exclude: bool - Use reasoning but don't return it
 
         Raises:
             ValueError: If OPENROUTER_API_KEY is not set
@@ -65,6 +71,7 @@ class OpenRouterProvider(BaseLLMProvider):
             base_url="https://openrouter.ai/api/v1",
             api_key=api_key,
         )
+        self._reasoning_config = reasoning_config
 
     @property
     def supports_caching(self) -> bool:
@@ -126,9 +133,22 @@ class OpenRouterProvider(BaseLLMProvider):
         # Extract content
         content = response.choices[0].message.content or ""
 
+        # Extract reasoning content if present
+        reasoning_content = None
+        reasoning_tokens = 0
+        message = response.choices[0].message
+
+        # OpenRouter returns reasoning in message.reasoning field
+        if hasattr(message, "reasoning") and message.reasoning:
+            reasoning_content = message.reasoning
+
         # Extract token usage
         input_tokens = response.usage.prompt_tokens if response.usage else 0
         output_tokens = response.usage.completion_tokens if response.usage else 0
+
+        # Extract reasoning tokens if available
+        if response.usage and hasattr(response.usage, "reasoning_tokens"):
+            reasoning_tokens = response.usage.reasoning_tokens or 0
 
         # Record usage (no cache stats for OpenRouter)
         self.cost_tracker.record_usage(
@@ -145,6 +165,8 @@ class OpenRouterProvider(BaseLLMProvider):
             model=self.model,
             call_id=call_id,
             stop_reason=response.choices[0].finish_reason,
+            reasoning_content=reasoning_content,
+            reasoning_tokens=reasoning_tokens,
         )
 
     def _extract_system_text(self, system: str | list[dict[str, Any]]) -> str:
@@ -168,6 +190,18 @@ class OpenRouterProvider(BaseLLMProvider):
             elif isinstance(block, str):
                 texts.append(block)
         return "\n".join(texts)
+
+    def _build_reasoning_param(self) -> dict[str, Any] | None:
+        """Build the reasoning parameter for the API call by filtering out None/False values."""
+        if not self._reasoning_config:
+            return None
+
+        # Filter out None, False, and "none" effort - keep only truthy values
+        reasoning = {
+            k: v for k, v in self._reasoning_config.items()
+            if v is not None and v is not False and v != "none"
+        }
+        return reasoning or None
 
     def _call_with_retry(
         self,
@@ -202,6 +236,9 @@ class OpenRouterProvider(BaseLLMProvider):
                     self.max_retries + 1,
                 )
 
+        # Build reasoning parameter
+        reasoning = self._build_reasoning_param()
+
         @retry(
             stop=stop_after_attempt(self.max_retries + 1),
             wait=wait_exponential(multiplier=1, min=1, max=10),
@@ -213,11 +250,20 @@ class OpenRouterProvider(BaseLLMProvider):
             reraise=True,
         )
         def _make_call():
-            return self._client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
+            # Build extra body with reasoning if configured
+            extra_body = {}
+            if reasoning:
+                extra_body["reasoning"] = reasoning
+
+            kwargs: dict[str, Any] = {
+                "model": self.model,
+                "messages": messages,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            }
+            if extra_body:
+                kwargs["extra_body"] = extra_body
+
+            return self._client.chat.completions.create(**kwargs)
 
         return _make_call()

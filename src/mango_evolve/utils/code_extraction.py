@@ -147,17 +147,19 @@ def extract_repl_blocks(text: str) -> list[str]:
     """
     Extract all REPL code blocks from text.
 
-    The Root LLM writes Python code in ```repl``` blocks that should
-    be executed in the REPL environment.
+    The Root LLM writes Python code in ```repl``` or ```python``` blocks
+    that should be executed in the REPL environment.
 
     Args:
         text: The text to extract code from
 
     Returns:
-        List of code strings (one per ```repl``` block)
+        List of code strings in order of appearance
     """
-    blocks = extract_code_blocks(text, language="repl")
-    return [block.code for block in blocks]
+    repl_blocks = extract_code_blocks(text, language="repl")
+    python_blocks = extract_code_blocks(text, language="python")
+    all_blocks = sorted(repl_blocks + python_blocks, key=lambda b: b.start_pos)
+    return [block.code for block in all_blocks]
 
 
 def _find_all_top_level_blocks(text: str) -> list[tuple[int, int]]:

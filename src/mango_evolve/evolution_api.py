@@ -35,7 +35,7 @@ class LLMClientProtocol(Protocol):
         self,
         messages: list[dict[str, str]],
         system: str | None = None,
-        max_tokens: int = 4096,
+        max_tokens: int = 65536,
         temperature: float = 0.7,
     ) -> Any:
         """Generate a response."""

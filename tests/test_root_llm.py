@@ -136,8 +136,8 @@ b = 2
         assert "a = 1" in blocks[0]
         assert "b = 2" in blocks[1]
 
-    def test_extract_code_blocks_ignores_python(self, mock_config):
-        """Test that Python blocks are ignored (only repl blocks extracted)."""
+    def test_extract_code_blocks_includes_python_and_repl(self, mock_config):
+        """Test that both python and repl blocks are extracted in order."""
         orchestrator = RootLLMOrchestrator(mock_config)
 
         response = """This is Python:
@@ -154,8 +154,9 @@ x = 1
 ```
 """
         blocks = orchestrator.extract_code_blocks(response)
-        assert len(blocks) == 1
-        assert "x = 1" in blocks[0]
+        assert len(blocks) == 2
+        assert "def foo" in blocks[0]
+        assert "x = 1" in blocks[1]
 
     def test_extract_code_blocks_none(self, mock_config):
         """Test when no REPL blocks are present."""

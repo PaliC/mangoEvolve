@@ -1,0 +1,58 @@
+{
+  "experiment_id": "circle_packing_gemini_flash_20251229_175400",
+  "config": {
+    "experiment": {
+      "name": "circle_packing_gemini_flash",
+      "output_dir": "./experiments",
+      "seed": null
+    },
+    "root_llm": {
+      "model": "google/gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "openrouter",
+      "max_iterations": 30,
+      "reasoning": {
+        "enabled": true,
+        "effort": null,
+        "max_tokens": null,
+        "exclude": false
+      }
+    },
+    "child_llm": {
+      "model": "google/gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "openrouter",
+      "max_iterations": null,
+      "reasoning": {
+        "enabled": true,
+        "effort": null,
+        "max_tokens": null,
+        "exclude": false
+      }
+    },
+    "evaluation": {
+      "evaluator_fn": "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+      "evaluator_kwargs": {
+        "n_circles": 26,
+        "timeout_seconds": 300
+      }
+    },
+    "evolution": {
+      "max_generations": 8,
+      "max_children_per_generation": 50
+    },
+    "budget": {
+      "max_total_cost": 10.0
+    }
+  },
+  "start_time": "2025-12-29T17:54:00.095858",
+  "end_time": "2025-12-29T17:55:25.253607",
+  "termination_reason": "max_generations_reached",
+  "num_generations": 0,
+  "total_trials": 0,
+  "best_trial": null,
+  "scratchpad": "",
+  "generations": []
+}

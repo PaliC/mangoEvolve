@@ -137,9 +137,9 @@ result2 = spawn_child_llm("hex")
         assert "result2" in codes[1]
 
     def test_no_repl_block(self):
-        """Return empty list when no REPL block."""
+        """Return empty list when no REPL or python block."""
         text = """
-```python
+```javascript
 x = 5
 ```
 """
@@ -147,8 +147,8 @@ x = 5
 
         assert len(codes) == 0
 
-    def test_ignores_python_blocks(self):
-        """REPL extraction ignores python blocks."""
+    def test_extracts_both_python_and_repl_blocks(self):
+        """REPL extraction includes both python and repl blocks in order."""
         text = """
 Here's some Python code for reference:
 ```python
@@ -163,9 +163,9 @@ spawn_child_llm("test")
 """
         codes = extract_repl_blocks(text)
 
-        assert len(codes) == 1
-        assert "spawn_child_llm" in codes[0]
-        assert "def example" not in codes[0]
+        assert len(codes) == 2
+        assert "def example" in codes[0]
+        assert "spawn_child_llm" in codes[1]
 
 
 class TestExtractReasoning:

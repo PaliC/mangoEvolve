@@ -25,6 +25,7 @@ def create_llm_client(
     cost_tracker: "CostTracker",
     llm_type: str,
     max_retries: int = 3,
+    reasoning_config: dict[str, Any] | None = None,
 ) -> BaseLLMProvider:
     """
     Factory function to create an LLM client for the specified provider.
@@ -35,6 +36,7 @@ def create_llm_client(
         cost_tracker: CostTracker instance for budget enforcement
         llm_type: Either "root" or "child" - used for cost tracking
         max_retries: Maximum number of retries on transient errors
+        reasoning_config: Optional reasoning configuration (OpenRouter only)
 
     Returns:
         LLM client instance (AnthropicProvider or OpenRouterProvider)
@@ -50,6 +52,16 @@ def create_llm_client(
     if provider not in providers:
         raise ValueError(
             f"Unknown provider: '{provider}'. Supported providers: {list(providers.keys())}"
+        )
+
+    # OpenRouter supports reasoning config
+    if provider == "openrouter":
+        return OpenRouterProvider(
+            model=model,
+            cost_tracker=cost_tracker,
+            llm_type=llm_type,
+            max_retries=max_retries,
+            reasoning_config=reasoning_config,
         )
 
     return providers[provider](

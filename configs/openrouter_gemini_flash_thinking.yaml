@@ -1,0 +1,48 @@
+# OpenRouter config using Google Gemini Flash with Extended Thinking
+# Uses reasoning/thinking tokens for enhanced problem-solving
+#
+# Requires: OPENROUTER_API_KEY environment variable
+# Pricing: https://openrouter.ai/google/gemini-2.5-flash-preview-05-20
+#
+# Reasoning effort levels:
+#   - minimal: ~10% of max_tokens for reasoning
+#   - low: ~20% of max_tokens for reasoning
+#   - medium: ~50% of max_tokens for reasoning
+#   - high: ~80% of max_tokens for reasoning
+#   - xhigh: ~95% of max_tokens for reasoning (ultrathink!)
+
+experiment:
+  name: "circle_packing_gemini_flash_thinking"
+  output_dir: "./experiments"
+
+root_llm:
+  provider: "openrouter"
+  model: "google/gemini-2.5-flash-preview-05-20"
+  cost_per_million_input_tokens: 0.15
+  cost_per_million_output_tokens: 0.60
+  max_iterations: 30
+  reasoning:
+    enabled: true
+    effort: "xhigh"  # ultrathink mode - maximum reasoning
+
+child_llm:
+  provider: "openrouter"
+  model: "google/gemini-2.5-flash-preview-05-20"
+  cost_per_million_input_tokens: 0.15
+  cost_per_million_output_tokens: 0.60
+  reasoning:
+    enabled: true
+    effort: "high"  # high reasoning for code generation
+
+evaluation:
+  evaluator_fn: "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator"
+  evaluator_kwargs:
+    n_circles: 26
+    timeout_seconds: 300
+
+evolution:
+  max_generations: 10
+  max_children_per_generation: 15
+
+budget:
+  max_total_cost: 5.0

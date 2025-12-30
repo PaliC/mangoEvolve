@@ -5,7 +5,7 @@ Main orchestrator that runs the Root LLM evolution loop, executing REPL
 code blocks and managing the conversation with the Root LLM.
 """
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any
 
 from tqdm import tqdm
@@ -84,6 +84,7 @@ class RootLLMOrchestrator:
                 model=config.root_llm.model,
                 cost_tracker=self.cost_tracker,
                 llm_type="root",
+                reasoning_config=asdict(config.root_llm.reasoning) if config.root_llm.reasoning else None,
             )
 
         if child_llm is not None:
@@ -94,6 +95,7 @@ class RootLLMOrchestrator:
                 model=config.child_llm.model,
                 cost_tracker=self.cost_tracker,
                 llm_type="child",
+                reasoning_config=asdict(config.child_llm.reasoning) if config.child_llm.reasoning else None,
             )
 
         # Load evaluator

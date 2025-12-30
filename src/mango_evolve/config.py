@@ -24,6 +24,20 @@ class ExperimentConfig:
 
 
 @dataclass
+class ReasoningConfig:
+    """Configuration for reasoning/thinking tokens (OpenRouter only).
+
+    Enables extended reasoning for models that support it like Gemini Flash,
+    DeepSeek, OpenAI o-series, etc.
+    """
+
+    enabled: bool = False
+    effort: str | None = None  # "minimal", "low", "medium", "high", "xhigh", or None
+    max_tokens: int | None = None  # Direct token limit for reasoning (alternative to effort)
+    exclude: bool = False  # If True, model uses reasoning but doesn't return it
+
+
+@dataclass
 class LLMConfig:
     """Configuration for an LLM (root or child)."""
 
@@ -32,6 +46,7 @@ class LLMConfig:
     cost_per_million_output_tokens: float
     provider: str = "anthropic"  # "anthropic" or "openrouter"
     max_iterations: int | None = None  # Only used for root LLM
+    reasoning: ReasoningConfig | None = None  # OpenRouter reasoning config
 
 
 @dataclass
@@ -118,6 +133,40 @@ def _parse_experiment_config(data: dict[str, Any]) -> ExperimentConfig:
     )
 
 
+def _parse_reasoning_config(data: dict[str, Any] | None, section: str) -> ReasoningConfig | None:
+    """Parse reasoning configuration section."""
+    if data is None:
+        return None
+
+    _validate_types(
+        data,
+        {
+            "enabled": bool,
+            "effort": str,
+            "max_tokens": int,
+            "exclude": bool,
+        },
+        f"{section}.reasoning",
+    )
+
+    # Validate effort value if provided
+    effort = data.get("effort")
+    if effort is not None:
+        valid_efforts = {"minimal", "low", "medium", "high", "xhigh", "none"}
+        if effort not in valid_efforts:
+            raise ConfigValidationError(
+                f"Invalid reasoning effort '{effort}' in section '{section}'. "
+                f"Must be one of: {', '.join(sorted(valid_efforts))}"
+            )
+
+    return ReasoningConfig(
+        enabled=data.get("enabled", False),
+        effort=effort,
+        max_tokens=data.get("max_tokens"),
+        exclude=data.get("exclude", False),
+    )
+
+
 def _parse_llm_config(data: dict[str, Any], section: str) -> LLMConfig:
     """Parse LLM configuration section."""
     _validate_required_fields(
@@ -144,12 +193,17 @@ def _parse_llm_config(data: dict[str, Any], section: str) -> LLMConfig:
             f"Invalid provider '{provider}' in section '{section}'. "
             f"Must be one of: {', '.join(sorted(valid_providers))}"
         )
+
+    # Parse reasoning config
+    reasoning = _parse_reasoning_config(data.get("reasoning"), section)
+
     return LLMConfig(
         model=data["model"],
         cost_per_million_input_tokens=float(data["cost_per_million_input_tokens"]),
         cost_per_million_output_tokens=float(data["cost_per_million_output_tokens"]),
         provider=provider,
         max_iterations=data.get("max_iterations"),
+        reasoning=reasoning,
     )
 
 
