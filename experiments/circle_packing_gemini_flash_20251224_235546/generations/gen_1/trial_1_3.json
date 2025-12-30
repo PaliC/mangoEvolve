@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_1_3",
+  "generation": 1,
+  "parent_id": "trial_0_9",
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square.\n    Uses a hybrid strategy: a hexagonal base for 'large' circles and \n    gap-filling for 'small' circles, followed by constrained optimization.\n    \"\"\"\n    n = 26\n    # Strategy: Use a ratio of large to small circles. \n    # Best known solutions for sum of radii often feature a dominant large size \n    # with smaller circles filling interstices.\n    n_large = 18\n    n_small = n - n_large\n    \n    # 1. Initialization\n    # Place large circles in a slightly jittered grid\n    centers = []\n    rows = 5\n    cols = 4\n    for i in range(n_large):\n        r_idx = i // cols\n        c_idx = i % cols\n        x = 0.2 + 0.6 * (c_idx / (cols - 1))\n        y = 0.2 + 0.6 * (r_idx / (rows - 1))\n        centers.append([x, y])\n    \n    # Place small circles randomly in the remaining space\n    np.random.seed(42)\n    for i in range(n_small):\n        centers.append([np.random.uniform(0.1, 0.9), np.random.uniform(0.1, 0.9)])\n    \n    centers = np.array(centers)\n    radii = np.array([0.1]*n_large + [0.04]*n_small)\n    \n    # Flatten for optimizer: [x0, y0, r0, ..., xn, yn, rn]\n    x0 = np.zeros(3 * n)\n    for i in range(n):\n        x0[3*i : 3*i+2] = centers[i]\n        x0[3*i+2] = radii[i]\n\n    # 2. Optimization\n    def objective(p):\n        # Maximize sum of radii\n        return -np.sum(p[2::3])\n\n    def constraints_func(p):\n        p = p.reshape((n, 3))\n        x, y, r = p[:, 0], p[:, 1], p[:, 2]\n        \n        # Boundary constraints: x-r >= 0, 1-x-r >= 0, etc.\n        # Overlap: dist - (ri + rj) >= 0\n        cons = []\n        # Boundary\n        cons.extend(x - r)\n        cons.extend(1.0 - x - r)\n        cons.extend(y - r)\n        cons.extend(1.0 - y - r)\n        # Radii > 0\n        cons.extend(r - 0.001)\n        \n        # Pairwise overlap (vectorized calculation for speed)\n        for i in range(n):\n            dx = x[i] - x[i+1:]\n            dy = y[i] - y[i+1:]\n            dist = np.sqrt(dx**2 + dy**2)\n            cons.extend(dist - (r[i] + r[i+1:]))\n            \n        return np.array(cons)\n\n    # Use SLSQP\n    res = minimize(\n        objective,\n        x0,\n        method='SLSQP',\n        constraints={'type': 'ineq', 'fun': constraints_func},\n        options={'maxiter': 150, 'ftol': 1e-7}\n    )\n\n    # 3. Post-processing\n    final_p = res.x.reshape((n, 3))\n    centers = final_p[:, :2]\n    radii = final_p[:, 2]\n    \n    # Ensure strict feasibility\n    for _ in range(5): # iterative scaling to ensure no overlaps due to float precision\n        for i in range(n):\n            # Clip to boundary\n            radii[i] = max(1e-6, radii[i])\n            centers[i] = np.clip(centers[i], radii[i], 1.0 - radii[i])\n            # Check overlap\n            for j in range(i + 1, n):\n                dist = np.linalg.norm(centers[i] - centers[j])\n                if dist < (radii[i] + radii[j]):\n                    overlap = (radii[i] + radii[j]) - dist\n                    # Shrink radii slightly to resolve\n                    radii[i] -= overlap/2 + 1e-9\n                    radii[j] -= overlap/2 + 1e-9\n\n    return centers, radii, np.sum(radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.5937373078829435,
+    "eval_time": 0.28728508949279785,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.08289879478181245,
+            0.08289879478181245
+          ],
+          [
+            0.4934069553186345,
+            0.12834904794201535
+          ],
+          [
+            0.7168619557931619,
+            0.0972584877660518
+          ],
+          [
+            0.907035980714042,
+            0.09296401928595797
+          ],
+          [
+            0.13253026690656106,
+            0.29253275575838855
+          ],
+          [
+            0.473125816532311,
+            0.3303258588486164
+          ],
+          [
+            0.6640877482495698,
+            0.30582734140325496
+          ],
+          [
+            0.8851356738961235,
+            0.3786927970764611
+          ],
+          [
+            0.10677948462099145,
+            0.5304530247311126
+          ],
+          [
+            0.324752179632866,
+            0.4598821375885195
+          ],
+          [
+            0.5460140612404025,
+            0.49011560721598385
+          ],
+          [
+            0.8853165349049972,
+            0.6082405170468325
+          ],
+          [
+            0.2511174422617331,
+            0.6469516000905935
+          ],
+          [
+            0.43109917422525673,
+            0.656892698278195
+          ],
+          [
+            0.6574631180351724,
+            0.6891147932488857
+          ],
+          [
+            0.8608720605271346,
+            0.8608720605271346
+          ],
+          [
+            0.3004110524800311,
+            0.8600155437178054
+          ],
+          [
+            0.5038710521927031,
+            0.8113689448522935
+          ],
+          [
+            0.48438491759425956,
+            0.9395533190899691
+          ],
+          [
+            0.7273644817457818,
+            0.4937448154522289
+          ],
+          [
+            0.26581091515588606,
+            0.10089665316554752
+          ],
+          [
+            0.09795749033992518,
+            0.734999844147149
+          ],
+          [
+            0.6339553049503179,
+            0.907475065474632
+          ],
+          [
+            0.08379754150040422,
+            0.9162024584995958
+          ],
+          [
+            0.8182076444402838,
+            0.21730730180387514
+          ],
+          [
+            0.3388336971831208,
+            0.2620347752620187
+          ]
+        ],
+        "radii": [
+          0.08289879478181245,
+          0.12834904794201535,
+          0.0972584877660518,
+          0.09296401928595797,
+          0.13253026690656106,
+          0.07464345618353309,
+          0.11788351941737679,
+          0.11486432610387654,
+          0.1067794846208466,
+          0.12233259686481468,
+          0.1009852997168657,
+          0.11468346409410768,
+          0.07870734530689047,
+          0.10154872053767772,
+          0.12709707102677004,
+          0.13912793947286536,
+          0.13998445628219455,
+          0.06921034065153356,
+          0.06044667991002301,
+          0.08040143024284736,
+          0.1008966531652349,
+          0.09795749033992518,
+          0.09252493352516561,
+          0.08379754150040422,
+          0.05984869335245993,
+          0.07601524888513218
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.593737)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.082899 | 0.082899 | 0.082899 |\n|  1 | 0.493407 | 0.128349 | 0.128349 |\n|  2 | 0.716862 | 0.097258 | 0.097258 |\n|  3 | 0.907036 | 0.092964 | 0.092964 |\n|  4 | 0.132530 | 0.292533 | 0.132530 |\n|  5 | 0.473126 | 0.330326 | 0.074643 |\n|  6 | 0.664088 | 0.305827 | 0.117884 |\n|  7 | 0.885136 | 0.378693 | 0.114864 |\n|  8 | 0.106779 | 0.530453 | 0.106779 |\n|  9 | 0.324752 | 0.459882 | 0.122333 |\n| 10 | 0.546014 | 0.490116 | 0.100985 |\n| 11 | 0.885317 | 0.608241 | 0.114683 |\n| 12 | 0.251117 | 0.646952 | 0.078707 |\n| 13 | 0.431099 | 0.656893 | 0.101549 |\n| 14 | 0.657463 | 0.689115 | 0.127097 |\n| 15 | 0.860872 | 0.860872 | 0.139128 |\n| 16 | 0.300411 | 0.860016 | 0.139984 |\n| 17 | 0.503871 | 0.811369 | 0.069210 |\n| 18 | 0.484385 | 0.939553 | 0.060447 |\n| 19 | 0.727364 | 0.493745 | 0.080401 |\n| 20 | 0.265811 | 0.100897 | 0.100897 |\n| 21 | 0.097957 | 0.735000 | 0.097957 |\n| 22 | 0.633955 | 0.907475 | 0.092525 |\n| 23 | 0.083798 | 0.916202 | 0.083798 |\n| 24 | 0.818208 | 0.217307 | 0.059849 |\n| 25 | 0.338834 | 0.262035 | 0.076015 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.082899, 0.082899],\n    [0.493407, 0.128349],\n    [0.716862, 0.097258],\n    [0.907036, 0.092964],\n    [0.132530, 0.292533],\n    [0.473126, 0.330326],\n    [0.664088, 0.305827],\n    [0.885136, 0.378693],\n    [0.106779, 0.530453],\n    [0.324752, 0.459882],\n    [0.546014, 0.490116],\n    [0.885317, 0.608241],\n    [0.251117, 0.646952],\n    [0.431099, 0.656893],\n    [0.657463, 0.689115],\n    [0.860872, 0.860872],\n    [0.300411, 0.860016],\n    [0.503871, 0.811369],\n    [0.484385, 0.939553],\n    [0.727364, 0.493745],\n    [0.265811, 0.100897],\n    [0.097957, 0.735000],\n    [0.633955, 0.907475],\n    [0.083798, 0.916202],\n    [0.818208, 0.217307],\n    [0.338834, 0.262035]\n])\n\nradii = np.array([\n    0.082899,\n    0.128349,\n    0.097258,\n    0.092964,\n    0.132530,\n    0.074643,\n    0.117884,\n    0.114864,\n    0.106779,\n    0.122333,\n    0.100985,\n    0.114683,\n    0.078707,\n    0.101549,\n    0.127097,\n    0.139128,\n    0.139984,\n    0.069210,\n    0.060447,\n    0.080401,\n    0.100897,\n    0.097957,\n    0.092525,\n    0.083798,\n    0.059849,\n    0.076015\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.593737"
+    }
+  },
+  "prompt": "Improve the bimodal strategy from:\n{{import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square.\n    Uses a bimodal initialization and SLSQP optimization to maximize sum of radii.\n    \"\"\"\n    n = 26\n    \n    # 1. Initialization: 13 large, 13 small\n    # Create a grid for initial placement\n    grid_size = int(np.ceil(np.sqrt(n)))\n    x = np.linspace(0.2, 0.8, grid_size)\n    y = np.linspace(0.2, 0.8, grid_size)\n    xv, yv = np.meshgrid(x, y)\n    \n    centers_init = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n]\n    \n    # Radii initialization: 13 large (0.1), 13 small (0.05)\n    radii_init = np.array([0.1]*13 + [0.05]*13)\n    \n    # Flatten for optimizer: [x0, y0, r0, x1, y1, r1, ...]\n    initial_params = np.zeros(3 * n)\n    for i in range(n):\n        initial_params[3*i] = centers_init[i, 0]\n        initial_params[3*i+1] = centers_init[i, 1]\n        initial_params[3*i+2] = radii_init[i]\n\n    # 2. Constraints\n    def objective(params):\n        # Maximize sum of radii -> Minimize negative sum\n        r = params[2::3]\n        return -np.sum(r)\n\n    constraints = []\n    \n    # Boundary constraints: 0 + r <= x <= 1 - r and 0 + r <= y <= 1 - r\n    def boundary_constraints(params):\n        cons = []\n        for i in range(n):\n            x, y, r = params[3*i], params[3*i+1], params[3*i+2]\n            cons.extend([x - r, 1 - x - r, y - r, 1 - y - r])\n        return np.array(cons)\n\n    # Overlap constraints: dist(c_i, c_j) >= r_i + r_j\n    def overlap_constraints(params):\n        cons = []\n        for i in range(n):\n            xi, yi, ri = params[3*i], params[3*i+1], params[3*i+2]\n            for j in range(i + 1, n):\n                xj, yj, rj = params[3*j], params[3*j+1], params[3*j+2]\n                dist = np.sqrt((xi - xj)**2 + (yi - yj)**2)\n                cons.append(dist - (ri + rj))\n        return np.array(cons)\n\n    # Combine constraints for SLSQP\n    # Note: SLSQP requires constraints to be >= 0\n    cons = [\n        {'type': 'ineq', 'fun': lambda p: boundary_constraints(p)},\n        {'type': 'ineq', 'fun': lambda p: overlap_constraints(p)},\n        {'type': 'ineq', 'fun': lambda p: p[2::3]} # radii > 0\n    ]\n\n    # 3. Optimization\n    # We use a limited number of iterations for speed; SLSQP is efficient for this size\n    res = minimize(\n        objective, \n        initial_params, \n        method='SLSQP', \n        constraints=cons,\n        options={'maxiter': 100, 'disp': False}\n    )\n\n    # 4. Extraction\n    final_params = res.x\n    centers = np.zeros((n, 2))\n    radii = np.zeros(n)\n    for i in range(n):\n        centers[i, 0] = final_params[3*i]\n        centers[i, 1] = final_params[3*i+1]\n        radii[i] = final_params[3*i+2]\n    \n    # Final check: Ensure non-negative radii and clip to unit square boundaries\n    radii = np.maximum(radii, 1e-6)\n    for i in range(n):\n        centers[i] = np.clip(centers[i], radii[i], 1.0 - radii[i])\n\n    return centers, radii, np.sum(radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()}}\nInstead of a fixed 13/13 split, explore different ratios of 'large' vs 'small' circles (e.g., 20 large, 6 small). Small circles can fill the triangular gaps in a hexagonal packing of larger circles. Use optimization to finalize.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square.\n    Uses a hybrid strategy: a hexagonal base for 'large' circles and \n    gap-filling for 'small' circles, followed by constrained optimization.\n    \"\"\"\n    n = 26\n    # Strategy: Use a ratio of large to small circles. \n    # Best known solutions for sum of radii often feature a dominant large size \n    # with smaller circles filling interstices.\n    n_large = 18\n    n_small = n - n_large\n    \n    # 1. Initialization\n    # Place large circles in a slightly jittered grid\n    centers = []\n    rows = 5\n    cols = 4\n    for i in range(n_large):\n        r_idx = i // cols\n        c_idx = i % cols\n        x = 0.2 + 0.6 * (c_idx / (cols - 1))\n        y = 0.2 + 0.6 * (r_idx / (rows - 1))\n        centers.append([x, y])\n    \n    # Place small circles randomly in the remaining space\n    np.random.seed(42)\n    for i in range(n_small):\n        centers.append([np.random.uniform(0.1, 0.9), np.random.uniform(0.1, 0.9)])\n    \n    centers = np.array(centers)\n    radii = np.array([0.1]*n_large + [0.04]*n_small)\n    \n    # Flatten for optimizer: [x0, y0, r0, ..., xn, yn, rn]\n    x0 = np.zeros(3 * n)\n    for i in range(n):\n        x0[3*i : 3*i+2] = centers[i]\n        x0[3*i+2] = radii[i]\n\n    # 2. Optimization\n    def objective(p):\n        # Maximize sum of radii\n        return -np.sum(p[2::3])\n\n    def constraints_func(p):\n        p = p.reshape((n, 3))\n        x, y, r = p[:, 0], p[:, 1], p[:, 2]\n        \n        # Boundary constraints: x-r >= 0, 1-x-r >= 0, etc.\n        # Overlap: dist - (ri + rj) >= 0\n        cons = []\n        # Boundary\n        cons.extend(x - r)\n        cons.extend(1.0 - x - r)\n        cons.extend(y - r)\n        cons.extend(1.0 - y - r)\n        # Radii > 0\n        cons.extend(r - 0.001)\n        \n        # Pairwise overlap (vectorized calculation for speed)\n        for i in range(n):\n            dx = x[i] - x[i+1:]\n            dy = y[i] - y[i+1:]\n            dist = np.sqrt(dx**2 + dy**2)\n            cons.extend(dist - (r[i] + r[i+1:]))\n            \n        return np.array(cons)\n\n    # Use SLSQP\n    res = minimize(\n        objective,\n        x0,\n        method='SLSQP',\n        constraints={'type': 'ineq', 'fun': constraints_func},\n        options={'maxiter': 150, 'ftol': 1e-7}\n    )\n\n    # 3. Post-processing\n    final_p = res.x.reshape((n, 3))\n    centers = final_p[:, :2]\n    radii = final_p[:, 2]\n    \n    # Ensure strict feasibility\n    for _ in range(5): # iterative scaling to ensure no overlaps due to float precision\n        for i in range(n):\n            # Clip to boundary\n            radii[i] = max(1e-6, radii[i])\n            centers[i] = np.clip(centers[i], radii[i], 1.0 - radii[i])\n            # Check overlap\n            for j in range(i + 1, n):\n                dist = np.linalg.norm(centers[i] - centers[j])\n                if dist < (radii[i] + radii[j]):\n                    overlap = (radii[i] + radii[j]) - dist\n                    # Shrink radii slightly to resolve\n                    radii[i] -= overlap/2 + 1e-9\n                    radii[j] -= overlap/2 + 1e-9\n\n    return centers, radii, np.sum(radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-24T23:56:46.705302",
+  "cost_data": null
+}

@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_8_12",
+  "generation": 8,
+  "parent_id": "trial_7_1",
+  "code": "import numpy as np\nfrom scipy.optimize import differential_evolution\n\ndef construct_packing():\n    \"\"\"\n    Refines the circle packing for n=26 using Differential Evolution \n    in the neighborhood of a known high-performing configuration.\n    \"\"\"\n    n = 26\n    \n    # Initial seed configuration (Sum of radii ~ 2.6323)\n    initial_centers = np.array([\n        [0.367734, 0.253038], [0.925845, 0.304813], [0.304813, 0.925845],\n        [0.075659, 0.075659], [0.924377, 0.924377], [0.682825, 0.682825],\n        [0.546041, 0.273005], [0.105273, 0.254151], [0.457251, 0.097959],\n        [0.253038, 0.367734], [0.421285, 0.421285], [0.747585, 0.294715],\n        [0.659890, 0.104796], [0.097959, 0.457251], [0.620799, 0.466494],\n        [0.273005, 0.546041], [0.294715, 0.747585], [0.104796, 0.659890],\n        [0.745972, 0.894778], [0.882152, 0.117848], [0.894778, 0.745972],\n        [0.254151, 0.105273], [0.117848, 0.882152], [0.466494, 0.620799],\n        [0.506146, 0.863345], [0.863345, 0.506146]\n    ])\n\n    def objective(params):\n        \"\"\"\n        Calculates the negative sum of radii for a given set of centers.\n        The radius for each circle is the maximum possible given boundaries \n        and other circles.\n        \"\"\"\n        pts = params.reshape((n, 2))\n        # Boundary constraints: r_i <= x_i, r_i <= 1-x_i, r_i <= y_i, r_i <= 1-y_i\n        # This simplifies to r_i <= min(x_i, 1-x_i, y_i, 1-y_i)\n        max_r = np.min(np.hstack([pts, 1 - pts]), axis=1)\n        \n        # Overlap constraints: r_i + r_j <= dist(i, j)\n        # We solve a linear system for r or use a greedy approach. \n        # For this specific objective (maximizing sum), we use the fact that \n        # in an optimal packing, circles are often 'blocked' by neighbors.\n        # A simple robust approximation for the optimizer:\n        r = np.copy(max_r)\n        for _ in range(2): # Iterative refinement of radii sum\n            for i in range(n):\n                for j in range(i + 1, n):\n                    d = np.linalg.norm(pts[i] - pts[j])\n                    if r[i] + r[j] > d:\n                        # Proportionally reduce radii to satisfy constraint\n                        scale = d / (r[i] + r[j])\n                        r[i] *= scale\n                        r[j] *= scale\n        return -np.sum(r)\n\n    # Set search bounds: [x_i - 0.05, x_i + 0.05]\n    bounds = []\n    for i in range(n):\n        for j in range(2):\n            low = max(0.0, initial_centers[i, j] - 0.05)\n            high = min(1.0, initial_centers[i, j] + 0.05)\n            bounds.append((low, high))\n\n    # Run Differential Evolution\n    result = differential_evolution(\n        objective,\n        bounds,\n        strategy='best1bin',\n        maxiter=100,\n        popsize=10,\n        tol=1e-7,\n        mutation=(0.5, 0.8),\n        recombination=0.7,\n        init='latinhypercube'\n    )\n\n    final_centers = result.x.reshape((n, 2))\n    \n    # Calculate valid radii for the final positions\n    # Solve the radii by ensuring no overlap and within bounds\n    # r_i = min(dist_to_boundaries, min_{j} (dist_ij - r_j))\n    # This is an iterative shrinkage to ensure feasibility\n    radii = np.min(np.hstack([final_centers, 1 - final_centers]), axis=1)\n    for _ in range(50):\n        for i in range(n):\n            for j in range(n):\n                if i == j: continue\n                d = np.linalg.norm(final_centers[i] - final_centers[j])\n                if radii[i] + radii[j] > d:\n                    # Shrink both equally to maintain feasibility\n                    diff = (radii[i] + radii[j] - d) / 2.0\n                    radii[i] -= diff\n                    radii[j] -= diff\n    \n    # Final safety check: radii must be non-negative\n    radii = np.maximum(radii, 0)\n    \n    return final_centers, radii, np.sum(radii)\n\ndef run_packing():\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 1.9449200840767342,
+    "eval_time": 61.00879216194153,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.37000636203037446,
+            0.2771020788418638
+          ],
+          [
+            0.9269849146910771,
+            0.33929899382921097
+          ],
+          [
+            0.3516104072747241,
+            0.9179163064427891
+          ],
+          [
+            0.07694124270069783,
+            0.079986918312687
+          ],
+          [
+            0.9207000196857816,
+            0.9122293858907411
+          ],
+          [
+            0.655822238865066,
+            0.6928209051548497
+          ],
+          [
+            0.5860559704867607,
+            0.27748671319631263
+          ],
+          [
+            0.08677331887546734,
+            0.24194551940179507
+          ],
+          [
+            0.4769861008923216,
+            0.10565277887731797
+          ],
+          [
+            0.24097270957069977,
+            0.3467154352720936
+          ],
+          [
+            0.43472144096889126,
+            0.40921025871378286
+          ],
+          [
+            0.7835821552117255,
+            0.29500145982947396
+          ],
+          [
+            0.6761223783052547,
+            0.10564032194360737
+          ],
+          [
+            0.0720423671007212,
+            0.4179040870363038
+          ],
+          [
+            0.6548576060845109,
+            0.47556283667130894
+          ],
+          [
+            0.2392727015531004,
+            0.5311151059564376
+          ],
+          [
+            0.2866732158097118,
+            0.7733204800831845
+          ],
+          [
+            0.09354499891044696,
+            0.6992269721109687
+          ],
+          [
+            0.7349821799856601,
+            0.8939056343515256
+          ],
+          [
+            0.888941709479583,
+            0.10877330747203419
+          ],
+          [
+            0.883136731711042,
+            0.7191788668264024
+          ],
+          [
+            0.26359348654862436,
+            0.12556372400487661
+          ],
+          [
+            0.10452755013526305,
+            0.894050081114776
+          ],
+          [
+            0.4843196338593069,
+            0.6386443386998981
+          ],
+          [
+            0.5080124186630294,
+            0.8827983693900315
+          ],
+          [
+            0.8864397013000264,
+            0.4884053842326174
+          ]
+        ],
+        "radii": [
+          0.0,
+          0.0,
+          0.0,
+          0.07128543947014562,
+          0.07787468281103002,
+          0.0,
+          0.04176362745726847,
+          0.0613894738019424,
+          0.09045407860226637,
+          0.020442019338655595,
+          0.035668884475048804,
+          0.10158459423170854,
+          0.09130136978275624,
+          0.05964434280997123,
+          0.0785312519890369,
+          0.11447236634100987,
+          0.10168561439072966,
+          0.08618698942286636,
+          0.10609436564847441,
+          0.10877330747203419,
+          0.11686326828895799,
+          0.12085072409769869,
+          0.10119247024243294,
+          0.13279129206193907,
+          0.11250962264078704,
+          0.11356029869997364
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 1.944920)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.370006 | 0.277102 | 0.000000 |\n|  1 | 0.926985 | 0.339299 | 0.000000 |\n|  2 | 0.351610 | 0.917916 | 0.000000 |\n|  3 | 0.076941 | 0.079987 | 0.071285 |\n|  4 | 0.920700 | 0.912229 | 0.077875 |\n|  5 | 0.655822 | 0.692821 | 0.000000 |\n|  6 | 0.586056 | 0.277487 | 0.041764 |\n|  7 | 0.086773 | 0.241946 | 0.061389 |\n|  8 | 0.476986 | 0.105653 | 0.090454 |\n|  9 | 0.240973 | 0.346715 | 0.020442 |\n| 10 | 0.434721 | 0.409210 | 0.035669 |\n| 11 | 0.783582 | 0.295001 | 0.101585 |\n| 12 | 0.676122 | 0.105640 | 0.091301 |\n| 13 | 0.072042 | 0.417904 | 0.059644 |\n| 14 | 0.654858 | 0.475563 | 0.078531 |\n| 15 | 0.239273 | 0.531115 | 0.114472 |\n| 16 | 0.286673 | 0.773320 | 0.101686 |\n| 17 | 0.093545 | 0.699227 | 0.086187 |\n| 18 | 0.734982 | 0.893906 | 0.106094 |\n| 19 | 0.888942 | 0.108773 | 0.108773 |\n| 20 | 0.883137 | 0.719179 | 0.116863 |\n| 21 | 0.263593 | 0.125564 | 0.120851 |\n| 22 | 0.104528 | 0.894050 | 0.101192 |\n| 23 | 0.484320 | 0.638644 | 0.132791 |\n| 24 | 0.508012 | 0.882798 | 0.112510 |\n| 25 | 0.886440 | 0.488405 | 0.113560 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.370006, 0.277102],\n    [0.926985, 0.339299],\n    [0.351610, 0.917916],\n    [0.076941, 0.079987],\n    [0.920700, 0.912229],\n    [0.655822, 0.692821],\n    [0.586056, 0.277487],\n    [0.086773, 0.241946],\n    [0.476986, 0.105653],\n    [0.240973, 0.346715],\n    [0.434721, 0.409210],\n    [0.783582, 0.295001],\n    [0.676122, 0.105640],\n    [0.072042, 0.417904],\n    [0.654858, 0.475563],\n    [0.239273, 0.531115],\n    [0.286673, 0.773320],\n    [0.093545, 0.699227],\n    [0.734982, 0.893906],\n    [0.888942, 0.108773],\n    [0.883137, 0.719179],\n    [0.263593, 0.125564],\n    [0.104528, 0.894050],\n    [0.484320, 0.638644],\n    [0.508012, 0.882798],\n    [0.886440, 0.488405]\n])\n\nradii = np.array([\n    0.000000,\n    0.000000,\n    0.000000,\n    0.071285,\n    0.077875,\n    0.000000,\n    0.041764,\n    0.061389,\n    0.090454,\n    0.020442,\n    0.035669,\n    0.101585,\n    0.091301,\n    0.059644,\n    0.078531,\n    0.114472,\n    0.101686,\n    0.086187,\n    0.106094,\n    0.108773,\n    0.116863,\n    0.120851,\n    0.101192,\n    0.132791,\n    0.112510,\n    0.113560\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=1.944920"
+    }
+  },
+  "prompt": "Refine Differential Evolution for the 2.6323 basin.\n1. Use `scipy.optimize.differential_evolution`.\n2. Set the search bounds for each center to $[x_i - 0.05, x_i + 0.05]$ based on {{## Parent Solution (score: 2.632342)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.367734 | 0.253038 | 0.081102 |\n|  1 | 0.925845 | 0.304813 | 0.074155 |\n|  2 | 0.304813 | 0.925845 | 0.074155 |\n|  3 | 0.075659 | 0.075659 | 0.075659 |\n|  4 | 0.924377 | 0.924377 | 0.075623 |\n|  5 | 0.682825 | 0.682825 | 0.115937 |\n|  6 | 0.546041 | 0.273005 | 0.098319 |\n|  7 | 0.105273 | 0.254151 | 0.105273 |\n|  8 | 0.457251 | 0.097959 | 0.097959 |\n|  9 | 0.253038 | 0.367734 | 0.081102 |\n| 10 | 0.421285 | 0.421285 | 0.095462 |\n| 11 | 0.747585 | 0.294715 | 0.104391 |\n| 12 | 0.659890 | 0.104796 | 0.104796 |\n| 13 | 0.097959 | 0.457251 | 0.097959 |\n| 14 | 0.620799 | 0.466494 | 0.109110 |\n| 15 | 0.273005 | 0.546041 | 0.098319 |\n| 16 | 0.294715 | 0.747585 | 0.104391 |\n| 17 | 0.104796 | 0.659890 | 0.104796 |\n| 18 | 0.745972 | 0.894778 | 0.105222 |\n| 19 | 0.882152 | 0.117848 | 0.117848 |\n| 20 | 0.894778 | 0.745972 | 0.105222 |\n| 21 | 0.254151 | 0.105273 | 0.105273 |\n| 22 | 0.117848 | 0.882152 | 0.117848 |\n| 23 | 0.466494 | 0.620799 | 0.109110 |\n| 24 | 0.506146 | 0.863345 | 0.136655 |\n| 25 | 0.863345 | 0.506146 | 0.136655 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.367734, 0.253038],\n    [0.925845, 0.304813],\n    [0.304813, 0.925845],\n    [0.075659, 0.075659],\n    [0.924377, 0.924377],\n    [0.682825, 0.682825],\n    [0.546041, 0.273005],\n    [0.105273, 0.254151],\n    [0.457251, 0.097959],\n    [0.253038, 0.367734],\n    [0.421285, 0.421285],\n    [0.747585, 0.294715],\n    [0.659890, 0.104796],\n    [0.097959, 0.457251],\n    [0.620799, 0.466494],\n    [0.273005, 0.546041],\n    [0.294715, 0.747585],\n    [0.104796, 0.659890],\n    [0.745972, 0.894778],\n    [0.882152, 0.117848],\n    [0.894778, 0.745972],\n    [0.254151, 0.105273],\n    [0.117848, 0.882152],\n    [0.466494, 0.620799],\n    [0.506146, 0.863345],\n    [0.863345, 0.506146]\n])\n\nradii = np.array([\n    0.081102,\n    0.074155,\n    0.074155,\n    0.075659,\n    0.075623,\n    0.115937,\n    0.098319,\n    0.105273,\n    0.097959,\n    0.081102,\n    0.095462,\n    0.104391,\n    0.104796,\n    0.097959,\n    0.109110,\n    0.098319,\n    0.104391,\n    0.104796,\n    0.105222,\n    0.117848,\n    0.105222,\n    0.105273,\n    0.117848,\n    0.109110,\n    0.136655,\n    0.136655\n])\n```}}.\n3. This 'Local DE' can explore the complex topology of the 2.6323 basin more effectively than gradient methods.\n4. Use a high mutation constant (0.8) to ensure jumping over small ridges.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import differential_evolution\n\ndef construct_packing():\n    \"\"\"\n    Refines the circle packing for n=26 using Differential Evolution \n    in the neighborhood of a known high-performing configuration.\n    \"\"\"\n    n = 26\n    \n    # Initial seed configuration (Sum of radii ~ 2.6323)\n    initial_centers = np.array([\n        [0.367734, 0.253038], [0.925845, 0.304813], [0.304813, 0.925845],\n        [0.075659, 0.075659], [0.924377, 0.924377], [0.682825, 0.682825],\n        [0.546041, 0.273005], [0.105273, 0.254151], [0.457251, 0.097959],\n        [0.253038, 0.367734], [0.421285, 0.421285], [0.747585, 0.294715],\n        [0.659890, 0.104796], [0.097959, 0.457251], [0.620799, 0.466494],\n        [0.273005, 0.546041], [0.294715, 0.747585], [0.104796, 0.659890],\n        [0.745972, 0.894778], [0.882152, 0.117848], [0.894778, 0.745972],\n        [0.254151, 0.105273], [0.117848, 0.882152], [0.466494, 0.620799],\n        [0.506146, 0.863345], [0.863345, 0.506146]\n    ])\n\n    def objective(params):\n        \"\"\"\n        Calculates the negative sum of radii for a given set of centers.\n        The radius for each circle is the maximum possible given boundaries \n        and other circles.\n        \"\"\"\n        pts = params.reshape((n, 2))\n        # Boundary constraints: r_i <= x_i, r_i <= 1-x_i, r_i <= y_i, r_i <= 1-y_i\n        # This simplifies to r_i <= min(x_i, 1-x_i, y_i, 1-y_i)\n        max_r = np.min(np.hstack([pts, 1 - pts]), axis=1)\n        \n        # Overlap constraints: r_i + r_j <= dist(i, j)\n        # We solve a linear system for r or use a greedy approach. \n        # For this specific objective (maximizing sum), we use the fact that \n        # in an optimal packing, circles are often 'blocked' by neighbors.\n        # A simple robust approximation for the optimizer:\n        r = np.copy(max_r)\n        for _ in range(2): # Iterative refinement of radii sum\n            for i in range(n):\n                for j in range(i + 1, n):\n                    d = np.linalg.norm(pts[i] - pts[j])\n                    if r[i] + r[j] > d:\n                        # Proportionally reduce radii to satisfy constraint\n                        scale = d / (r[i] + r[j])\n                        r[i] *= scale\n                        r[j] *= scale\n        return -np.sum(r)\n\n    # Set search bounds: [x_i - 0.05, x_i + 0.05]\n    bounds = []\n    for i in range(n):\n        for j in range(2):\n            low = max(0.0, initial_centers[i, j] - 0.05)\n            high = min(1.0, initial_centers[i, j] + 0.05)\n            bounds.append((low, high))\n\n    # Run Differential Evolution\n    result = differential_evolution(\n        objective,\n        bounds,\n        strategy='best1bin',\n        maxiter=100,\n        popsize=10,\n        tol=1e-7,\n        mutation=(0.5, 0.8),\n        recombination=0.7,\n        init='latinhypercube'\n    )\n\n    final_centers = result.x.reshape((n, 2))\n    \n    # Calculate valid radii for the final positions\n    # Solve the radii by ensuring no overlap and within bounds\n    # r_i = min(dist_to_boundaries, min_{j} (dist_ij - r_j))\n    # This is an iterative shrinkage to ensure feasibility\n    radii = np.min(np.hstack([final_centers, 1 - final_centers]), axis=1)\n    for _ in range(50):\n        for i in range(n):\n            for j in range(n):\n                if i == j: continue\n                d = np.linalg.norm(final_centers[i] - final_centers[j])\n                if radii[i] + radii[j] > d:\n                    # Shrink both equally to maintain feasibility\n                    diff = (radii[i] + radii[j] - d) / 2.0\n                    radii[i] -= diff\n                    radii[j] -= diff\n    \n    # Final safety check: radii must be non-negative\n    radii = np.maximum(radii, 0)\n    \n    return final_centers, radii, np.sum(radii)\n\ndef run_packing():\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-25T00:29:43.873410",
+  "cost_data": null
+}

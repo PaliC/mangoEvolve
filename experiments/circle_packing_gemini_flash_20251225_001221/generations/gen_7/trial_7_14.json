@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_7_14",
+  "generation": 7,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square using \n    SLSQP with a basin-hopping/kicking strategy to maximize the sum of radii.\n    \"\"\"\n    n = 26\n    \n    def objective(x):\n        # x contains [x1, y1, ..., xn, yn, r1, ..., rn]\n        radii = x[2*n:]\n        return -np.sum(radii)\n\n    def constraints(x):\n        centers = x[:2*n].reshape((n, 2))\n        radii = x[2*n:]\n        cons = []\n        \n        # Boundary constraints: center_i - r_i >= 0 and center_i + r_i <= 1\n        for i in range(n):\n            cons.append(centers[i, 0] - radii[i])\n            cons.append(1.0 - (centers[i, 0] + radii[i]))\n            cons.append(centers[i, 1] - radii[i])\n            cons.append(1.0 - (centers[i, 1] + radii[i]))\n            \n        # Non-overlap constraints: dist(ci, cj) >= ri + rj\n        for i in range(n):\n            for j in range(i + 1, n):\n                dist_sq = np.sum((centers[i] - centers[j])**2)\n                cons.append(np.sqrt(dist_sq + 1e-12) - (radii[i] + radii[j]))\n        \n        return np.array(cons)\n\n    best_sum = 0\n    best_x = None\n\n    # Bounds for centers [0, 1] and radii [0, 0.5]\n    bounds = [(0, 1)] * (2 * n) + [(0, 0.5)] * n\n\n    # Optimization iterations\n    for restart in range(3):  # Multiple random starts\n        # Initialize centers in a grid-like fashion with small noise\n        grid_size = int(np.ceil(np.sqrt(n)))\n        x_coords, y_coords = np.meshgrid(np.linspace(0.1, 0.9, grid_size), np.linspace(0.1, 0.9, grid_size))\n        init_centers = np.column_stack([x_coords.ravel(), y_coords.ravel()])[:n]\n        init_radii = np.full(n, 1.0 / (2 * grid_size))\n        \n        current_x = np.concatenate([init_centers.flatten(), init_radii])\n        \n        # Kicking strategy\n        for kick in range(15):\n            res = minimize(\n                objective, \n                current_x, \n                method='SLSQP', \n                bounds=bounds,\n                constraints={'type': 'ineq', 'fun': constraints},\n                options={'maxiter': 100, 'ftol': 1e-6}\n            )\n            \n            if res.success or res.fun < -best_sum:\n                current_sum = -res.fun\n                if current_sum > best_sum:\n                    best_sum = current_sum\n                    best_x = res.x\n                \n                # Kick: Find the smallest circles and relocate them\n                current_x = res.x.copy()\n                radii = current_x[2*n:]\n                small_indices = np.argsort(radii)[:5]\n                for idx in small_indices:\n                    current_x[2*idx : 2*idx+2] = np.random.rand(2)\n                    current_x[2*n + idx] = 0.01 # Reset radius\n            else:\n                # If optimization failed significantly, try a fresh start\n                current_x = np.concatenate([np.random.rand(2*n), np.random.rand(n) * 0.1])\n\n    # Final Polish on the best found solution\n    res = minimize(\n        objective, \n        best_x, \n        method='SLSQP', \n        bounds=bounds,\n        constraints={'type': 'ineq', 'fun': constraints},\n        options={'maxiter': 200, 'ftol': 1e-9}\n    )\n    \n    final_x = res.x\n    centers = final_x[:2*n].reshape((n, 2))\n    radii = final_x[2*n:]\n    \n    # Ensure strict feasibility for the evaluator\n    radii = np.maximum(radii, 0)\n    for i in range(n):\n        centers[i] = np.clip(centers[i], radii[i], 1.0 - radii[i])\n        \n    return centers, radii, np.sum(radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.5916987428806038,
+    "eval_time": 29.22014594078064,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.8898665143673099,
+            0.45095055472098644
+          ],
+          [
+            0.9152400632615377,
+            0.9152400632615377
+          ],
+          [
+            0.08034846826001059,
+            0.6149315360560889
+          ],
+          [
+            0.6182414424700801,
+            0.7257218832827964
+          ],
+          [
+            0.9253155053180742,
+            0.07468449468192588
+          ],
+          [
+            0.1680011254499254,
+            0.1680011254499254
+          ],
+          [
+            0.2752606265580409,
+            0.5743140857963326
+          ],
+          [
+            0.39780255555168004,
+            0.43808345866579307
+          ],
+          [
+            0.4902343921154383,
+            0.569612446405592
+          ],
+          [
+            0.9033489733617229,
+            0.24460604228219757
+          ],
+          [
+            0.5677106138825478,
+            0.21291633598367046
+          ],
+          [
+            0.40048162972429335,
+            0.28248320522966397
+          ],
+          [
+            0.7424876055161483,
+            0.11189083185655445
+          ],
+          [
+            0.3728208020996865,
+            0.928121992649164
+          ],
+          [
+            0.7303131494595518,
+            0.8991328782050192
+          ],
+          [
+            0.6874868508995595,
+            0.5260503355577033
+          ],
+          [
+            0.42241175185312263,
+            0.09631597207241263
+          ],
+          [
+            0.15900688353324474,
+            0.8409931164667552
+          ],
+          [
+            0.10387965407511619,
+            0.43221239542693535
+          ],
+          [
+            0.2727794339657773,
+            0.38374189852729534
+          ],
+          [
+            0.8611510192597821,
+            0.6982715786976377
+          ],
+          [
+            0.5364617815126176,
+            0.9068617400120652
+          ],
+          [
+            0.7227759329687039,
+            0.323114284901622
+          ],
+          [
+            0.5451874652638566,
+            0.39155526534876195
+          ],
+          [
+            0.5764554821399159,
+            0.061592772027035336
+          ],
+          [
+            0.4090167378898737,
+            0.7544004026643784
+          ]
+        ],
+        "radii": [
+          0.11013348563269004,
+          0.08475993673846231,
+          0.08034846826001059,
+          0.1056067038305845,
+          0.07468449468192588,
+          0.1680011254499254,
+          0.11875082033492639,
+          0.06448484248993308,
+          0.09627435328874928,
+          0.09665102663827708,
+          0.08998326080923265,
+          0.09113847295095279,
+          0.11189083185655445,
+          0.07187800735083599,
+          0.1008671217949808,
+          0.10573106742790388,
+          0.09631597207241263,
+          0.15900688353324474,
+          0.10387965407511619,
+          0.07183751844315771,
+          0.1388489807402179,
+          0.0931382599879348,
+          0.10025038797567278,
+          0.09006995162922936,
+          0.061592772027035336,
+          0.10557434286063766
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.591699)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.889867 | 0.450951 | 0.110133 |\n|  1 | 0.915240 | 0.915240 | 0.084760 |\n|  2 | 0.080348 | 0.614932 | 0.080348 |\n|  3 | 0.618241 | 0.725722 | 0.105607 |\n|  4 | 0.925316 | 0.074684 | 0.074684 |\n|  5 | 0.168001 | 0.168001 | 0.168001 |\n|  6 | 0.275261 | 0.574314 | 0.118751 |\n|  7 | 0.397803 | 0.438083 | 0.064485 |\n|  8 | 0.490234 | 0.569612 | 0.096274 |\n|  9 | 0.903349 | 0.244606 | 0.096651 |\n| 10 | 0.567711 | 0.212916 | 0.089983 |\n| 11 | 0.400482 | 0.282483 | 0.091138 |\n| 12 | 0.742488 | 0.111891 | 0.111891 |\n| 13 | 0.372821 | 0.928122 | 0.071878 |\n| 14 | 0.730313 | 0.899133 | 0.100867 |\n| 15 | 0.687487 | 0.526050 | 0.105731 |\n| 16 | 0.422412 | 0.096316 | 0.096316 |\n| 17 | 0.159007 | 0.840993 | 0.159007 |\n| 18 | 0.103880 | 0.432212 | 0.103880 |\n| 19 | 0.272779 | 0.383742 | 0.071838 |\n| 20 | 0.861151 | 0.698272 | 0.138849 |\n| 21 | 0.536462 | 0.906862 | 0.093138 |\n| 22 | 0.722776 | 0.323114 | 0.100250 |\n| 23 | 0.545187 | 0.391555 | 0.090070 |\n| 24 | 0.576455 | 0.061593 | 0.061593 |\n| 25 | 0.409017 | 0.754400 | 0.105574 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.889867, 0.450951],\n    [0.915240, 0.915240],\n    [0.080348, 0.614932],\n    [0.618241, 0.725722],\n    [0.925316, 0.074684],\n    [0.168001, 0.168001],\n    [0.275261, 0.574314],\n    [0.397803, 0.438083],\n    [0.490234, 0.569612],\n    [0.903349, 0.244606],\n    [0.567711, 0.212916],\n    [0.400482, 0.282483],\n    [0.742488, 0.111891],\n    [0.372821, 0.928122],\n    [0.730313, 0.899133],\n    [0.687487, 0.526050],\n    [0.422412, 0.096316],\n    [0.159007, 0.840993],\n    [0.103880, 0.432212],\n    [0.272779, 0.383742],\n    [0.861151, 0.698272],\n    [0.536462, 0.906862],\n    [0.722776, 0.323114],\n    [0.545187, 0.391555],\n    [0.576455, 0.061593],\n    [0.409017, 0.754400]\n])\n\nradii = np.array([\n    0.110133,\n    0.084760,\n    0.080348,\n    0.105607,\n    0.074684,\n    0.168001,\n    0.118751,\n    0.064485,\n    0.096274,\n    0.096651,\n    0.089983,\n    0.091138,\n    0.111891,\n    0.071878,\n    0.100867,\n    0.105731,\n    0.096316,\n    0.159007,\n    0.103880,\n    0.071838,\n    0.138849,\n    0.093138,\n    0.100250,\n    0.090070,\n    0.061593,\n    0.105574\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.591699"
+    }
+  },
+  "prompt": "Implement 'SLSQP with Stochastic Restarts'.\n1. Run SLSQP from a random start.\n2. If the result is < 2.63, 'kick' the configuration by moving the 5 smallest circles to new random locations and re-optimize.\n3. Repeat the 'kick and re-optimize' cycle 20 times per start.\n4. This explores the 'tunnels' between local minima.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Constructs a circle packing for n=26 circles in a unit square using \n    SLSQP with a basin-hopping/kicking strategy to maximize the sum of radii.\n    \"\"\"\n    n = 26\n    \n    def objective(x):\n        # x contains [x1, y1, ..., xn, yn, r1, ..., rn]\n        radii = x[2*n:]\n        return -np.sum(radii)\n\n    def constraints(x):\n        centers = x[:2*n].reshape((n, 2))\n        radii = x[2*n:]\n        cons = []\n        \n        # Boundary constraints: center_i - r_i >= 0 and center_i + r_i <= 1\n        for i in range(n):\n            cons.append(centers[i, 0] - radii[i])\n            cons.append(1.0 - (centers[i, 0] + radii[i]))\n            cons.append(centers[i, 1] - radii[i])\n            cons.append(1.0 - (centers[i, 1] + radii[i]))\n            \n        # Non-overlap constraints: dist(ci, cj) >= ri + rj\n        for i in range(n):\n            for j in range(i + 1, n):\n                dist_sq = np.sum((centers[i] - centers[j])**2)\n                cons.append(np.sqrt(dist_sq + 1e-12) - (radii[i] + radii[j]))\n        \n        return np.array(cons)\n\n    best_sum = 0\n    best_x = None\n\n    # Bounds for centers [0, 1] and radii [0, 0.5]\n    bounds = [(0, 1)] * (2 * n) + [(0, 0.5)] * n\n\n    # Optimization iterations\n    for restart in range(3):  # Multiple random starts\n        # Initialize centers in a grid-like fashion with small noise\n        grid_size = int(np.ceil(np.sqrt(n)))\n        x_coords, y_coords = np.meshgrid(np.linspace(0.1, 0.9, grid_size), np.linspace(0.1, 0.9, grid_size))\n        init_centers = np.column_stack([x_coords.ravel(), y_coords.ravel()])[:n]\n        init_radii = np.full(n, 1.0 / (2 * grid_size))\n        \n        current_x = np.concatenate([init_centers.flatten(), init_radii])\n        \n        # Kicking strategy\n        for kick in range(15):\n            res = minimize(\n                objective, \n                current_x, \n                method='SLSQP', \n                bounds=bounds,\n                constraints={'type': 'ineq', 'fun': constraints},\n                options={'maxiter': 100, 'ftol': 1e-6}\n            )\n            \n            if res.success or res.fun < -best_sum:\n                current_sum = -res.fun\n                if current_sum > best_sum:\n                    best_sum = current_sum\n                    best_x = res.x\n                \n                # Kick: Find the smallest circles and relocate them\n                current_x = res.x.copy()\n                radii = current_x[2*n:]\n                small_indices = np.argsort(radii)[:5]\n                for idx in small_indices:\n                    current_x[2*idx : 2*idx+2] = np.random.rand(2)\n                    current_x[2*n + idx] = 0.01 # Reset radius\n            else:\n                # If optimization failed significantly, try a fresh start\n                current_x = np.concatenate([np.random.rand(2*n), np.random.rand(n) * 0.1])\n\n    # Final Polish on the best found solution\n    res = minimize(\n        objective, \n        best_x, \n        method='SLSQP', \n        bounds=bounds,\n        constraints={'type': 'ineq', 'fun': constraints},\n        options={'maxiter': 200, 'ftol': 1e-9}\n    )\n    \n    final_x = res.x\n    centers = final_x[:2*n].reshape((n, 2))\n    radii = final_x[2*n:]\n    \n    # Ensure strict feasibility for the evaluator\n    radii = np.maximum(radii, 0)\n    for i in range(n):\n        centers[i] = np.clip(centers[i], radii[i], 1.0 - radii[i])\n        \n    return centers, radii, np.sum(radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-25T00:28:04.047716",
+  "cost_data": null
+}

@@ -1,0 +1,157 @@
+{
+  "trial_id": "trial_4_1",
+  "generation": 4,
+  "parent_id": "trial_2_6",
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial import Voronoi\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square.\n    Uses an iterative pruning strategy based on Voronoi cell area to \n    select circles with the least potential for growth.\n    \"\"\"\n    n_target = 26\n    n_start = 40\n    best_sum = 0\n    best_centers = None\n    best_radii = None\n\n    def objective(params, n_curr):\n        # Maximize sum of radii\n        return -np.sum(params[n_curr*2:])\n\n    def constraints(params, n_curr):\n        pts = params[:n_curr*2].reshape((n_curr, 2))\n        r = params[n_curr*2:]\n        \n        # We use a flat list for SLSQP constraints\n        # Boundary constraints: center +/- radius inside [0, 1]\n        c_bounds = np.concatenate([\n            pts[:, 0] - r,           # x - r >= 0\n            1.0 - (pts[:, 0] + r),   # x + r <= 1\n            pts[:, 1] - r,           # y - r >= 0\n            1.0 - (pts[:, 1] + r)    # y + r <= 1\n        ])\n        \n        # Non-overlap constraints: dist >= r_i + r_j\n        overlap = []\n        for i in range(n_curr):\n            for j in range(i + 1, n_curr):\n                dist = np.sqrt(np.sum((pts[i] - pts[j])**2))\n                overlap.append(dist - (r[i] + r[j]))\n        \n        return np.concatenate([c_bounds, np.array(overlap)])\n\n    def get_voronoi_areas(centers):\n        # Approximate Voronoi area within unit square using sampling\n        # (Exact clipped Voronoi is complex to implement; sampling is robust)\n        n_pts = len(centers)\n        samples = 2000\n        points = np.random.rand(samples, 2)\n        \n        # For each sample point, find index of nearest center\n        dists = np.sum((points[:, np.newaxis, :] - centers[np.newaxis, :, :])**2, axis=2)\n        nearest_indices = np.argmin(dists, axis=1)\n        \n        counts = np.bincount(nearest_indices, minlength=n_pts)\n        return counts / samples\n\n    # Run multiple attempts to find a good local optimum\n    for seed in range(3):\n        np.random.seed(seed)\n        # Initial placement: jittered grid\n        side = int(np.ceil(np.sqrt(n_start)))\n        x = np.linspace(0.1, 0.9, side)\n        y = np.linspace(0.1, 0.9, side)\n        xv, yv = np.meshgrid(x, y)\n        curr_centers = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n_start]\n        curr_centers += np.random.uniform(-0.02, 0.02, curr_centers.shape)\n        curr_radii = np.full(n_start, 0.02)\n        \n        current_n = n_start\n        while current_n >= n_target:\n            # Optimize current configuration\n            init_params = np.concatenate([curr_centers.flatten(), curr_radii])\n            res = minimize(\n                objective,\n                init_params,\n                args=(current_n,),\n                method='SLSQP',\n                constraints={'type': 'ineq', 'fun': constraints, 'args': (current_n,)},\n                options={'maxiter': 40, 'ftol': 1e-3}\n            )\n            \n            curr_params = res.x\n            curr_centers = curr_params[:current_n*2].reshape((current_n, 2))\n            curr_radii = curr_params[current_n*2:]\n            \n            if current_n == n_target:\n                break\n            \n            # Pruning: Calculate room to grow via Voronoi area\n            areas = get_voronoi_areas(curr_centers)\n            # Combine area with current radius to find \"least potential\" circle\n            # Metric: smaller Voronoi area\n            idx_to_remove = np.argmin(areas)\n            \n            curr_centers = np.delete(curr_centers, idx_to_remove, axis=0)\n            curr_radii = np.delete(curr_radii, idx_to_remove)\n            current_n -= 1\n\n        # Final Polish for the best found configuration\n        res_final = minimize(\n            objective,\n            np.concatenate([curr_centers.flatten(), curr_radii]),\n            args=(n_target,),\n            method='SLSQP',\n            constraints={'type': 'ineq', 'fun': constraints, 'args': (n_target,)},\n            options={'maxiter': 100, 'ftol': 1e-6}\n        )\n        \n        final_sum = -res_final.fun\n        if final_sum > best_sum:\n            best_sum = final_sum\n            best_centers = res_final.x[:n_target*2].reshape((n_target, 2))\n            best_radii = res_final.x[n_target*2:]\n\n    return best_centers, best_radii, best_sum\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()",
+  "metrics": {
+    "valid": true,
+    "score": 2.6304187088558955,
+    "eval_time": 23.13296103477478,
+    "error": null,
+    "artifacts": {
+      "solution": {
+        "centers": [
+          [
+            0.06832993095057817,
+            0.06832993095058355
+          ],
+          [
+            0.23087318008732632,
+            0.09666447584676342
+          ],
+          [
+            0.4548140533631119,
+            0.1296999603116834
+          ],
+          [
+            0.6774682994068053,
+            0.0955569168287179
+          ],
+          [
+            0.8861106876748436,
+            0.11388931232515635
+          ],
+          [
+            0.09351848383516259,
+            0.22820627745698163
+          ],
+          [
+            0.28358931548516625,
+            0.2940416719175415
+          ],
+          [
+            0.6153383819596614,
+            0.24995385540855072
+          ],
+          [
+            0.7546122510088367,
+            0.24058982856142266
+          ],
+          [
+            0.4831160063026429,
+            0.3642003310964606
+          ],
+          [
+            0.6997531709984823,
+            0.42133957505985925
+          ],
+          [
+            0.8995579512982671,
+            0.3277984131616927
+          ],
+          [
+            0.1129167364222537,
+            0.43372807182269524
+          ],
+          [
+            0.32410191028831387,
+            0.5092637824282371
+          ],
+          [
+            0.5300444431144972,
+            0.5644970970185684
+          ],
+          [
+            0.7190399357078389,
+            0.6437823289754455
+          ],
+          [
+            0.8951157041837896,
+            0.5330766979209053
+          ],
+          [
+            0.14298888100743679,
+            0.6878606182470376
+          ],
+          [
+            0.38901150714589805,
+            0.7151943165778667
+          ],
+          [
+            0.5673816850034561,
+            0.7375889537973843
+          ],
+          [
+            0.8993831782322776,
+            0.7385335011509081
+          ],
+          [
+            0.08790824142696829,
+            0.9120917585730322
+          ],
+          [
+            0.2803298090211767,
+            0.8947025356371937
+          ],
+          [
+            0.48843611032318024,
+            0.8971764588452471
+          ],
+          [
+            0.7165920347292899,
+            0.8734357782833557
+          ],
+          [
+            0.9190415133753097,
+            0.919041513375311
+          ]
+        ],
+        "radii": [
+          0.06832993095058565,
+          0.09666447584676438,
+          0.12969996031168698,
+          0.09555691682872061,
+          0.11388931232516065,
+          0.09351848383516874,
+          0.10763126189637409,
+          0.07087187059945439,
+          0.06871643692740938,
+          0.10387083692074296,
+          0.12017503857763297,
+          0.1004420487017356,
+          0.11291673642225727,
+          0.11137062665796417,
+          0.10185002400108391,
+          0.1031022734414622,
+          0.10488429581621328,
+          0.14298888100744048,
+          0.10454750750243458,
+          0.07522301323199528,
+          0.1006168217677258,
+          0.08790824142697197,
+          0.10529746436281079,
+          0.10282354115475698,
+          0.1265642217166489,
+          0.08095848662469356
+        ]
+      },
+      "prompt_context": "## Parent Solution (score: 2.630419)\nNumber of circles: 26\n\n### Circle Positions and Radii\n| Circle | X | Y | Radius |\n|--------|-------|-------|--------|\n|  0 | 0.068330 | 0.068330 | 0.068330 |\n|  1 | 0.230873 | 0.096664 | 0.096664 |\n|  2 | 0.454814 | 0.129700 | 0.129700 |\n|  3 | 0.677468 | 0.095557 | 0.095557 |\n|  4 | 0.886111 | 0.113889 | 0.113889 |\n|  5 | 0.093518 | 0.228206 | 0.093518 |\n|  6 | 0.283589 | 0.294042 | 0.107631 |\n|  7 | 0.615338 | 0.249954 | 0.070872 |\n|  8 | 0.754612 | 0.240590 | 0.068716 |\n|  9 | 0.483116 | 0.364200 | 0.103871 |\n| 10 | 0.699753 | 0.421340 | 0.120175 |\n| 11 | 0.899558 | 0.327798 | 0.100442 |\n| 12 | 0.112917 | 0.433728 | 0.112917 |\n| 13 | 0.324102 | 0.509264 | 0.111371 |\n| 14 | 0.530044 | 0.564497 | 0.101850 |\n| 15 | 0.719040 | 0.643782 | 0.103102 |\n| 16 | 0.895116 | 0.533077 | 0.104884 |\n| 17 | 0.142989 | 0.687861 | 0.142989 |\n| 18 | 0.389012 | 0.715194 | 0.104548 |\n| 19 | 0.567382 | 0.737589 | 0.075223 |\n| 20 | 0.899383 | 0.738534 | 0.100617 |\n| 21 | 0.087908 | 0.912092 | 0.087908 |\n| 22 | 0.280330 | 0.894703 | 0.105297 |\n| 23 | 0.488436 | 0.897176 | 0.102824 |\n| 24 | 0.716592 | 0.873436 | 0.126564 |\n| 25 | 0.919042 | 0.919042 | 0.080958 |\n\n### As Python Arrays (for initialization)\n```python\nimport numpy as np\n\ncenters = np.array([\n    [0.068330, 0.068330],\n    [0.230873, 0.096664],\n    [0.454814, 0.129700],\n    [0.677468, 0.095557],\n    [0.886111, 0.113889],\n    [0.093518, 0.228206],\n    [0.283589, 0.294042],\n    [0.615338, 0.249954],\n    [0.754612, 0.240590],\n    [0.483116, 0.364200],\n    [0.699753, 0.421340],\n    [0.899558, 0.327798],\n    [0.112917, 0.433728],\n    [0.324102, 0.509264],\n    [0.530044, 0.564497],\n    [0.719040, 0.643782],\n    [0.895116, 0.533077],\n    [0.142989, 0.687861],\n    [0.389012, 0.715194],\n    [0.567382, 0.737589],\n    [0.899383, 0.738534],\n    [0.087908, 0.912092],\n    [0.280330, 0.894703],\n    [0.488436, 0.897176],\n    [0.716592, 0.873436],\n    [0.919042, 0.919042]\n])\n\nradii = np.array([\n    0.068330,\n    0.096664,\n    0.129700,\n    0.095557,\n    0.113889,\n    0.093518,\n    0.107631,\n    0.070872,\n    0.068716,\n    0.103871,\n    0.120175,\n    0.100442,\n    0.112917,\n    0.111371,\n    0.101850,\n    0.103102,\n    0.104884,\n    0.142989,\n    0.104548,\n    0.075223,\n    0.100617,\n    0.087908,\n    0.105297,\n    0.102824,\n    0.126564,\n    0.080958\n])\n```",
+      "summary": "Valid packing with 26 circles, sum_radii=2.630419"
+    }
+  },
+  "prompt": "Refine the 'Growth and Pruning' strategy by changing the pruning metric.\n{{import numpy as np\nfrom scipy.optimize import minimize\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square using \n    Growth and Pruning with constrained optimization.\n    \"\"\"\n    n_target = 26\n    n_start = 35\n    \n    # Initialize centers in a grid with small initial radii\n    grid_size = int(np.ceil(np.sqrt(n_start)))\n    x = np.linspace(0.1, 0.9, grid_size)\n    y = np.linspace(0.1, 0.9, grid_size)\n    xv, yv = np.meshgrid(x, y)\n    centers = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n_start]\n    radii = np.full(n_start, 0.01)\n\n    def objective(params, n_curr):\n        # We want to maximize sum of radii, so minimize negative sum\n        return -np.sum(params[n_curr*2:])\n\n    def constraints(params, n_curr):\n        pts = params[:n_curr*2].reshape((n_curr, 2))\n        r = params[n_curr*2:]\n        cons = []\n        \n        # Boundary constraints: center_i - r_i >= 0 and center_i + r_i <= 1\n        for i in range(n_curr):\n            cons.append(pts[i, 0] - r[i])\n            cons.append(1.0 - (pts[i, 0] + r[i]))\n            cons.append(pts[i, 1] - r[i])\n            cons.append(1.0 - (pts[i, 1] + r[i]))\n            \n        # Non-overlap: dist(c_i, c_j) >= r_i + r_j\n        for i in range(n_curr):\n            for j in range(i + 1, n_curr):\n                dist = np.sqrt(np.sum((pts[i] - pts[j])**2))\n                cons.append(dist - (r[i] + r[j]))\n        return np.array(cons)\n\n    current_n = n_start\n    curr_centers = centers\n    curr_radii = radii\n\n    # Iterative pruning loop\n    while current_n >= n_target:\n        initial_guess = np.concatenate([curr_centers.flatten(), curr_radii])\n        \n        # Optimization bounds\n        bounds = [(0, 1)] * (current_n * 2) + [(0, 0.5)] * current_n\n        \n        res = minimize(\n            objective, \n            initial_guess, \n            args=(current_n,),\n            method='SLSQP',\n            bounds=bounds,\n            constraints={'type': 'ineq', 'fun': constraints, 'args': (current_n,)},\n            options={'maxiter': 50, 'ftol': 1e-4}\n        )\n        \n        optimized_params = res.x\n        curr_centers = optimized_params[:current_n*2].reshape((current_n, 2))\n        curr_radii = optimized_params[current_n*2:]\n        \n        if current_n == n_target:\n            break\n            \n        # Prune the circle with the smallest radius\n        idx_to_keep = np.argsort(curr_radii)[1:]\n        curr_centers = curr_centers[idx_to_keep]\n        curr_radii = curr_radii[idx_to_keep]\n        current_n -= 1\n\n    # Final polish for the 26 circles\n    res = minimize(\n        objective,\n        np.concatenate([curr_centers.flatten(), curr_radii]),\n        args=(n_target,),\n        method='SLSQP',\n        constraints={'type': 'ineq', 'fun': constraints, 'args': (n_target,)},\n        options={'maxiter': 100}\n    )\n    \n    final_params = res.x\n    final_centers = final_params[:n_target*2].reshape((n_target, 2))\n    final_radii = final_params[n_target*2:]\n    \n    return final_centers, final_radii, np.sum(final_radii)\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()}}\nInstead of pruning the circle with the smallest radius:\n1. For each circle, calculate its 'Room to Grow': the area of its Voronoi cell within the [0,1]x[0,1] square.\n2. Prune the circle that has the smallest Voronoi area.\n3. Repeat the process starting from 40 circles down to 26.\n4. Run this 5 times with different random seeds and return the best result.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial import Voronoi\n\ndef construct_packing():\n    \"\"\"\n    Construct a circle packing for n=26 circles in a unit square.\n    Uses an iterative pruning strategy based on Voronoi cell area to \n    select circles with the least potential for growth.\n    \"\"\"\n    n_target = 26\n    n_start = 40\n    best_sum = 0\n    best_centers = None\n    best_radii = None\n\n    def objective(params, n_curr):\n        # Maximize sum of radii\n        return -np.sum(params[n_curr*2:])\n\n    def constraints(params, n_curr):\n        pts = params[:n_curr*2].reshape((n_curr, 2))\n        r = params[n_curr*2:]\n        \n        # We use a flat list for SLSQP constraints\n        # Boundary constraints: center +/- radius inside [0, 1]\n        c_bounds = np.concatenate([\n            pts[:, 0] - r,           # x - r >= 0\n            1.0 - (pts[:, 0] + r),   # x + r <= 1\n            pts[:, 1] - r,           # y - r >= 0\n            1.0 - (pts[:, 1] + r)    # y + r <= 1\n        ])\n        \n        # Non-overlap constraints: dist >= r_i + r_j\n        overlap = []\n        for i in range(n_curr):\n            for j in range(i + 1, n_curr):\n                dist = np.sqrt(np.sum((pts[i] - pts[j])**2))\n                overlap.append(dist - (r[i] + r[j]))\n        \n        return np.concatenate([c_bounds, np.array(overlap)])\n\n    def get_voronoi_areas(centers):\n        # Approximate Voronoi area within unit square using sampling\n        # (Exact clipped Voronoi is complex to implement; sampling is robust)\n        n_pts = len(centers)\n        samples = 2000\n        points = np.random.rand(samples, 2)\n        \n        # For each sample point, find index of nearest center\n        dists = np.sum((points[:, np.newaxis, :] - centers[np.newaxis, :, :])**2, axis=2)\n        nearest_indices = np.argmin(dists, axis=1)\n        \n        counts = np.bincount(nearest_indices, minlength=n_pts)\n        return counts / samples\n\n    # Run multiple attempts to find a good local optimum\n    for seed in range(3):\n        np.random.seed(seed)\n        # Initial placement: jittered grid\n        side = int(np.ceil(np.sqrt(n_start)))\n        x = np.linspace(0.1, 0.9, side)\n        y = np.linspace(0.1, 0.9, side)\n        xv, yv = np.meshgrid(x, y)\n        curr_centers = np.stack([xv.ravel(), yv.ravel()], axis=1)[:n_start]\n        curr_centers += np.random.uniform(-0.02, 0.02, curr_centers.shape)\n        curr_radii = np.full(n_start, 0.02)\n        \n        current_n = n_start\n        while current_n >= n_target:\n            # Optimize current configuration\n            init_params = np.concatenate([curr_centers.flatten(), curr_radii])\n            res = minimize(\n                objective,\n                init_params,\n                args=(current_n,),\n                method='SLSQP',\n                constraints={'type': 'ineq', 'fun': constraints, 'args': (current_n,)},\n                options={'maxiter': 40, 'ftol': 1e-3}\n            )\n            \n            curr_params = res.x\n            curr_centers = curr_params[:current_n*2].reshape((current_n, 2))\n            curr_radii = curr_params[current_n*2:]\n            \n            if current_n == n_target:\n                break\n            \n            # Pruning: Calculate room to grow via Voronoi area\n            areas = get_voronoi_areas(curr_centers)\n            # Combine area with current radius to find \"least potential\" circle\n            # Metric: smaller Voronoi area\n            idx_to_remove = np.argmin(areas)\n            \n            curr_centers = np.delete(curr_centers, idx_to_remove, axis=0)\n            curr_radii = np.delete(curr_radii, idx_to_remove)\n            current_n -= 1\n\n        # Final Polish for the best found configuration\n        res_final = minimize(\n            objective,\n            np.concatenate([curr_centers.flatten(), curr_radii]),\n            args=(n_target,),\n            method='SLSQP',\n            constraints={'type': 'ineq', 'fun': constraints, 'args': (n_target,)},\n            options={'maxiter': 100, 'ftol': 1e-6}\n        )\n        \n        final_sum = -res_final.fun\n        if final_sum > best_sum:\n            best_sum = final_sum\n            best_centers = res_final.x[:n_target*2].reshape((n_target, 2))\n            best_radii = res_final.x[n_target*2:]\n\n    return best_centers, best_radii, best_sum\n\ndef run_packing():\n    \"\"\"Entry point called by evaluator.\"\"\"\n    return construct_packing()\n```",
+  "reasoning": "",
+  "timestamp": "2025-12-25T00:20:30.249050",
+  "cost_data": null
+}

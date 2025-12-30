@@ -16,12 +16,14 @@ class TestRootSystemPrompt:
         """Test that spawn_children_parallel is documented."""
         prompt = get_root_system_prompt()
         assert "spawn_children_parallel" in prompt
-        assert "PRIMARY FUNCTION" in prompt
 
-    def test_prompt_documents_evaluate_program(self):
-        """Test that evaluate_program is documented."""
+    def test_prompt_documents_core_functions(self):
+        """Test that core functions are documented."""
         prompt = get_root_system_prompt()
-        assert "evaluate_program" in prompt
+        assert "spawn_children_parallel" in prompt
+        assert "get_trial_code" in prompt
+        assert "update_scratchpad" in prompt
+        assert "terminate_evolution" in prompt
 
     def test_prompt_does_not_document_advance_generation(self):
         """Test that advance_generation is NOT documented (now internal)."""
@@ -35,29 +37,16 @@ class TestRootSystemPrompt:
         assert "terminate_evolution" in prompt
         assert "best_program" in prompt
 
-    def test_prompt_documents_only_6_functions(self):
-        """Test that only 6 core functions are documented."""
-        prompt = get_root_system_prompt()
-        assert "6 functions" in prompt or "these 6" in prompt.lower()
-
     def test_prompt_documents_get_trial_code(self):
         """Test that get_trial_code is documented."""
         prompt = get_root_system_prompt()
         assert "get_trial_code" in prompt
-        assert "trial_ids" in prompt
 
     def test_prompt_documents_update_scratchpad(self):
         """Test that update_scratchpad is documented."""
         prompt = get_root_system_prompt()
         assert "update_scratchpad" in prompt
         assert "scratchpad" in prompt.lower()
-
-    def test_prompt_documents_evolution_memory(self):
-        """Test that Evolution Memory section is documented."""
-        prompt = get_root_system_prompt()
-        assert "Evolution Memory" in prompt
-        assert "Lineage Map" in prompt
-        assert "Scratchpad" in prompt
 
     def test_prompt_does_not_document_internal_functions(self):
         """Test that internal helper functions are not documented."""
@@ -68,18 +57,12 @@ class TestRootSystemPrompt:
         assert "### _get_generation_history" not in prompt
         assert "### _advance_generation" not in prompt
 
-    def test_prompt_explains_repl_usage(self):
-        """Test that REPL usage is explained."""
-        prompt = get_root_system_prompt()
-        assert "```repl" in prompt
-        assert "REPL" in prompt
-
     def test_prompt_describes_problem(self):
         """Test that the problem is described."""
         prompt = get_root_system_prompt()
         assert "26 circles" in prompt
         assert "unit square" in prompt
-        assert "2.635" in prompt  # Benchmark
+        assert "2.635" in prompt  # Target
 
     def test_prompt_documents_code_specification(self):
         """Test that code specification is documented."""
@@ -104,11 +87,21 @@ class TestRootSystemPrompt:
         assert "3" in prompt  # max_generations
         assert "Current generation" in prompt
 
-    def test_prompt_explains_automatic_generation_advance(self):
-        """Test that automatic generation advancement is explained."""
+    def test_prompt_encourages_diversity(self):
+        """Test that prompt mentions diversity."""
         prompt = get_root_system_prompt()
-        assert "automatically" in prompt.lower()
-        assert "generation" in prompt.lower()
+        assert "diversity" in prompt.lower() or "diverse" in prompt.lower()
+
+    def test_prompt_documents_code_references(self):
+        """Test that CODE_TRIAL token syntax is documented."""
+        prompt = get_root_system_prompt()
+        assert "CODE_TRIAL" in prompt
+
+    def test_prompt_documents_selection_format(self):
+        """Test that selection format is documented."""
+        prompt = get_root_system_prompt()
+        assert "selection" in prompt.lower()
+        assert "trial_id" in prompt
 
 
 class TestFormatChildMutationPrompt:
@@ -137,13 +130,17 @@ class TestFormatChildMutationPrompt:
 
         assert "hexagonal" in prompt
 
-    def test_includes_requirements(self):
-        """Test that requirements are included."""
+    def test_includes_target(self):
+        """Test that target score is mentioned."""
         prompt = format_child_mutation_prompt("code", 1.5)
 
-        assert "26 circles" in prompt
-        assert "construct_packing" in prompt
-        assert "run_packing" in prompt
+        assert "2.635" in prompt
+
+    def test_is_concise(self):
+        """Test that mutation prompt is concise (not overly verbose)."""
+        prompt = format_child_mutation_prompt("code", 1.5)
+        # The simplified prompt should be short
+        assert len(prompt) < 500
 
 
 class TestRootLLMSystemPromptDynamic:
