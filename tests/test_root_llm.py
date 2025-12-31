@@ -74,15 +74,15 @@ class TestBuildInitialMessages:
 
 
 class TestCodeBlockExtraction:
-    """Tests for extracting REPL code blocks."""
+    """Tests for extracting Python code blocks."""
 
     def test_extract_code_blocks_single(self, mock_config):
-        """Test extracting a single REPL block."""
+        """Test extracting a single Python block."""
         orchestrator = RootLLMOrchestrator(mock_config)
 
         response = """Let me try a simple approach.
 
-```repl
+```python
 x = 1 + 2
 print(x)
 ```
@@ -94,18 +94,18 @@ That should work.
         assert "x = 1 + 2" in blocks[0]
 
     def test_extract_code_blocks_multiple(self, mock_config):
-        """Test extracting multiple REPL blocks."""
+        """Test extracting multiple Python blocks."""
         orchestrator = RootLLMOrchestrator(mock_config)
 
         response = """First block:
 
-```repl
+```python
 a = 1
 ```
 
 Second block:
 
-```repl
+```python
 b = 2
 ```
 """
@@ -114,8 +114,8 @@ b = 2
         assert "a = 1" in blocks[0]
         assert "b = 2" in blocks[1]
 
-    def test_extract_code_blocks_includes_python_and_repl(self, mock_config):
-        """Test that both python and repl blocks are extracted in order."""
+    def test_extract_code_blocks_multiple_python(self, mock_config):
+        """Test that multiple python blocks are extracted in order."""
         orchestrator = RootLLMOrchestrator(mock_config)
 
         response = """This is Python:
@@ -125,9 +125,9 @@ def foo():
     pass
 ```
 
-This is REPL:
+More Python:
 
-```repl
+```python
 x = 1
 ```
 """
@@ -137,7 +137,7 @@ x = 1
         assert "x = 1" in blocks[1]
 
     def test_extract_code_blocks_none(self, mock_config):
-        """Test when no REPL blocks are present."""
+        """Test when no Python blocks are present."""
         orchestrator = RootLLMOrchestrator(mock_config)
 
         response = "Just some text with no code blocks."
@@ -217,7 +217,7 @@ class TestBudgetExceededStop:
         )
         mock_root.set_responses(
             [
-                "Starting...\n\n```repl\nprint('hello')\n```",
+                "Starting...\n\n```python\nprint('hello')\n```",
             ]
         )
         orchestrator.root_llm = mock_root
@@ -257,8 +257,8 @@ class TestConversationHistory:
         )
         mock_root.set_responses(
             [
-                "I'll start.\n\n```repl\nx = 1\nprint(x)\n```",
-                "Done.\n\n```repl\nterminate_evolution('test complete')\n```",
+                "I'll start.\n\n```python\nx = 1\nprint(x)\n```",
+                "Done.\n\n```python\nterminate_evolution('test complete')\n```",
             ]
         )
         orchestrator.root_llm = mock_root

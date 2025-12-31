@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 # This contains all the stable content that doesn't change between calls.
 # Dynamic values (generation counts) are appended separately.
 
-ROOT_LLM_SYSTEM_PROMPT_STATIC = '''You are orchestrating an evolutionary process to develop algorithms for circle packing.
+ROOT_LLM_SYSTEM_PROMPT_STATIC = '''You are an expert algorithm designer. You are orchestrating an evolutionary process to develop algorithms for circle packing.
 
 ## Problem
 
@@ -62,7 +62,7 @@ Returns: `[{trial_id, code, metrics, reasoning, success, error}, ...]`
 Get code from previous trials by ID.
 
 ### update_scratchpad(content: str) -> dict
-Update your persistent notes. These are shown at the start of each generation along with the auto-generated lineage map (showing trial ancestry and scores).
+Update your persistent notes. These are shown at the start of each generation along with the auto-generated lineage map (showing trial ancestry and scores). You are encouraged to write detailed and useful notes here.
 
 ### terminate_evolution(reason: str, best_program: str = None) -> dict
 End evolution early.
@@ -74,7 +74,7 @@ Example: `{{{{CODE_TRIAL_0_3}}}}` becomes the code from trial_0_3.
 
 ## Evolution Flow
 
-1. You spawn children with diverse prompts each generation
+1. You spawn children using the `spawn_children_parallel` function with diverse prompts each generation
 2. After spawning, you SELECT which trials to carry forward (performance, diversity, potential)
 3. Repeat until max_generations or you call terminate_evolution()
 
@@ -341,25 +341,27 @@ CALIBRATION_SYSTEM_PROMPT_STATIC = '''You are orchestrating a calibration phase 
 
 ## Purpose
 
-Before evolution begins, you have the opportunity to test the available child LLMs to understand their:
-- Output quality and code style
-- Performance on the circle packing problem
-- Optimal temperature settings
-- Response patterns and reasoning depth
+Before evolution begins, you have the opportunity to test the available child LLMs to understand their capabilities. **You can send ANY prompt you want** - not just circle packing tasks. Use this to evaluate:
 
-## Problem
+- Reasoning depth and quality (ask them to explain their approach)
+- Code style and correctness (test with simple problems first)
+- Mathematical reasoning (geometry, optimization concepts)
+- Instruction following (give specific constraints)
+- Creativity vs precision tradeoffs at different temperatures
+- How they handle ambiguous or open-ended prompts
 
-Pack 26 circles into a unit square [0,1] x [0,1] to maximize the sum of their radii.
-- All circles must be entirely inside the unit square
-- No two circles may overlap
-- All radii must be non-negative
+The goal is to understand what each model is good at so you can use them strategically during evolution.
 
-**Target**: 2.635983099011548 (best known)
+## Problem (for reference)
+
+The main task is packing 26 circles into a unit square [0,1] x [0,1] to maximize the sum of radii.
+- **Target**: 2.635983099011548 (best known)
 
 ## Available Functions
 
 ### spawn_child_llm(prompt, parent_id=None, model=None, temperature=0.7) -> dict
-Spawn a child LLM to test. Returns `{trial_id, code, metrics, reasoning, success, error}`.
+Spawn a child LLM with ANY prompt. Returns `{trial_id, code, metrics, reasoning, success, error}`.
+- `prompt`: Any question or task - you're not limited to circle packing!
 - `model`: Child LLM alias (see available models below)
 - `temperature`: Sampling temperature (0.0-1.0). Higher = more creative.
 
@@ -374,11 +376,11 @@ Finish calibration and begin the evolution phase. Call this when you've learned 
 
 ## Guidelines
 
-1. **Test each model** at least once if budget allows
-2. **Experiment with temperatures**: Try 0.3 (focused), 0.7 (balanced), 1.0 (creative)
-3. **Record observations**: Note which models produce cleaner code, better reasoning, etc.
-4. **Be efficient**: You have limited calibration calls - use them wisely
-5. **Write useful notes**: Your scratchpad observations will guide model selection during evolution
+1. **Ask diverse questions**: Test reasoning, math, code quality - not just circle packing. You're notes should be generic and not specific to the circle packing task.
+2. **Compare models**: Give the same prompt to different models to compare their responses
+3. **Experiment with temperatures**: Generally 0 is considered the most focused / reproducible, 1 is the most creative.
+4. **Record detailed observations**: Note strengths/weaknesses of each model
+5. **Be strategic**: Your notes will guide which model you choose for different tasks during evolution
 '''
 
 

@@ -519,8 +519,9 @@ class EvolutionAPI:
                     )
                 self.calibration_calls_remaining[model_alias] -= 1
 
-        # Determine trial generation
+        # Determine trial generation and system prompt
         trial_generation = -1 if self.in_calibration_phase else self.current_generation
+        system_prompt = None if self.in_calibration_phase else CHILD_LLM_SYSTEM_PROMPT
 
         # Show progress
         phase_str = "calibration" if self.in_calibration_phase else f"gen {self.current_generation}"
@@ -583,7 +584,7 @@ class EvolutionAPI:
                 trial_ids[orig_idx],
                 trial_generation,
                 experiment_dir,
-                CHILD_LLM_SYSTEM_PROMPT,  # Cacheable system prompt
+                system_prompt,  # None during calibration, else cacheable system prompt
                 config.provider,  # Provider for child LLM
                 model_alias,  # Model alias for tracking
             ))
