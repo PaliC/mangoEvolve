@@ -145,6 +145,51 @@ class ExperimentLogger:
 
         return trial_path
 
+    def save_scratchpad(
+        self,
+        generation: int,
+        scratchpad: str | None = None,
+        lineage_map: str | None = None,
+    ) -> Path | None:
+        """
+        Save scratchpad content to the generation folder.
+
+        This is called immediately when the scratchpad is updated, and also
+        when a generation is finalized (with updated lineage map).
+
+        Args:
+            generation: Generation number
+            scratchpad: Scratchpad content
+            lineage_map: Optional lineage map at time of save
+
+        Returns:
+            Path to the scratchpad file, or None if nothing to save
+        """
+        if scratchpad is None and lineage_map is None:
+            return None
+
+        self._ensure_initialized()
+        gen_dir = self._get_generation_dir(generation)
+        scratchpad_path = gen_dir / "scratchpad.txt"
+
+        with open(scratchpad_path, "w") as f:
+            f.write("=" * 60 + "\n")
+            f.write(f"SCRATCHPAD OUTPUT FOR GENERATION {generation}\n")
+            f.write("=" * 60 + "\n\n")
+            f.write("This is the scratchpad content that was available to the\n")
+            f.write("Root LLM when producing this generation.\n\n")
+            f.write("-" * 60 + "\n")
+            f.write("LINEAGE MAP\n")
+            f.write("-" * 60 + "\n\n")
+            f.write(lineage_map if lineage_map else "(No lineage yet)\n")
+            f.write("\n")
+            f.write("-" * 60 + "\n")
+            f.write("SCRATCHPAD\n")
+            f.write("-" * 60 + "\n\n")
+            f.write(scratchpad if scratchpad else "(Empty)\n")
+
+        return scratchpad_path
+
     def log_generation(
         self,
         generation: int,
@@ -209,24 +254,8 @@ class ExperimentLogger:
         with open(summary_path, "w") as f:
             json.dump(gen_data, f, indent=2)
 
-        # Save scratchpad output if provided
-        if scratchpad is not None or lineage_map is not None:
-            scratchpad_path = gen_dir / "scratchpad.txt"
-            with open(scratchpad_path, "w") as f:
-                f.write("=" * 60 + "\n")
-                f.write(f"SCRATCHPAD OUTPUT FOR GENERATION {generation}\n")
-                f.write("=" * 60 + "\n\n")
-                f.write("This is the scratchpad content that was available to the\n")
-                f.write("Root LLM when producing this generation.\n\n")
-                f.write("-" * 60 + "\n")
-                f.write("LINEAGE MAP\n")
-                f.write("-" * 60 + "\n\n")
-                f.write(lineage_map if lineage_map else "(No lineage yet)\n")
-                f.write("\n")
-                f.write("-" * 60 + "\n")
-                f.write("SCRATCHPAD\n")
-                f.write("-" * 60 + "\n\n")
-                f.write(scratchpad if scratchpad else "(Empty)\n")
+        # Save scratchpad (with final lineage map for this generation)
+        self.save_scratchpad(generation, scratchpad, lineage_map)
 
         return summary_path
 
