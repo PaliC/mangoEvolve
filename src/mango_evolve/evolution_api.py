@@ -58,6 +58,7 @@ class TrialResult:
     error: str | None = None
     generation: int = 0
     model_alias: str | None = None  # Which child LLM was used
+    model_config: dict[str, Any] | None = None  # Model config (model, temperature, etc.)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -73,6 +74,7 @@ class TrialResult:
             "error": self.error,
             "generation": self.generation,
             "model_alias": self.model_alias,
+            "model_config": self.model_config,
         }
 
 
@@ -331,6 +333,13 @@ class EvolutionAPI:
         # Get or create LLM client for this model
         child_llm = self._get_or_create_child_llm_client(model_alias)
 
+        # Build model config for trial metadata
+        config = self.child_llm_configs[model_alias]
+        model_config = {
+            "model": config.model,
+            "temperature": temperature,
+        }
+
         # Call child LLM
         try:
             response = child_llm.generate(
@@ -353,6 +362,7 @@ class EvolutionAPI:
                 error=f"LLM call failed: {str(e)}",
                 generation=trial_generation,
                 model_alias=model_alias,
+                model_config=model_config,
             )
             self._record_trial(trial)
             return trial.to_dict()
@@ -375,6 +385,7 @@ class EvolutionAPI:
                 error="No Python code block found in response",
                 generation=trial_generation,
                 model_alias=model_alias,
+                model_config=model_config,
             )
             self._record_trial(trial)
             return trial.to_dict()
@@ -405,6 +416,7 @@ class EvolutionAPI:
             error=error_msg,
             generation=trial_generation,
             model_alias=model_alias,
+            model_config=model_config,
         )
 
         self._record_trial(trial)
@@ -451,6 +463,7 @@ class EvolutionAPI:
                 response=trial.response,
                 reasoning=trial.reasoning,
                 parent_id=trial.parent_id,
+                model_config=trial.model_config,
             )
 
     def spawn_children_parallel(
@@ -620,6 +633,7 @@ class EvolutionAPI:
                 error=worker_result["error"],
                 generation=trial_generation,
                 model_alias=model_alias,
+                model_config=worker_result.get("model_config"),
             )
 
             self._record_trial(trial, skip_file_write=True)

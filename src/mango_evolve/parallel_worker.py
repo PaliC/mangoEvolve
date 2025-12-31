@@ -60,6 +60,7 @@ def _write_trial_file(
     response: str,
     reasoning: str | None,
     parent_id: str | None,
+    model_config: dict[str, Any] | None = None,
 ) -> None:
     """Write trial JSON file to disk for real-time progress tracking."""
     gen_dir = Path(experiment_dir) / "generations" / f"gen_{generation}"
@@ -76,6 +77,7 @@ def _write_trial_file(
         "reasoning": reasoning,
         "timestamp": datetime.now().isoformat(),
         "cost_data": None,
+        "model_config": model_config,
     }
 
     trial_path = gen_dir / f"{trial_id}.json"
@@ -286,6 +288,12 @@ def child_worker(args: tuple) -> dict[str, Any]:
             model_alias,
         ) = args
 
+    # Build model config for trial metadata
+    model_config = {
+        "model": model,
+        "temperature": temperature,
+    }
+
     call_id = str(uuid.uuid4())
     response_text = ""
     code = ""
@@ -372,6 +380,7 @@ def child_worker(args: tuple) -> dict[str, Any]:
                 response=response_text,
                 reasoning=reasoning,
                 parent_id=parent_id,
+                model_config=model_config,
             )
             return {
                 "trial_id": trial_id,
@@ -389,6 +398,7 @@ def child_worker(args: tuple) -> dict[str, Any]:
                 "cache_creation_input_tokens": cache_creation_input_tokens,
                 "cache_read_input_tokens": cache_read_input_tokens,
                 "model_alias": model_alias,
+                "model_config": model_config,
             }
 
         # Create evaluator and evaluate the code
@@ -421,6 +431,7 @@ def child_worker(args: tuple) -> dict[str, Any]:
         response=response_text,
         reasoning=reasoning,
         parent_id=parent_id,
+        model_config=model_config,
     )
 
     return {
@@ -439,4 +450,5 @@ def child_worker(args: tuple) -> dict[str, Any]:
         "cache_creation_input_tokens": cache_creation_input_tokens,
         "cache_read_input_tokens": cache_read_input_tokens,
         "model_alias": model_alias,
+        "model_config": model_config,
     }
