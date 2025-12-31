@@ -823,6 +823,14 @@ class EvolutionAPI:
             content = content[:max_length]
 
         self.scratchpad = content
+
+        # Materialize scratchpad immediately to the current generation folder
+        self.logger.save_scratchpad(
+            generation=self.current_generation,
+            scratchpad=content,
+            lineage_map=self._build_lineage_map(),
+        )
+
         tqdm.write(f"  📝 Scratchpad updated ({len(content)} chars)")
         return {"success": True, "length": len(content)}
 
