@@ -150,31 +150,31 @@ Functions and variables you define persist across all generations within this ru
 '''
 
 # Dynamic suffix template - appended after the static prefix
-ROOT_LLM_SYSTEM_PROMPT_DYNAMIC = '''
+ROOT_LLM_SYSTEM_PROMPT_DYNAMIC = """
 ## Current Run Parameters
 
 - **Max children per generation**: {max_children_per_generation}
 - **Max generations**: {max_generations}
 - **Current generation**: {current_generation}/{max_generations}
-'''
+"""
 
 # Available child LLMs template - inserted after dynamic parameters
-ROOT_LLM_CHILD_MODELS_TEMPLATE = '''
+ROOT_LLM_CHILD_MODELS_TEMPLATE = """
 ## Available Child LLMs
 
 {child_llm_list}
 
 **Default model**: {default_child_llm}
-'''
+"""
 
 # Timeout constraint - simple exposure of the limit
-ROOT_LLM_TIMEOUT_CONSTRAINT = '''
+ROOT_LLM_TIMEOUT_CONSTRAINT = """
 - **Timeout per trial**: {timeout_seconds}s
-'''
+"""
 
 # Child LLM System Prompt - Static (cacheable)
 # Minimal prompt to give child LLMs freedom to explore.
-CHILD_LLM_SYSTEM_PROMPT = '''You are an expert algorithm designer.
+CHILD_LLM_SYSTEM_PROMPT = """You are an expert algorithm designer.
 
 ## Task
 
@@ -204,7 +204,7 @@ def run_packing():
 ```
 
 You may use numpy, scipy, or any standard library. No plotting or printing.
-'''
+"""
 
 
 def _format_timeout_constraint(timeout_seconds: int | None) -> str:
@@ -387,7 +387,7 @@ def get_root_system_prompt_parts_with_models(
 
 
 # Calibration system prompt - used during calibration phase
-CALIBRATION_SYSTEM_PROMPT_STATIC = '''You are orchestrating a calibration phase for an evolutionary optimization process.
+CALIBRATION_SYSTEM_PROMPT_STATIC = """You are orchestrating a calibration phase for an evolutionary optimization process.
 
 ## Purpose
 
@@ -431,7 +431,7 @@ Finish calibration and begin the evolution phase. Call this when you've learned 
 3. **Experiment with temperatures**: Generally 0 is considered the most focused / reproducible, 1 is the most creative.
 4. **Record detailed observations**: Note strengths/weaknesses of each model
 5. **Be strategic**: Your notes will guide which model you choose for different tasks during evolution
-'''
+"""
 
 
 def get_calibration_system_prompt_parts(
@@ -449,15 +449,17 @@ def get_calibration_system_prompt_parts(
     # Build child LLM info with calibration budgets
     lines = ["## Available Child LLMs", ""]
     for alias, cfg in child_llm_configs.items():
-        lines.extend([
-            f"### {alias}",
-            f"- **Model**: `{cfg.model}`",
-            f"- **Provider**: {cfg.provider}",
-            f"- **Calibration budget**: {cfg.calibration_calls} calls",
-            f"- **Cost**: ${cfg.cost_per_million_input_tokens:.2f}/M input, "
-            f"${cfg.cost_per_million_output_tokens:.2f}/M output",
-            "",
-        ])
+        lines.extend(
+            [
+                f"### {alias}",
+                f"- **Model**: `{cfg.model}`",
+                f"- **Provider**: {cfg.provider}",
+                f"- **Calibration budget**: {cfg.calibration_calls} calls",
+                f"- **Cost**: ${cfg.cost_per_million_input_tokens:.2f}/M input, "
+                f"${cfg.cost_per_million_output_tokens:.2f}/M output",
+                "",
+            ]
+        )
 
     child_models_part = "\n".join(lines)
 

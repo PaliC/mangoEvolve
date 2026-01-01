@@ -113,7 +113,9 @@ class RootLLMOrchestrator:
                 model=config.root_llm.model,
                 cost_tracker=self.cost_tracker,
                 llm_type="root",
-                reasoning_config=asdict(config.root_llm.reasoning) if config.root_llm.reasoning else None,
+                reasoning_config=asdict(config.root_llm.reasoning)
+                if config.root_llm.reasoning
+                else None,
             )
 
         # Build child LLM configs dict keyed by effective_alias
@@ -155,10 +157,7 @@ class RootLLMOrchestrator:
 
     def _has_calibration_budget(self) -> bool:
         """Check if any model has calibration calls remaining."""
-        return any(
-            cfg.calibration_calls > 0
-            for cfg in self.child_llm_configs.values()
-        )
+        return any(cfg.calibration_calls > 0 for cfg in self.child_llm_configs.values())
 
     def _build_calibration_prompt(self) -> str:
         """Build the calibration phase prompt with model info."""
@@ -173,32 +172,36 @@ class RootLLMOrchestrator:
         ]
 
         for alias, cfg in self.child_llm_configs.items():
-            lines.extend([
-                f"### {alias}",
-                f"- **Model**: {cfg.model}",
-                f"- **Provider**: {cfg.provider}",
-                f"- **Calibration calls**: {cfg.calibration_calls}",
-                f"- **Cost**: ${cfg.cost_per_million_input_tokens:.2f}/M input, "
-                f"${cfg.cost_per_million_output_tokens:.2f}/M output",
-                "",
-            ])
+            lines.extend(
+                [
+                    f"### {alias}",
+                    f"- **Model**: {cfg.model}",
+                    f"- **Provider**: {cfg.provider}",
+                    f"- **Calibration calls**: {cfg.calibration_calls}",
+                    f"- **Cost**: ${cfg.cost_per_million_input_tokens:.2f}/M input, "
+                    f"${cfg.cost_per_million_output_tokens:.2f}/M output",
+                    "",
+                ]
+            )
 
-        lines.extend([
-            "## Your Task",
-            "",
-            "Use the available calibration calls to:",
-            "1. Test each model with simple circle packing prompts",
-            "2. Experiment with different temperature settings (0.0-1.0)",
-            "3. Observe output quality, code style, and reasoning depth",
-            "4. Update your scratchpad with observations about each model",
-            "",
-            "Use `spawn_child_llm(prompt, model=alias, temperature=T)` to test models.",
-            "Use `update_scratchpad(content)` to record your observations.",
-            "Use `get_calibration_status()` to check remaining calibration calls.",
-            "",
-            "When done calibrating, call `end_calibration_phase()` to begin evolution.",
-            "",
-        ])
+        lines.extend(
+            [
+                "## Your Task",
+                "",
+                "Use the available calibration calls to:",
+                "1. Test each model with simple circle packing prompts",
+                "2. Experiment with different temperature settings (0.0-1.0)",
+                "3. Observe output quality, code style, and reasoning depth",
+                "4. Update your scratchpad with observations about each model",
+                "",
+                "Use `spawn_child_llm(prompt, model=alias, temperature=T)` to test models.",
+                "Use `update_scratchpad(content)` to record your observations.",
+                "Use `get_calibration_status()` to check remaining calibration calls.",
+                "",
+                "When done calibrating, call `end_calibration_phase()` to begin evolution.",
+                "",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -214,9 +217,7 @@ class RootLLMOrchestrator:
 
         # Build initial calibration message
         calibration_prompt = self._build_calibration_prompt()
-        self._calibration_messages = [
-            {"role": "user", "content": calibration_prompt}
-        ]
+        self._calibration_messages = [{"role": "user", "content": calibration_prompt}]
 
         # Get system prompt for calibration
         system_prompt = self._get_calibration_system_prompt()
@@ -379,9 +380,7 @@ class RootLLMOrchestrator:
         ]
         return self.messages
 
-    def _prepare_messages_with_caching(
-        self, messages: list[dict[str, str]]
-    ) -> list[dict]:
+    def _prepare_messages_with_caching(self, messages: list[dict[str, str]]) -> list[dict]:
         """
         Prepare messages with cache_control for optimal prompt caching.
 
@@ -403,16 +402,18 @@ class RootLLMOrchestrator:
         for i, msg in enumerate(messages):
             if i == 0:
                 # Cache the first user message (stable "Begin generation 0..." prompt)
-                result.append({
-                    "role": msg["role"],
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": msg["content"],
-                            "cache_control": {"type": "ephemeral"},
-                        }
-                    ],
-                })
+                result.append(
+                    {
+                        "role": msg["role"],
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": msg["content"],
+                                "cache_control": {"type": "ephemeral"},
+                            }
+                        ],
+                    }
+                )
             else:
                 result.append(msg)
 
@@ -488,7 +489,8 @@ class RootLLMOrchestrator:
             Dictionary with context statistics and health indicators.
         """
         total_chars = sum(
-            len(m.get("content", "")) if isinstance(m.get("content"), str)
+            len(m.get("content", ""))
+            if isinstance(m.get("content"), str)
             else sum(len(c.get("text", "")) for c in m.get("content", []) if isinstance(c, dict))
             for m in self.messages
         )
@@ -596,7 +598,9 @@ class RootLLMOrchestrator:
             "",
             "### Scratchpad (update with `update_scratchpad(content)`)",
             "",
-            scratchpad if scratchpad else "(Empty - use update_scratchpad() to add persistent notes)",
+            scratchpad
+            if scratchpad
+            else "(Empty - use update_scratchpad() to add persistent notes)",
             "",
             "─" * 60,
         ]
@@ -815,9 +819,7 @@ class RootLLMOrchestrator:
         self._append_and_log("assistant", selection_message)
 
         # Parse selections from response
-        selections, selection_summary = self._parse_selection_response(
-            selection_message
-        )
+        selections, selection_summary = self._parse_selection_response(selection_message)
 
         if selections:
             tqdm.write(f"  └─ LLM selected {len(selections)} trials")
@@ -873,14 +875,11 @@ class RootLLMOrchestrator:
         errors: list[tuple[int, str]] = []
 
         # Check for errors in execution results
-        error_in_results = any(
-            "Error" in r or "Exception" in r for r in execution_results
-        )
+        error_in_results = any("Error" in r or "Exception" in r for r in execution_results)
         if error_in_results:
             # Extract error snippets for debugging
             error_snippets = [
-                r[:200] for r in execution_results
-                if "Error" in r or "Exception" in r
+                r[:200] for r in execution_results if "Error" in r or "Exception" in r
             ]
             error_msg = "; ".join(error_snippets)[:500]
             errors.append((self.evolution_api.current_generation, error_msg))
@@ -890,9 +889,7 @@ class RootLLMOrchestrator:
 
         # Build and send user message
         if execution_results:
-            user_message = "Execution results:\n\n" + "\n\n---\n\n".join(
-                execution_results
-            )
+            user_message = "Execution results:\n\n" + "\n\n---\n\n".join(execution_results)
         else:
             user_message = (
                 "No children were spawned. Please spawn children using "
@@ -1063,9 +1060,7 @@ class RootLLMOrchestrator:
 
         # Automatically advance generation if children were spawned
         if self.evolution_api.has_children_in_current_generation():
-            selection_result = self._handle_trial_selection(
-                system_prompt, gen_pbar, loop_iteration
-            )
+            selection_result = self._handle_trial_selection(system_prompt, gen_pbar, loop_iteration)
             if selection_result.should_break:
                 return GenerationResult(
                     should_break=True,
@@ -1292,6 +1287,4 @@ class RootLLMOrchestrator:
         if generations_completed == 0:
             generations_completed = self.evolution_api.current_generation
 
-        return self._build_result(
-            termination_reason, generations_completed, generation_errors
-        )
+        return self._build_result(termination_reason, generations_completed, generation_errors)

@@ -121,7 +121,9 @@ class TestSpawnChildLLM:
 
         mock_evaluator.evaluate.assert_called_once()
 
-    def test_spawn_handles_no_code(self, sample_config, temp_dir, mock_evaluator, child_llm_configs):
+    def test_spawn_handles_no_code(
+        self, sample_config, temp_dir, mock_evaluator, child_llm_configs
+    ):
         """Test handling when LLM response has no code."""
         sample_config.experiment.output_dir = str(temp_dir)
         cost_tracker = CostTracker(sample_config)
@@ -502,9 +504,7 @@ class TestLineageMap:
 class TestSelectionBehavior:
     """Tests for selection functionality (historical selection allowed)."""
 
-    def test_selection_allows_historical_trials(
-        self, sample_config, temp_dir, child_llm_configs
-    ):
+    def test_selection_allows_historical_trials(self, sample_config, temp_dir, child_llm_configs):
         """Test that _advance_generation accepts trials from any generation."""
         sample_config.experiment.output_dir = str(temp_dir)
         cost_tracker = CostTracker(sample_config)

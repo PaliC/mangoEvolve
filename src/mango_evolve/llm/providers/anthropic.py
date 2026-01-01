@@ -123,12 +123,8 @@ class AnthropicProvider(BaseLLMProvider):
         output_tokens = response.usage.output_tokens
 
         # Extract cache statistics from response
-        cache_creation_input_tokens = getattr(
-            response.usage, "cache_creation_input_tokens", 0
-        ) or 0
-        cache_read_input_tokens = getattr(
-            response.usage, "cache_read_input_tokens", 0
-        ) or 0
+        cache_creation_input_tokens = getattr(response.usage, "cache_creation_input_tokens", 0) or 0
+        cache_read_input_tokens = getattr(response.usage, "cache_read_input_tokens", 0) or 0
 
         self.cost_tracker.record_usage(
             input_tokens=input_tokens,

@@ -206,5 +206,3 @@ class TestMain:
             assert "Total trials: 10" in captured.out
             assert "Successful trials: 8" in captured.out
             assert "Best score: 2.0" in captured.out
-
-

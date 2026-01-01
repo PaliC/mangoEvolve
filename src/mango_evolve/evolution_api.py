@@ -185,8 +185,7 @@ class EvolutionAPI:
         # Calibration phase tracking
         self.in_calibration_phase: bool = True
         self.calibration_calls_remaining: dict[str, int] = {
-            alias: cfg.calibration_calls
-            for alias, cfg in child_llm_configs.items()
+            alias: cfg.calibration_calls for alias, cfg in child_llm_configs.items()
         }
 
         self.current_generation = 0
@@ -225,8 +224,7 @@ class EvolutionAPI:
 
         if model not in self.child_llm_configs:
             raise ValueError(
-                f"Unknown model alias '{model}'. "
-                f"Available: {list(self.child_llm_configs.keys())}"
+                f"Unknown model alias '{model}'. Available: {list(self.child_llm_configs.keys())}"
             )
         return model
 
@@ -546,8 +544,7 @@ class EvolutionAPI:
         else:
             starting_trial_num = len(self.generations[self.current_generation].trials)
         trial_ids = [
-            f"trial_{trial_generation}_{starting_trial_num + i}"
-            for i in range(len(children))
+            f"trial_{trial_generation}_{starting_trial_num + i}" for i in range(len(children))
         ]
 
         # Get experiment directory for workers to write trial files
@@ -583,20 +580,22 @@ class EvolutionAPI:
             model_alias, config = resolved_models[orig_idx]
 
             # Serialize model config for worker
-            worker_args.append((
-                substituted_prompts[orig_idx],  # Use substituted prompt
-                parent_id,
-                config.model,  # Actual model name
-                self.evaluator_kwargs,
-                4096,  # max_tokens
-                temperature,
-                trial_ids[orig_idx],
-                trial_generation,
-                experiment_dir,
-                system_prompt,  # None during calibration, else cacheable system prompt
-                config.provider,  # Provider for child LLM
-                model_alias,  # Model alias for tracking
-            ))
+            worker_args.append(
+                (
+                    substituted_prompts[orig_idx],  # Use substituted prompt
+                    parent_id,
+                    config.model,  # Actual model name
+                    self.evaluator_kwargs,
+                    4096,  # max_tokens
+                    temperature,
+                    trial_ids[orig_idx],
+                    trial_generation,
+                    experiment_dir,
+                    system_prompt,  # None during calibration, else cacheable system prompt
+                    config.provider,  # Provider for child LLM
+                    model_alias,  # Model alias for tracking
+                )
+            )
             result_order.append(orig_idx)
 
         # Determine number of workers
@@ -805,10 +804,7 @@ class EvolutionAPI:
     def _auto_select_trials(self, gen: GenerationSummary) -> None:
         """Auto-select best trials when no LLM selection provided."""
         # Get best trials from current generation only
-        current_gen_trials = [
-            t for t in gen.trials
-            if t.success and t.metrics.get("score", 0) > 0
-        ]
+        current_gen_trials = [t for t in gen.trials if t.success and t.metrics.get("score", 0) > 0]
         sorted_trials = sorted(
             current_gen_trials,
             key=lambda t: t.metrics.get("score", 0),
@@ -1015,9 +1011,7 @@ class EvolutionAPI:
         """
         max_length = 8000  # Hard limit to prevent context bloat
         if len(content) > max_length:
-            tqdm.write(
-                f"  ⚠️ Scratchpad truncated from {len(content)} to {max_length} chars"
-            )
+            tqdm.write(f"  ⚠️ Scratchpad truncated from {len(content)} to {max_length} chars")
             content = content[:max_length]
 
         self.scratchpad = content
@@ -1170,7 +1164,9 @@ class EvolutionAPI:
 
             # Build the line
             prefix = "└── " if indent else ""
-            lines.append(f"{indent}{prefix}{trial_id} ({score_str}){reasoning_snippet}{best_marker}")
+            lines.append(
+                f"{indent}{prefix}{trial_id} ({score_str}){reasoning_snippet}{best_marker}"
+            )
 
             # Process children
             trial_children = children_map.get(trial_id, [])

@@ -198,7 +198,8 @@ class OpenRouterProvider(BaseLLMProvider):
 
         # Filter out None, False, and "none" effort - keep only truthy values
         reasoning = {
-            k: v for k, v in self._reasoning_config.items()
+            k: v
+            for k, v in self._reasoning_config.items()
             if v is not None and v is not False and v != "none"
         }
         return reasoning or None

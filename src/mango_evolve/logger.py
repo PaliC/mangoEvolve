@@ -348,9 +348,7 @@ class ExperimentLogger:
 
         return cost_path
 
-    def save_experiment(
-        self, termination_reason: str | None = None, scratchpad: str = ""
-    ) -> Path:
+    def save_experiment(self, termination_reason: str | None = None, scratchpad: str = "") -> Path:
         """
         Save the full experiment state with finalization data.
 

@@ -271,5 +271,3 @@ class TestLLMClient:
             + 500 * child_config.cost_per_million_output_tokens / 1_000_000
         )
         assert abs(cost_tracker.total_cost - expected_cost) < 1e-10
-
-
