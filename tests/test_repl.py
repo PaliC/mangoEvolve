@@ -34,7 +34,7 @@ class TestREPLEnvironment:
         result = repl.execute("raise ValueError('test error')")
 
         assert result.success is False
-        assert "ValueError" in result.stderr or "ValueError" in result.error
+        assert "ValueError" in (result.stderr or "") or "ValueError" in (result.error or "")
 
     def test_state_persistence(self):
         """Variables persist across executions."""
@@ -72,7 +72,7 @@ class TestREPLEnvironment:
         result = repl.execute("1 / 0")
 
         assert result.success is False
-        assert "ZeroDivisionError" in result.error
+        assert "ZeroDivisionError" in (result.error or "")
 
     def test_safe_builtins(self):
         """Dangerous builtins blocked."""
@@ -89,7 +89,7 @@ class TestREPLEnvironment:
         result = repl.execute("import os")
 
         assert result.success is False
-        assert "ImportError" in result.error or "not allowed" in result.error
+        assert "ImportError" in (result.error or "") or "not allowed" in (result.error or "")
 
     def test_custom_functions(self):
         """Can define functions in REPL."""

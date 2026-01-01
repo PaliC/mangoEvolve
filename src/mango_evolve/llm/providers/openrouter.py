@@ -198,7 +198,8 @@ class OpenRouterProvider(BaseLLMProvider):
 
         # Filter out None, False, and "none" effort - keep only truthy values
         reasoning = {
-            k: v for k, v in self._reasoning_config.items()
+            k: v
+            for k, v in self._reasoning_config.items()
             if v is not None and v is not False and v != "none"
         }
         return reasoning or None
@@ -220,13 +221,14 @@ class OpenRouterProvider(BaseLLMProvider):
 
         def _log_retry(retry_state: RetryCallState) -> None:
             """Log retry attempts with appropriate context."""
-            if retry_state.outcome.failed:
+            outcome = retry_state.outcome
+            if outcome is not None and outcome.failed:
                 logger.warning(
                     "API error for %s, retrying (attempt %d/%d): %s",
                     self.model,
                     retry_state.attempt_number,
                     self.max_retries + 1,
-                    retry_state.outcome.exception(),
+                    outcome.exception(),
                 )
             else:
                 logger.warning(

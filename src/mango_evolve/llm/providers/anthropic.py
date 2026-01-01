@@ -123,12 +123,8 @@ class AnthropicProvider(BaseLLMProvider):
         output_tokens = response.usage.output_tokens
 
         # Extract cache statistics from response
-        cache_creation_input_tokens = getattr(
-            response.usage, "cache_creation_input_tokens", 0
-        ) or 0
-        cache_read_input_tokens = getattr(
-            response.usage, "cache_read_input_tokens", 0
-        ) or 0
+        cache_creation_input_tokens = getattr(response.usage, "cache_creation_input_tokens", 0) or 0
+        cache_read_input_tokens = getattr(response.usage, "cache_read_input_tokens", 0) or 0
 
         self.cost_tracker.record_usage(
             input_tokens=input_tokens,
@@ -173,13 +169,14 @@ class AnthropicProvider(BaseLLMProvider):
 
         def _log_retry(retry_state: RetryCallState) -> None:
             """Log retry attempts with appropriate context."""
-            if retry_state.outcome.failed:
+            outcome = retry_state.outcome
+            if outcome is not None and outcome.failed:
                 logger.warning(
                     "API error for %s, retrying (attempt %d/%d): %s",
                     self.model,
                     retry_state.attempt_number,
                     self.max_retries + 1,
-                    retry_state.outcome.exception(),
+                    outcome.exception(),
                 )
             else:
                 logger.warning(

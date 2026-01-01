@@ -4,8 +4,6 @@ Tests for the CLI entry point.
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from mango_evolve.main import main, parse_args
 
 
@@ -208,5 +206,3 @@ class TestMain:
             assert "Total trials: 10" in captured.out
             assert "Successful trials: 8" in captured.out
             assert "Best score: 2.0" in captured.out
-
-

@@ -207,6 +207,9 @@ class ExperimentLogger:
         best_trial_id: str | None = None,
         best_score: float = 0.0,
         trial_selections: list[dict[str, Any]] | None = None,
+        parents_used: list[str] | None = None,
+        parents_used_counts: dict[str, int] | None = None,
+        parents_not_selected_prev_gen: list[str] | None = None,
         scratchpad: str | None = None,
         lineage_map: str | None = None,
     ) -> Path:
@@ -221,6 +224,9 @@ class ExperimentLogger:
             best_trial_id: ID of best trial this generation
             best_score: Best score achieved (sum of radii)
             trial_selections: List of detailed trial selection data with reasoning
+            parents_used: Unique parent IDs actually used to create this generation
+            parents_used_counts: Count of children spawned from each parent
+            parents_not_selected_prev_gen: Parents used that were not selected in prior generation
             scratchpad: Optional scratchpad content at time of generation
             lineage_map: Optional lineage map at time of generation
 
@@ -240,6 +246,9 @@ class ExperimentLogger:
             "selected_trial_ids": selected_trial_ids,
             "selection_reasoning": selection_reasoning,
             "trial_selections": trial_selections or [],
+            "parents_used": parents_used or [],
+            "parents_used_counts": parents_used_counts or {},
+            "parents_not_selected_prev_gen": parents_not_selected_prev_gen or [],
             "timestamp": datetime.now().isoformat(),
         }
 
@@ -339,9 +348,7 @@ class ExperimentLogger:
 
         return cost_path
 
-    def save_experiment(
-        self, termination_reason: str | None = None, scratchpad: str = ""
-    ) -> Path:
+    def save_experiment(self, termination_reason: str | None = None, scratchpad: str = "") -> Path:
         """
         Save the full experiment state with finalization data.
 

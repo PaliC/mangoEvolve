@@ -451,9 +451,8 @@ def config_from_dict(data: dict[str, Any]) -> Config:
 
     # Validate calibration_notes_file if provided
     calibration_notes_file = data.get("calibration_notes_file")
-    if calibration_notes_file is not None:
-        if not isinstance(calibration_notes_file, str):
-            raise ConfigValidationError("calibration_notes_file must be a string path")
+    if calibration_notes_file is not None and not isinstance(calibration_notes_file, str):
+        raise ConfigValidationError("calibration_notes_file must be a string path")
 
     return Config(
         experiment=_parse_experiment_config(data["experiment"]),

@@ -11,12 +11,21 @@ from typing import Any
 
 from tqdm import tqdm
 
-from .config import ChildLLMConfig, Config, load_evaluator, save_calibration_notes, load_calibration_notes
+from .config import (
+    ChildLLMConfig,
+    Config,
+    load_calibration_notes,
+    load_evaluator,
+    save_calibration_notes,
+)
 from .cost_tracker import CostTracker
 from .evolution_api import EvolutionAPI
 from .exceptions import BudgetExceededError, GenerationLimitError
 from .llm.client import LLMClient, MockLLMClient, create_llm_client
-from .llm.prompts import get_root_system_prompt_parts_with_models, get_calibration_system_prompt_parts
+from .llm.prompts import (
+    get_calibration_system_prompt_parts,
+    get_root_system_prompt_parts_with_models,
+)
 from .logger import ExperimentLogger
 from .repl import REPLEnvironment
 from .utils.code_extraction import extract_python_blocks, extract_selection_block
@@ -104,7 +113,9 @@ class RootLLMOrchestrator:
                 model=config.root_llm.model,
                 cost_tracker=self.cost_tracker,
                 llm_type="root",
-                reasoning_config=asdict(config.root_llm.reasoning) if config.root_llm.reasoning else None,
+                reasoning_config=asdict(config.root_llm.reasoning)
+                if config.root_llm.reasoning
+                else None,
             )
 
         # Build child LLM configs dict keyed by effective_alias
@@ -146,10 +157,7 @@ class RootLLMOrchestrator:
 
     def _has_calibration_budget(self) -> bool:
         """Check if any model has calibration calls remaining."""
-        return any(
-            cfg.calibration_calls > 0
-            for cfg in self.child_llm_configs.values()
-        )
+        return any(cfg.calibration_calls > 0 for cfg in self.child_llm_configs.values())
 
     def _build_calibration_prompt(self) -> str:
         """Build the calibration phase prompt with model info."""
@@ -164,32 +172,36 @@ class RootLLMOrchestrator:
         ]
 
         for alias, cfg in self.child_llm_configs.items():
-            lines.extend([
-                f"### {alias}",
-                f"- **Model**: {cfg.model}",
-                f"- **Provider**: {cfg.provider}",
-                f"- **Calibration calls**: {cfg.calibration_calls}",
-                f"- **Cost**: ${cfg.cost_per_million_input_tokens:.2f}/M input, "
-                f"${cfg.cost_per_million_output_tokens:.2f}/M output",
-                "",
-            ])
+            lines.extend(
+                [
+                    f"### {alias}",
+                    f"- **Model**: {cfg.model}",
+                    f"- **Provider**: {cfg.provider}",
+                    f"- **Calibration calls**: {cfg.calibration_calls}",
+                    f"- **Cost**: ${cfg.cost_per_million_input_tokens:.2f}/M input, "
+                    f"${cfg.cost_per_million_output_tokens:.2f}/M output",
+                    "",
+                ]
+            )
 
-        lines.extend([
-            "## Your Task",
-            "",
-            "Use the available calibration calls to:",
-            "1. Test each model with simple circle packing prompts",
-            "2. Experiment with different temperature settings (0.0-1.0)",
-            "3. Observe output quality, code style, and reasoning depth",
-            "4. Update your scratchpad with observations about each model",
-            "",
-            "Use `spawn_child_llm(prompt, model=alias, temperature=T)` to test models.",
-            "Use `update_scratchpad(content)` to record your observations.",
-            "Use `get_calibration_status()` to check remaining calibration calls.",
-            "",
-            "When done calibrating, call `end_calibration_phase()` to begin evolution.",
-            "",
-        ])
+        lines.extend(
+            [
+                "## Your Task",
+                "",
+                "Use the available calibration calls to:",
+                "1. Test each model with simple circle packing prompts",
+                "2. Experiment with different temperature settings (0.0-1.0)",
+                "3. Observe output quality, code style, and reasoning depth",
+                "4. Update your scratchpad with observations about each model",
+                "",
+                "Use `spawn_child_llm(prompt, model=alias, temperature=T)` to test models.",
+                "Use `update_scratchpad(content)` to record your observations.",
+                "Use `get_calibration_status()` to check remaining calibration calls.",
+                "",
+                "When done calibrating, call `end_calibration_phase()` to begin evolution.",
+                "",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -205,16 +217,14 @@ class RootLLMOrchestrator:
 
         # Build initial calibration message
         calibration_prompt = self._build_calibration_prompt()
-        self._calibration_messages = [
-            {"role": "user", "content": calibration_prompt}
-        ]
+        self._calibration_messages = [{"role": "user", "content": calibration_prompt}]
 
         # Get system prompt for calibration
         system_prompt = self._get_calibration_system_prompt()
 
         max_calibration_turns = 20  # Prevent infinite loops
 
-        for turn in range(max_calibration_turns):
+        for _turn in range(max_calibration_turns):
             # Check if calibration is complete
             if not self.evolution_api.in_calibration_phase:
                 break
@@ -370,9 +380,7 @@ class RootLLMOrchestrator:
         ]
         return self.messages
 
-    def _prepare_messages_with_caching(
-        self, messages: list[dict[str, str]]
-    ) -> list[dict]:
+    def _prepare_messages_with_caching(self, messages: list[dict[str, str]]) -> list[dict]:
         """
         Prepare messages with cache_control for optimal prompt caching.
 
@@ -394,16 +402,18 @@ class RootLLMOrchestrator:
         for i, msg in enumerate(messages):
             if i == 0:
                 # Cache the first user message (stable "Begin generation 0..." prompt)
-                result.append({
-                    "role": msg["role"],
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": msg["content"],
-                            "cache_control": {"type": "ephemeral"},
-                        }
-                    ],
-                })
+                result.append(
+                    {
+                        "role": msg["role"],
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": msg["content"],
+                                "cache_control": {"type": "ephemeral"},
+                            }
+                        ],
+                    }
+                )
             else:
                 result.append(msg)
 
@@ -479,7 +489,8 @@ class RootLLMOrchestrator:
             Dictionary with context statistics and health indicators.
         """
         total_chars = sum(
-            len(m.get("content", "")) if isinstance(m.get("content"), str)
+            len(m.get("content", ""))
+            if isinstance(m.get("content"), str)
             else sum(len(c.get("text", "")) for c in m.get("content", []) if isinstance(c, dict))
             for m in self.messages
         )
@@ -587,7 +598,9 @@ class RootLLMOrchestrator:
             "",
             "### Scratchpad (update with `update_scratchpad(content)`)",
             "",
-            scratchpad if scratchpad else "(Empty - use update_scratchpad() to add persistent notes)",
+            scratchpad
+            if scratchpad
+            else "(Empty - use update_scratchpad() to add persistent notes)",
             "",
             "─" * 60,
         ]
@@ -694,6 +707,48 @@ class RootLLMOrchestrator:
                 lines.append(f"   Error: {trial.error}")
             lines.append("")
 
+        # Tiny archive snapshot for cross-generation selection
+        lines.extend(
+            [
+                "## Archive Snapshot (all generations)",
+                "You may select ANY trial_id from ANY generation, not just current.",
+                "",
+            ]
+        )
+
+        top_trials = self.evolution_api._get_best_trials(n=5)
+        if top_trials:
+            lines.append("All-time top trials:")
+            for trial in top_trials:
+                trial_id = trial.get("trial_id", "")
+                score = trial.get("metrics", {}).get("score", 0)
+                generation = trial.get("generation")
+                code_ref = ""
+                parts = trial_id.split("_") if trial_id else []
+                if len(parts) >= 3:
+                    code_ref = f"{{{{CODE_TRIAL_{parts[1]}_{parts[2]}}}}}"
+                if code_ref:
+                    lines.append(
+                        f"- {trial_id} (gen {generation}) score={score:.16f} ref={code_ref}"
+                    )
+                else:
+                    lines.append(f"- {trial_id} (gen {generation}) score={score:.16f}")
+        else:
+            lines.append("All-time top trials: (none yet)")
+
+        recent_count = min(3, current_gen)
+        if recent_count > 0:
+            lines.append("")
+            lines.append(f"Recent bests (previous {recent_count} generations):")
+            start_gen = max(0, current_gen - recent_count)
+            for gen_num in range(start_gen, current_gen):
+                gen_best = self.evolution_api.generations[gen_num]
+                if gen_best.best_trial_id:
+                    lines.append(
+                        f"- gen {gen_num}: {gen_best.best_trial_id} "
+                        f"score={gen_best.best_score:.16f}"
+                    )
+
         lines.extend(
             [
                 "## Your Task",
@@ -703,6 +758,9 @@ class RootLLMOrchestrator:
                 "- **Diversity**: Which trials use different approaches worth exploring?",
                 "- **Potential**: Which trials might improve with refinement, even if current scores are lower?",
                 "",
+                "You can select any trial_id from any generation (current or historical).",
+                "If you want extra history, you can call get_trial_code([...]) or get_top_trials(n),",
+                "but prefer your own reasoning and notes when possible.",
                 "**Tip**: Use the All-Time Top 5 in the lineage map above to identify promising",
                 "historical trials. You can mutate any past trial using `{{CODE_TRIAL_X_Y}}` tokens",
                 "or `get_trial_code([trial_ids])` in your next generation's prompts.",
@@ -726,7 +784,7 @@ class RootLLMOrchestrator:
         self,
         system_prompt: list[dict],
         gen_pbar: Any,  # tqdm progress bar
-        loop_iteration: int,
+        _loop_iteration: int,
     ) -> SelectionResult:
         """
         Handle trial selection and generation advancement.
@@ -761,9 +819,7 @@ class RootLLMOrchestrator:
         self._append_and_log("assistant", selection_message)
 
         # Parse selections from response
-        selections, selection_summary = self._parse_selection_response(
-            selection_message
-        )
+        selections, selection_summary = self._parse_selection_response(selection_message)
 
         if selections:
             tqdm.write(f"  └─ LLM selected {len(selections)} trials")
@@ -819,14 +875,11 @@ class RootLLMOrchestrator:
         errors: list[tuple[int, str]] = []
 
         # Check for errors in execution results
-        error_in_results = any(
-            "Error" in r or "Exception" in r for r in execution_results
-        )
+        error_in_results = any("Error" in r or "Exception" in r for r in execution_results)
         if error_in_results:
             # Extract error snippets for debugging
             error_snippets = [
-                r[:200] for r in execution_results
-                if "Error" in r or "Exception" in r
+                r[:200] for r in execution_results if "Error" in r or "Exception" in r
             ]
             error_msg = "; ".join(error_snippets)[:500]
             errors.append((self.evolution_api.current_generation, error_msg))
@@ -836,9 +889,7 @@ class RootLLMOrchestrator:
 
         # Build and send user message
         if execution_results:
-            user_message = "Execution results:\n\n" + "\n\n---\n\n".join(
-                execution_results
-            )
+            user_message = "Execution results:\n\n" + "\n\n---\n\n".join(execution_results)
         else:
             user_message = (
                 "No children were spawned. Please spawn children using "
@@ -1009,9 +1060,7 @@ class RootLLMOrchestrator:
 
         # Automatically advance generation if children were spawned
         if self.evolution_api.has_children_in_current_generation():
-            selection_result = self._handle_trial_selection(
-                system_prompt, gen_pbar, loop_iteration
-            )
+            selection_result = self._handle_trial_selection(system_prompt, gen_pbar, loop_iteration)
             if selection_result.should_break:
                 return GenerationResult(
                     should_break=True,
@@ -1238,6 +1287,4 @@ class RootLLMOrchestrator:
         if generations_completed == 0:
             generations_completed = self.evolution_api.current_generation
 
-        return self._build_result(
-            termination_reason, generations_completed, generation_errors
-        )
+        return self._build_result(termination_reason, generations_completed, generation_errors)

@@ -44,6 +44,7 @@ class TestValidatePacking:
         valid, error = validate_packing(centers, radii, n_circles=2)
 
         assert valid is False
+        assert error is not None
         assert "overlap" in error.lower()
 
     def test_validate_packing_bounds(self):
@@ -58,6 +59,7 @@ class TestValidatePacking:
         valid, error = validate_packing(centers, radii, n_circles=1)
 
         assert valid is False
+        assert error is not None
         assert "outside" in error.lower() or "bounds" in error.lower()
 
     def test_validate_packing_negative_radii(self):
@@ -68,6 +70,7 @@ class TestValidatePacking:
         valid, error = validate_packing(centers, radii, n_circles=1)
 
         assert valid is False
+        assert error is not None
         assert "negative" in error.lower()
 
     def test_validate_wrong_shape(self):
@@ -78,6 +81,7 @@ class TestValidatePacking:
         valid, error = validate_packing(centers, radii, n_circles=1)
 
         assert valid is False
+        assert error is not None
         assert "shape" in error.lower()
 
 
@@ -174,4 +178,3 @@ def run_packing():
         result = evaluator.evaluate(sample_invalid_packing_code)
 
         assert result["score"] == 0.0
-

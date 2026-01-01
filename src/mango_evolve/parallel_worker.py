@@ -356,12 +356,10 @@ def child_worker(args: tuple) -> dict[str, Any]:
             output_tokens = response.usage.output_tokens
 
             # Extract cache statistics
-            cache_creation_input_tokens = getattr(
-                response.usage, "cache_creation_input_tokens", 0
-            ) or 0
-            cache_read_input_tokens = getattr(
-                response.usage, "cache_read_input_tokens", 0
-            ) or 0
+            cache_creation_input_tokens = (
+                getattr(response.usage, "cache_creation_input_tokens", 0) or 0
+            )
+            cache_read_input_tokens = getattr(response.usage, "cache_read_input_tokens", 0) or 0
 
         # Extract code from response
         code = extract_python_code(response_text)

@@ -3,6 +3,7 @@ Tests for mango_evolve.config module.
 """
 
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 
@@ -95,7 +96,7 @@ class TestConfigFromDict:
     def test_config_from_dict_not_dict(self):
         """Raise when input is not a dictionary."""
         with pytest.raises(ConfigValidationError) as exc_info:
-            config_from_dict("not a dict")
+            config_from_dict(cast(dict[str, Any], "not a dict"))
 
         assert "dictionary" in str(exc_info.value)
 
