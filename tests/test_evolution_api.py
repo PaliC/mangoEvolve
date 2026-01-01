@@ -500,12 +500,12 @@ class TestLineageMap:
 
 
 class TestSelectionBehavior:
-    """Tests for selection functionality (Option A: current generation only)."""
+    """Tests for selection functionality (historical selection allowed)."""
 
-    def test_selection_filters_historical_trials(
+    def test_selection_allows_historical_trials(
         self, sample_config, temp_dir, child_llm_configs
     ):
-        """Test that _advance_generation only accepts trials from CURRENT generation."""
+        """Test that _advance_generation accepts trials from any generation."""
         sample_config.experiment.output_dir = str(temp_dir)
         cost_tracker = CostTracker(sample_config)
         logger = ExperimentLogger(sample_config)
@@ -554,16 +554,17 @@ class TestSelectionBehavior:
         # Try to select with a mix of historical (Gen 0) and current (Gen 1) trials
         selections = [
             {"trial_id": "trial_1_0", "reasoning": "Current gen", "category": "performance"},
-            {"trial_id": "trial_0_0", "reasoning": "Historical (should be filtered)", "category": "diversity"},
+            {"trial_id": "trial_0_0", "reasoning": "Historical (allowed)", "category": "diversity"},
         ]
 
         api._advance_generation(selections=selections, selection_summary="Test")
 
-        # Only current generation trial should be selected (historical filtered out)
+        # Both current and historical selections should be preserved
         gen1 = api.generations[1]
-        assert len(gen1.trial_selections) == 1
-        assert gen1.selected_trial_ids == ["trial_1_0"]
-        assert "trial_0_0" not in gen1.selected_trial_ids
+        assert len(gen1.trial_selections) == 2
+        assert gen1.selected_trial_ids == ["trial_1_0", "trial_0_0"]
+        assert gen1.trial_selections[0].source_generation == 1
+        assert gen1.trial_selections[1].source_generation == 0
 
     def test_auto_select_from_current_generation_only(
         self, sample_config, temp_dir, child_llm_configs
