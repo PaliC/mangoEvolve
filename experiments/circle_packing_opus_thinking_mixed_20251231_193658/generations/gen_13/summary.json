@@ -1,0 +1,50 @@
+{
+  "generation_num": 13,
+  "num_trials": 16,
+  "num_successful_trials": 12,
+  "best_trial_id": "trial_13_2",
+  "best_score": 2.6359830859249107,
+  "selected_trial_ids": [
+    "trial_13_2",
+    "trial_12_1",
+    "trial_13_4",
+    "trial_13_1"
+  ],
+  "selection_reasoning": "CONSECUTIVE IMPROVEMENTS! Gen 12 broke 5-gen stagnation, Gen 13 improved again! trial_13_2 (numerical precision) achieved 2.6359830859249107 (+1.6e-9 over trial_12_1). Gap to target now 0.0000019702. Analytical gradients + numerical precision is the winning formula. 12/16 valid trials, good success rate.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_13_2",
+      "reasoning": "\ud83c\udf89 NEW ALL-TIME BEST! 2.6359830859249107 - improved by +1.6e-9 over trial_12_1. Numerical precision improvements worked!",
+      "category": "performance",
+      "source_generation": 13
+    },
+    {
+      "trial_id": "trial_12_1",
+      "reasoning": "Previous best at 2.6359830857636917 - analytical gradients baseline worth preserving.",
+      "category": "performance",
+      "source_generation": 12
+    },
+    {
+      "trial_id": "trial_13_4",
+      "reasoning": "Third best at 2.6359830855642534 - perturbation + re-optimization approach.",
+      "category": "diversity",
+      "source_generation": 13
+    },
+    {
+      "trial_id": "trial_13_1",
+      "reasoning": "Coordinate descent variant at 2.6359830850269796 - different refinement technique.",
+      "category": "diversity",
+      "source_generation": 13
+    }
+  ],
+  "parents_used": [
+    "trial_12_1",
+    "trial_12_15"
+  ],
+  "parents_used_counts": {
+    "trial_12_1": 14,
+    "trial_12_15": 1
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T21:10:23.677753"
+}

@@ -1,0 +1,52 @@
+{
+  "generation_num": 17,
+  "num_trials": 16,
+  "num_successful_trials": 15,
+  "best_trial_id": "trial_17_1",
+  "best_score": 2.6359830876131793,
+  "selected_trial_ids": [
+    "trial_16_7",
+    "trial_16_6",
+    "trial_17_1",
+    "trial_16_9"
+  ],
+  "selection_reasoning": "Gen 17 showed that MORE maxiter is NOT better - maxiter=5000 (trial_16_7) outperformed maxiter=10000/15000. The optimizer may be overshooting or finding different local minima. trial_16_7 remains best at 2.6359830899204639. Gap to target: 0.0000019662. Need new strategies in Gen 18 - perhaps different initialization, perturbation, or combining maxiter=5000 with other techniques more carefully.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_16_7",
+      "reasoning": "STILL ALL-TIME BEST at 2.6359830899204639. maxiter=5000 is the sweet spot - higher values performed worse!",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_16_6",
+      "reasoning": "Second best overall at 2.6359830885838589 - seed=271 variant.",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_17_1",
+      "reasoning": "Best of Gen 17 at 2.6359830876131793 - maxiter=15000 (but worse than 5000!).",
+      "category": "diversity",
+      "source_generation": 17
+    },
+    {
+      "trial_id": "trial_16_9",
+      "reasoning": "Third best overall at 2.6359830878831438 - bisection=200 variant.",
+      "category": "diversity",
+      "source_generation": 16
+    }
+  ],
+  "parents_used": [
+    "trial_16_6",
+    "trial_16_7",
+    "trial_16_9"
+  ],
+  "parents_used_counts": {
+    "trial_16_6": 1,
+    "trial_16_7": 14,
+    "trial_16_9": 1
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T21:37:54.222170"
+}

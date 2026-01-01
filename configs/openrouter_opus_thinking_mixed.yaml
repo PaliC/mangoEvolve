@@ -55,6 +55,18 @@ child_llms:
     calibration_calls: 5
     reasoning:
       enabled: true
+      effort: "high"
+
+  # Grok 4.1 Fast - fast thinking, very cost-effective
+  - alias: "grok-fast"
+    model: "x-ai/grok-4.1-fast"
+    provider: "openrouter"
+    cost_per_million_input_tokens: 0.20
+    cost_per_million_output_tokens: 0.50
+    calibration_calls: 5
+    reasoning:
+      enabled: true
+      effort: "high"
 
 default_child_llm_alias: "gemini-flash"
 

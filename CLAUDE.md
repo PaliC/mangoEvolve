@@ -63,9 +63,22 @@ The system supports multiple LLM providers configured via YAML:
 root_llm:
   provider: "anthropic"  # or "openrouter"
   model: "claude-sonnet-4-20250514"
+  reasoning:
+    enabled: true  # Enable reasoning/thinking for supported models
+
+child_llms:
+  - alias: "fast"
+    model: "google/gemini-3-flash-preview"
+    provider: "openrouter"
+    calibration_calls: 2
+  - alias: "strong"
+    model: "claude-sonnet-4-20250514"
+    provider: "anthropic"
+
+default_child_llm_alias: "fast"
 ```
 
-OpenRouter configs can use different models for root and child LLMs.
+OpenRouter configs support multiple child LLM definitions with aliases, allowing the Root LLM to select different models for different tasks.
 
 ### Adding a New Evaluator
 

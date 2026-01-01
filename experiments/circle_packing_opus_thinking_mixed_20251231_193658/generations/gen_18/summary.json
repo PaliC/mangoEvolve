@@ -1,0 +1,52 @@
+{
+  "generation_num": 18,
+  "num_trials": 16,
+  "num_successful_trials": 14,
+  "best_trial_id": "trial_18_1",
+  "best_score": 2.6359830877479578,
+  "selected_trial_ids": [
+    "trial_16_7",
+    "trial_16_6",
+    "trial_18_1",
+    "trial_18_12"
+  ],
+  "selection_reasoning": "Gen 18 confirmed that maxiter=5000 (trial_16_7) is the optimal setting. Values around it (4500, 5500, 4000, 6000) all performed worse. Different seeds didn't help. trial_16_7 at 2.6359830899204639 remains unbeaten for 3 generations. Gap to target: 0.0000019662. FINAL GENERATION coming up - need radically different approaches.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_16_7",
+      "reasoning": "STILL ALL-TIME BEST at 2.6359830899204639. maxiter=5000 is definitively the sweet spot after Gen 17 and 18 testing.",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_16_6",
+      "reasoning": "Second best at 2.6359830885838589 - different seed variant.",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_18_1",
+      "reasoning": "Best of Gen 18 at 2.6359830877479578 (maxiter=5500).",
+      "category": "diversity",
+      "source_generation": 18
+    },
+    {
+      "trial_id": "trial_18_12",
+      "reasoning": "Opus creative approach at 2.6342924481547665 - different strategy worth exploring.",
+      "category": "potential",
+      "source_generation": 18
+    }
+  ],
+  "parents_used": [
+    "trial_14_13",
+    "trial_16_7"
+  ],
+  "parents_used_counts": {
+    "trial_14_13": 1,
+    "trial_16_7": 15
+  },
+  "parents_not_selected_prev_gen": [
+    "trial_14_13"
+  ],
+  "timestamp": "2025-12-31T21:44:29.207107"
+}

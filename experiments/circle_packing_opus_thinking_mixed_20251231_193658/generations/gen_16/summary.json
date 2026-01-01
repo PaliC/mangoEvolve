@@ -1,0 +1,50 @@
+{
+  "generation_num": 16,
+  "num_trials": 16,
+  "num_successful_trials": 13,
+  "best_trial_id": "trial_16_7",
+  "best_score": 2.635983089920464,
+  "selected_trial_ids": [
+    "trial_16_7",
+    "trial_16_6",
+    "trial_16_9",
+    "trial_14_13"
+  ],
+  "selection_reasoning": "\ud83c\udf89 MASSIVE IMPROVEMENT! trial_16_7 (maxiter=5000) achieved 2.6359830899204639, improving by +3.83e-8 over trial_14_13! This is the biggest single-generation improvement since Gen 12! Gap to target reduced to 0.0000019662 (was 0.0000019700). Simple parameter tuning outperformed complex algorithms. 13/16 valid trials, only 3 timeouts (down from 9). Key insight: MORE ITERATIONS on SLSQP is the winning move!",
+  "trial_selections": [
+    {
+      "trial_id": "trial_16_7",
+      "reasoning": "\ud83c\udf89 NEW ALL-TIME BEST! 2.6359830899204639 - maxiter=5000 gave +3.83e-8 improvement! HUGE jump!",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_16_6",
+      "reasoning": "Second best at 2.6359830885838589 - seed=271 variant.",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_16_9",
+      "reasoning": "Third best at 2.6359830878831438 - bisection iterations=200 variant.",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_14_13",
+      "reasoning": "Original baseline for comparison - bisection refinement approach.",
+      "category": "diversity",
+      "source_generation": 14
+    }
+  ],
+  "parents_used": [
+    "trial_14_13",
+    "trial_15_8"
+  ],
+  "parents_used_counts": {
+    "trial_14_13": 15,
+    "trial_15_8": 1
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T21:30:55.105235"
+}

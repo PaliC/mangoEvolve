@@ -1,0 +1,41 @@
+# OpenRouter config using Claude Opus 4.5 with extended thinking (ultrathink)
+# Maximum reasoning capability for complex optimization problems
+#
+# Requires: OPENROUTER_API_KEY environment variable
+# Pricing: https://openrouter.ai/anthropic/claude-opus-4
+
+experiment:
+  name: "circle_packing_opus_ultrathink"
+  output_dir: "./experiments"
+
+root_llm:
+  provider: "openrouter"
+  model: "anthropic/claude-opus-4"
+  cost_per_million_input_tokens: 15.00
+  cost_per_million_output_tokens: 75.00
+  max_iterations: 100
+  reasoning:
+    enabled: true
+    effort: "xhigh"
+
+child_llm:
+  provider: "openrouter"
+  model: "anthropic/claude-opus-4"
+  cost_per_million_input_tokens: 15.00
+  cost_per_million_output_tokens: 75.00
+  reasoning:
+    enabled: true
+    effort: "xhigh"
+
+evaluation:
+  evaluator_fn: "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator"
+  evaluator_kwargs:
+    n_circles: 26
+    timeout_seconds: 300
+
+evolution:
+  max_generations: 20
+  max_children_per_generation: 16
+
+budget:
+  max_total_cost: 50.0  # Higher budget for expensive Opus model

@@ -210,8 +210,6 @@ class ExperimentLogger:
         parents_used: list[str] | None = None,
         parents_used_counts: dict[str, int] | None = None,
         parents_not_selected_prev_gen: list[str] | None = None,
-        scratchpad: str | None = None,
-        lineage_map: str | None = None,
     ) -> Path:
         """
         Log generation summary.
@@ -227,8 +225,6 @@ class ExperimentLogger:
             parents_used: Unique parent IDs actually used to create this generation
             parents_used_counts: Count of children spawned from each parent
             parents_not_selected_prev_gen: Parents used that were not selected in prior generation
-            scratchpad: Optional scratchpad content at time of generation
-            lineage_map: Optional lineage map at time of generation
 
         Returns:
             Path to the generation summary file
@@ -270,9 +266,6 @@ class ExperimentLogger:
 
         with open(summary_path, "w") as f:
             json.dump(gen_data, f, indent=2)
-
-        # Save scratchpad (with final lineage map for this generation)
-        self.save_scratchpad(generation, scratchpad, lineage_map)
 
         # Save experiment state after each generation for incremental progress tracking
         self._save_experiment_state()

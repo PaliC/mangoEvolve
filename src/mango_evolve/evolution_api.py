@@ -766,8 +766,6 @@ class EvolutionAPI:
             parents_used=parents_used,
             parents_used_counts=parents_used_counts,
             parents_not_selected_prev_gen=parents_not_selected_prev_gen,
-            scratchpad=self.scratchpad,
-            lineage_map=self._build_lineage_map(),
         )
 
         # Show generation progress
@@ -797,6 +795,13 @@ class EvolutionAPI:
         self.current_generation += 1
         self.generations.append(
             GenerationSummary(generation_num=self.current_generation, trials=[])
+        )
+
+        # Write scratchpad to new generation directory immediately
+        self.logger.save_scratchpad(
+            generation=self.current_generation,
+            scratchpad=self.scratchpad,
+            lineage_map=self._build_lineage_map(),
         )
 
         return self.current_generation

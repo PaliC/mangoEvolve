@@ -1,0 +1,50 @@
+{
+  "generation_num": 14,
+  "num_trials": 16,
+  "num_successful_trials": 11,
+  "best_trial_id": "trial_14_13",
+  "best_score": 2.6359830860926556,
+  "selected_trial_ids": [
+    "trial_14_13",
+    "trial_13_2",
+    "trial_14_6",
+    "trial_14_11"
+  ],
+  "selection_reasoning": "THREE CONSECUTIVE GENERATIONS OF IMPROVEMENT! Gen 12 broke stagnation, Gen 13 improved, Gen 14 improved again! trial_14_13 (bisection refinement for radii) achieved 2.6359830860926556 (+1.68e-9). Gap to target: 0.0000019700. We're at 99.999925% of optimal. Bisection-based exact radius computation appears to be the new winning technique!",
+  "trial_selections": [
+    {
+      "trial_id": "trial_14_13",
+      "reasoning": "\ud83c\udf89 NEW ALL-TIME BEST! 2.6359830860926556 - bisection refinement for radii worked! +1.68e-9 over trial_13_2.",
+      "category": "performance",
+      "source_generation": 14
+    },
+    {
+      "trial_id": "trial_13_2",
+      "reasoning": "Previous best at 2.6359830859249107 - solid baseline with numerical precision.",
+      "category": "performance",
+      "source_generation": 13
+    },
+    {
+      "trial_id": "trial_14_6",
+      "reasoning": "Perturbation + precision at 2.6359830855549853 - different refinement technique.",
+      "category": "diversity",
+      "source_generation": 14
+    },
+    {
+      "trial_id": "trial_14_11",
+      "reasoning": "Hybrid coordinate descent at 2.6359830850454222 - alternative approach worth exploring.",
+      "category": "diversity",
+      "source_generation": 14
+    }
+  ],
+  "parents_used": [
+    "trial_13_2",
+    "trial_13_4"
+  ],
+  "parents_used_counts": {
+    "trial_13_2": 14,
+    "trial_13_4": 1
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T21:17:04.549246"
+}

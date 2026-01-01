@@ -1,0 +1,41 @@
+{
+  "generation_num": 19,
+  "num_trials": 16,
+  "num_successful_trials": 9,
+  "best_trial_id": "trial_19_14",
+  "best_score": 2.6359830851572714,
+  "selected_trial_ids": [
+    "trial_16_7",
+    "trial_16_6",
+    "trial_16_9"
+  ],
+  "selection_reasoning": "\ud83c\udfc1 EVOLUTION COMPLETE! 20 generations finished. Final best: trial_16_7 at 2.6359830899204639 (99.999925% of optimal target 2.6359850561146603). Gap: 0.0000019662. Key breakthrough was maxiter=5000 in Gen 16. Progress: Gen 0\u21922.5755, Gen 4\u21922.6343, Gen 7\u21922.6359830849, Gen 12-14\u2192incremental improvements, Gen 16\u2192FINAL BREAKTHROUGH to 2.6359830899. The algorithm uses analytical gradients + bisection refinement + SLSQP with maxiter=5000.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_16_7",
+      "reasoning": "\ud83c\udfc6 ALL-TIME BEST: 2.6359830899204639 - Achieved in Gen 16 with maxiter=5000. Unbeaten for 4 generations.",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_16_6",
+      "reasoning": "Second best at 2.6359830885838589 - seed=271 variant.",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_16_9",
+      "reasoning": "Third best at 2.6359830878831438 - bisection=200 variant.",
+      "category": "performance",
+      "source_generation": 16
+    }
+  ],
+  "parents_used": [
+    "trial_16_7"
+  ],
+  "parents_used_counts": {
+    "trial_16_7": 14
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T21:51:18.444901"
+}

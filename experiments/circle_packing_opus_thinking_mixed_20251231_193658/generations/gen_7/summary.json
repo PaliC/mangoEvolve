@@ -1,0 +1,43 @@
+{
+  "generation_num": 7,
+  "num_trials": 16,
+  "num_successful_trials": 14,
+  "best_trial_id": "trial_7_15",
+  "best_score": 2.635983084959551,
+  "selected_trial_ids": [
+    "trial_7_15",
+    "trial_5_14",
+    "trial_7_12"
+  ],
+  "selection_reasoning": "BREAKTHROUGH IN GEN 7! trial_7_15 achieved 2.6359830849 - only 0.0000019711 from optimal (2.6359850561)! We've essentially solved the problem (99.9999% of optimal). Opus with targeted improvements broke through the plateau. Gap went from 0.0017 to 0.00002. Next gen: refine trial_7_15 to close the final microscopic gap.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_7_15",
+      "reasoning": "BREAKTHROUGH! Score 2.63598308 vs target 2.63598506. Gap reduced from 0.0017 to 0.00002! Opus found the solution.",
+      "category": "performance",
+      "source_generation": 7
+    },
+    {
+      "trial_id": "trial_5_14",
+      "reasoning": "Previous best at 2.6343. Reliable baseline for comparison.",
+      "category": "performance",
+      "source_generation": 5
+    },
+    {
+      "trial_id": "trial_7_12",
+      "reasoning": "Second best this gen at 2.6317. Different parameter tuning.",
+      "category": "diversity",
+      "source_generation": 7
+    }
+  ],
+  "parents_used": [
+    "trial_4_1",
+    "trial_5_14"
+  ],
+  "parents_used_counts": {
+    "trial_4_1": 1,
+    "trial_5_14": 15
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T20:34:34.739812"
+}

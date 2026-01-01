@@ -1,0 +1,48 @@
+{
+  "generation_num": 4,
+  "num_trials": 16,
+  "num_successful_trials": 11,
+  "best_trial_id": "trial_4_1",
+  "best_score": 2.6342924021608,
+  "selected_trial_ids": [
+    "trial_4_1",
+    "trial_4_0",
+    "trial_4_6",
+    "trial_4_13"
+  ],
+  "selection_reasoning": "HUGE BREAKTHROUGH! 2.6304 \u2192 2.6343 (improvement of +0.0039). Gap reduced to just 0.0017 (0.06%). Three trials converged to same score 2.6343, suggesting we found a strong basin. Success rate 11/16 (69%). 5 timeouts indicate some approaches too slow. Next gen: micro-refinement of 2.6343 solutions with even more iterations and finer perturbations.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_4_1",
+      "reasoning": "NEW BEST at 2.6343! More basin hopping iterations (80) + efficient SLSQP. Gap now only 0.0017!",
+      "category": "performance",
+      "source_generation": 4
+    },
+    {
+      "trial_id": "trial_4_0",
+      "reasoning": "Essentially tied at 2.6343. 100 basin hopping iterations approach.",
+      "category": "performance",
+      "source_generation": 4
+    },
+    {
+      "trial_id": "trial_4_6",
+      "reasoning": "Also 2.6343 with coordinate descent refinement. Different refinement strategy.",
+      "category": "performance",
+      "source_generation": 4
+    },
+    {
+      "trial_id": "trial_4_13",
+      "reasoning": "Combined basin hopping + local search at 2.6299. Hybrid approach worth refining.",
+      "category": "diversity",
+      "source_generation": 4
+    }
+  ],
+  "parents_used": [
+    "trial_3_8"
+  ],
+  "parents_used_counts": {
+    "trial_3_8": 15
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T20:14:11.902391"
+}

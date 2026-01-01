@@ -1,0 +1,52 @@
+{
+  "generation_num": 3,
+  "num_trials": 16,
+  "num_successful_trials": 14,
+  "best_trial_id": "trial_3_8",
+  "best_score": 2.6304385385070295,
+  "selected_trial_ids": [
+    "trial_3_8",
+    "trial_3_0",
+    "trial_2_1",
+    "trial_3_6"
+  ],
+  "selection_reasoning": "BREAKTHROUGH! Basin hopping (trial_3_8) jumped to 2.6304 - gap reduced to 0.0056. This is the best improvement since gen 1. Success rate 14/16 (88%). Next gen should heavily exploit basin hopping and combine it with other refinement strategies.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_3_8",
+      "reasoning": "NEW BEST at 2.6304! Basin hopping worked - jumped from 2.6285 to 2.6304. Gap now only 0.0056.",
+      "category": "performance",
+      "source_generation": 3
+    },
+    {
+      "trial_id": "trial_3_0",
+      "reasoning": "Aggressive local search at 2.6285. Slightly different final state than trial_2_1.",
+      "category": "performance",
+      "source_generation": 3
+    },
+    {
+      "trial_id": "trial_2_1",
+      "reasoning": "Proven baseline at 2.6285. Parent of most successful children.",
+      "category": "performance",
+      "source_generation": 2
+    },
+    {
+      "trial_id": "trial_3_6",
+      "reasoning": "Corner structure emphasis at 2.6189. Different initialization strategy worth refining.",
+      "category": "diversity",
+      "source_generation": 3
+    }
+  ],
+  "parents_used": [
+    "trial_2_1",
+    "trial_2_11",
+    "trial_2_4"
+  ],
+  "parents_used_counts": {
+    "trial_2_1": 13,
+    "trial_2_11": 1,
+    "trial_2_4": 1
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T20:07:22.640468"
+}

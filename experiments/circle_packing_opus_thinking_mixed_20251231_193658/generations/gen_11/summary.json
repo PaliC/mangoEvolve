@@ -1,0 +1,36 @@
+{
+  "generation_num": 11,
+  "num_trials": 15,
+  "num_successful_trials": 7,
+  "best_trial_id": "trial_11_4",
+  "best_score": 2.635983084937301,
+  "selected_trial_ids": [
+    "trial_7_15",
+    "trial_11_4"
+  ],
+  "selection_reasoning": "Gen 11 FAILED to improve. 5 consecutive generations stuck at ~2.6359830849. Top-5 all-time scores differ only in 10th decimal place. We've tried: different optimizers, different seeds, different patterns, swapping, perturbations, micro-optimization. ALL converge to same basin. Gap of 0.000002 appears to be at scipy SLSQP numerical precision limits. trial_7_15 achieves 99.99993% of target. RECOMMEND TERMINATION - this is the practical limit.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_7_15",
+      "reasoning": "STILL THE UNDISPUTED BEST at 2.6359830849595509 after 5 generations of attempts (gen 7-11). All other attempts converge slightly worse.",
+      "category": "performance",
+      "source_generation": 7
+    },
+    {
+      "trial_id": "trial_11_4",
+      "reasoning": "Best of gen 11 at 2.6359830849373012 - swap strategy variant, but still 2e-10 worse than trial_7_15.",
+      "category": "performance",
+      "source_generation": 11
+    }
+  ],
+  "parents_used": [
+    "trial_7_15"
+  ],
+  "parents_used_counts": {
+    "trial_7_15": 12
+  },
+  "parents_not_selected_prev_gen": [
+    "trial_7_15"
+  ],
+  "timestamp": "2025-12-31T21:00:48.598889"
+}

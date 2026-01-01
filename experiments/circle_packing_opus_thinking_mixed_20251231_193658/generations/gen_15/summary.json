@@ -1,0 +1,43 @@
+{
+  "generation_num": 15,
+  "num_trials": 16,
+  "num_successful_trials": 7,
+  "best_trial_id": "trial_15_8",
+  "best_score": 2.6359830860546745,
+  "selected_trial_ids": [
+    "trial_14_13",
+    "trial_15_8",
+    "trial_13_2"
+  ],
+  "selection_reasoning": "Gen 15 had 9/16 timeouts - complex approaches took too long. No improvement over trial_14_13 (2.6359830860926556). FINAL RESULT: Best score 2.6359830860926556, gap to target 0.0000019700 (0.0000747%). Achieved 99.999925% of theoretical optimum. The winning formula was: analytical gradients + numerical precision + bisection refinement for radii.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_14_13",
+      "reasoning": "ALL-TIME BEST remains at 2.6359830860926556 - bisection refinement approach. Gen 15 didn't beat it.",
+      "category": "performance",
+      "source_generation": 14
+    },
+    {
+      "trial_id": "trial_15_8",
+      "reasoning": "Best of Gen 15 at 2.6359830860546745 - very close to best, multi-seed approach worked.",
+      "category": "performance",
+      "source_generation": 15
+    },
+    {
+      "trial_id": "trial_13_2",
+      "reasoning": "Third best overall at 2.6359830859249107 - numerical precision baseline.",
+      "category": "diversity",
+      "source_generation": 13
+    }
+  ],
+  "parents_used": [
+    "trial_13_2",
+    "trial_14_13"
+  ],
+  "parents_used_counts": {
+    "trial_13_2": 1,
+    "trial_14_13": 14
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T21:24:12.043125"
+}

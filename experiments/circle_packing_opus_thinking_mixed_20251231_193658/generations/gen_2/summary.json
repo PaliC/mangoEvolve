@@ -1,0 +1,52 @@
+{
+  "generation_num": 2,
+  "num_trials": 16,
+  "num_successful_trials": 11,
+  "best_trial_id": "trial_2_1",
+  "best_score": 2.6284571355167174,
+  "selected_trial_ids": [
+    "trial_2_1",
+    "trial_1_6",
+    "trial_2_4",
+    "trial_2_11"
+  ],
+  "selection_reasoning": "Small but real improvement: 2.6280 -> 2.6285 (gap: 0.0075). Iterated local search helped! Success rate improved to 11/16 (69%). Next gen should focus heavily on refining trial_2_1 with more local search iterations and finer perturbations. Two timeouts suggest some approaches are too slow.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_2_1",
+      "reasoning": "NEW BEST at 2.6285! Iterated local search on trial_1_6 improved slightly. Only 0.0075 from optimal.",
+      "category": "performance",
+      "source_generation": 2
+    },
+    {
+      "trial_id": "trial_1_6",
+      "reasoning": "Strong baseline at 2.6280. Still competitive, proven reliable.",
+      "category": "performance",
+      "source_generation": 1
+    },
+    {
+      "trial_id": "trial_2_4",
+      "reasoning": "Long optimization run at 2.6273. Multi-start with diverse inits - good for further exploration.",
+      "category": "diversity",
+      "source_generation": 2
+    },
+    {
+      "trial_id": "trial_2_11",
+      "reasoning": "CMA-ES with SLSQP polish at 2.6104. Different optimization paradigm worth improving.",
+      "category": "potential",
+      "source_generation": 2
+    }
+  ],
+  "parents_used": [
+    "trial_1_13",
+    "trial_1_15",
+    "trial_1_6"
+  ],
+  "parents_used_counts": {
+    "trial_1_13": 1,
+    "trial_1_15": 1,
+    "trial_1_6": 9
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T20:00:24.021247"
+}

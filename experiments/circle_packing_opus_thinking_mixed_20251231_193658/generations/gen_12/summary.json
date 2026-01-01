@@ -1,0 +1,41 @@
+{
+  "generation_num": 12,
+  "num_trials": 16,
+  "num_successful_trials": 16,
+  "best_trial_id": "trial_12_1",
+  "best_score": 2.6359830857636917,
+  "selected_trial_ids": [
+    "trial_12_1",
+    "trial_12_15",
+    "trial_12_3"
+  ],
+  "selection_reasoning": "BREAKTHROUGH after 5 stagnant generations! trial_12_1 with analytical gradients achieved 2.6359830857636917 - new all-time best (+8e-10 over trial_7_15). trial_12_15 also beat the old record. Gap reduced from 0.0000019711 to 0.0000019703. Still 99.99993% of optimal but FINALLY moving forward. Analytical gradients approach is the key!",
+  "trial_selections": [
+    {
+      "trial_id": "trial_12_1",
+      "reasoning": "\ud83c\udf89 NEW ALL-TIME BEST! 2.6359830857636917 - finally broke through trial_7_15's score! Analytical gradients approach worked! Improvement of 8e-10.",
+      "category": "performance",
+      "source_generation": 12
+    },
+    {
+      "trial_id": "trial_12_15",
+      "reasoning": "ALSO NEW RECORD! 2.6359830849600518 - slightly better than trial_7_15. Seed=123 variant.",
+      "category": "performance",
+      "source_generation": 12
+    },
+    {
+      "trial_id": "trial_12_3",
+      "reasoning": "Coordinate-wise line search at 2.6359830849247450 - solid approach worth refining.",
+      "category": "diversity",
+      "source_generation": 12
+    }
+  ],
+  "parents_used": [
+    "trial_7_15"
+  ],
+  "parents_used_counts": {
+    "trial_7_15": 11
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2025-12-31T21:06:15.326126"
+}
