@@ -173,13 +173,14 @@ class AnthropicProvider(BaseLLMProvider):
 
         def _log_retry(retry_state: RetryCallState) -> None:
             """Log retry attempts with appropriate context."""
-            if retry_state.outcome.failed:
+            outcome = retry_state.outcome
+            if outcome is not None and outcome.failed:
                 logger.warning(
                     "API error for %s, retrying (attempt %d/%d): %s",
                     self.model,
                     retry_state.attempt_number,
                     self.max_retries + 1,
-                    retry_state.outcome.exception(),
+                    outcome.exception(),
                 )
             else:
                 logger.warning(

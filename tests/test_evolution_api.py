@@ -13,9 +13,6 @@ from mango_evolve import (
     ExperimentLogger,
     TrialResult,
 )
-from mango_evolve.config import ChildLLMConfig
-from mango_evolve.evaluation.circle_packing import CirclePackingEvaluator
-from mango_evolve.exceptions import ChildrenLimitError, GenerationLimitError
 from mango_evolve.llm import MockLLMClient
 
 
@@ -372,15 +369,16 @@ class TestInternalMethods:
 class TestGetAPIFunctions:
     """Tests for get_api_functions."""
 
-    def test_returns_only_8_functions(self, evolution_api):
-        """Test that only 8 core API functions are returned."""
+    def test_returns_only_9_functions(self, evolution_api):
+        """Test that only 9 core API functions are returned."""
         funcs = evolution_api.get_api_functions()
 
-        assert len(funcs) == 8
+        assert len(funcs) == 9
         assert "spawn_child_llm" in funcs
         assert "spawn_children_parallel" in funcs
         assert "evaluate_program" in funcs
         assert "terminate_evolution" in funcs
+        assert "get_top_trials" in funcs
         assert "get_trial_code" in funcs
         assert "update_scratchpad" in funcs
         assert "end_calibration_phase" in funcs

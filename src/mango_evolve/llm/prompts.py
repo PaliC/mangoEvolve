@@ -61,6 +61,9 @@ Returns: `[{trial_id, code, metrics, reasoning, success, error}, ...]`
 ### get_trial_code(trial_ids: list[str]) -> dict[str, str | None]
 Get code from previous trials by ID.
 
+### get_top_trials(n: int = 5) -> list[dict]
+Get a compact summary of the top-scoring trials across all generations.
+
 ### update_scratchpad(content: str) -> dict
 Update your persistent notes. These are shown at the start of each generation along with the auto-generated lineage map (showing trial ancestry and scores). You are encouraged to write detailed and useful notes here.
 
@@ -134,6 +137,10 @@ Functions and variables you define persist across all generations within this ru
 ## Guidelines
 
 **You have full control**: Craft prompts however you see fit - be as specific or open-ended as you want. You're the orchestrator.
+
+**Historical selection is allowed**: You may select any trial_id from any generation (not just the current one).
+
+**Track lineage**: When a child is based on an existing trial, set `parent_id` to that trial_id (choose the primary parent if there are multiple influences).
 
 **Diversity matters**: Especially in early generations, try fundamentally different approaches rather than minor variations of the same idea.
 

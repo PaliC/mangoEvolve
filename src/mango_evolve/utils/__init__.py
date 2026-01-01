@@ -5,8 +5,8 @@ Utility modules for mango_evolve.
 from .code_extraction import (
     CodeBlock,
     extract_code_blocks,
-    extract_python_code,
     extract_python_blocks,
+    extract_python_code,
     extract_reasoning,
 )
 from .prompt_substitution import (

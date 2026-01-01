@@ -4,8 +4,6 @@ Tests for the CLI entry point.
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from mango_evolve.main import main, parse_args
 
 

@@ -11,12 +11,21 @@ from typing import Any
 
 from tqdm import tqdm
 
-from .config import ChildLLMConfig, Config, load_evaluator, save_calibration_notes, load_calibration_notes
+from .config import (
+    ChildLLMConfig,
+    Config,
+    load_calibration_notes,
+    load_evaluator,
+    save_calibration_notes,
+)
 from .cost_tracker import CostTracker
 from .evolution_api import EvolutionAPI
 from .exceptions import BudgetExceededError, GenerationLimitError
 from .llm.client import LLMClient, MockLLMClient, create_llm_client
-from .llm.prompts import get_root_system_prompt_parts_with_models, get_calibration_system_prompt_parts
+from .llm.prompts import (
+    get_calibration_system_prompt_parts,
+    get_root_system_prompt_parts_with_models,
+)
 from .logger import ExperimentLogger
 from .repl import REPLEnvironment
 from .utils.code_extraction import extract_python_blocks, extract_selection_block
@@ -214,7 +223,7 @@ class RootLLMOrchestrator:
 
         max_calibration_turns = 20  # Prevent infinite loops
 
-        for turn in range(max_calibration_turns):
+        for _turn in range(max_calibration_turns):
             # Check if calibration is complete
             if not self.evolution_api.in_calibration_phase:
                 break
@@ -694,6 +703,48 @@ class RootLLMOrchestrator:
                 lines.append(f"   Error: {trial.error}")
             lines.append("")
 
+        # Tiny archive snapshot for cross-generation selection
+        lines.extend(
+            [
+                "## Archive Snapshot (all generations)",
+                "You may select ANY trial_id from ANY generation, not just current.",
+                "",
+            ]
+        )
+
+        top_trials = self.evolution_api._get_best_trials(n=5)
+        if top_trials:
+            lines.append("All-time top trials:")
+            for trial in top_trials:
+                trial_id = trial.get("trial_id", "")
+                score = trial.get("metrics", {}).get("score", 0)
+                generation = trial.get("generation")
+                code_ref = ""
+                parts = trial_id.split("_") if trial_id else []
+                if len(parts) >= 3:
+                    code_ref = f"{{{{CODE_TRIAL_{parts[1]}_{parts[2]}}}}}"
+                if code_ref:
+                    lines.append(
+                        f"- {trial_id} (gen {generation}) score={score:.16f} ref={code_ref}"
+                    )
+                else:
+                    lines.append(f"- {trial_id} (gen {generation}) score={score:.16f}")
+        else:
+            lines.append("All-time top trials: (none yet)")
+
+        recent_count = min(3, current_gen)
+        if recent_count > 0:
+            lines.append("")
+            lines.append(f"Recent bests (previous {recent_count} generations):")
+            start_gen = max(0, current_gen - recent_count)
+            for gen_num in range(start_gen, current_gen):
+                gen_best = self.evolution_api.generations[gen_num]
+                if gen_best.best_trial_id:
+                    lines.append(
+                        f"- gen {gen_num}: {gen_best.best_trial_id} "
+                        f"score={gen_best.best_score:.16f}"
+                    )
+
         lines.extend(
             [
                 "## Your Task",
@@ -703,6 +754,9 @@ class RootLLMOrchestrator:
                 "- **Diversity**: Which trials use different approaches worth exploring?",
                 "- **Potential**: Which trials might improve with refinement, even if current scores are lower?",
                 "",
+                "You can select any trial_id from any generation (current or historical).",
+                "If you want extra history, you can call get_trial_code([...]) or get_top_trials(n),",
+                "but prefer your own reasoning and notes when possible.",
                 "**Tip**: Use the All-Time Top 5 in the lineage map above to identify promising",
                 "historical trials. You can mutate any past trial using `{{CODE_TRIAL_X_Y}}` tokens",
                 "or `get_trial_code([trial_ids])` in your next generation's prompts.",
@@ -726,7 +780,7 @@ class RootLLMOrchestrator:
         self,
         system_prompt: list[dict],
         gen_pbar: Any,  # tqdm progress bar
-        loop_iteration: int,
+        _loop_iteration: int,
     ) -> SelectionResult:
         """
         Handle trial selection and generation advancement.

@@ -118,6 +118,9 @@ class GenerationSummary:
     best_trial_id: str | None = None
     best_score: float = 0.0
     trial_selections: list[TrialSelection] = field(default_factory=list)
+    parents_used: list[str] = field(default_factory=list)
+    parents_used_counts: dict[str, int] = field(default_factory=dict)
+    parents_not_selected_prev_gen: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -129,6 +132,9 @@ class GenerationSummary:
             "best_trial_id": self.best_trial_id,
             "best_score": self.best_score,
             "trial_selections": [s.to_dict() for s in self.trial_selections],
+            "parents_used": self.parents_used,
+            "parents_used_counts": self.parents_used_counts,
+            "parents_not_selected_prev_gen": self.parents_not_selected_prev_gen,
         }
 
 
@@ -701,17 +707,18 @@ class EvolutionAPI:
 
         # Process selections: use LLM selections if provided, else auto-select
         if selections:
-            # Validate and filter selections to only include existing trials from current generation
+            # Validate and filter selections to only include existing trials
             valid_selections: list[TrialSelection] = []
             valid_trial_ids: list[str] = []
-            current_gen_trial_ids = {t.trial_id for t in gen.trials}
+            all_trial_ids = set(self.all_trials.keys())
 
             for sel in selections:
                 trial_id = sel.get("trial_id", "")
-                # Only allow selection of trials from current generation
-                if trial_id in current_gen_trial_ids:
+                # Allow selection of any existing trial (current or historical)
+                if trial_id in all_trial_ids:
+                    source_generation = self.all_trials[trial_id].generation
                     valid_selections.append(
-                        TrialSelection.from_dict(sel, source_generation=self.current_generation)
+                        TrialSelection.from_dict(sel, source_generation=source_generation)
                     )
                     valid_trial_ids.append(trial_id)
 
@@ -727,6 +734,27 @@ class EvolutionAPI:
             # No selections provided, auto-select
             self._auto_select_trials(gen)
 
+        # Track which parents were actually used to create this generation
+        parents_used_counts: dict[str, int] = {}
+        for trial in gen.trials:
+            if trial.parent_id:
+                parents_used_counts[trial.parent_id] = (
+                    parents_used_counts.get(trial.parent_id, 0) + 1
+                )
+        parents_used = sorted(parents_used_counts.keys())
+
+        if self.current_generation > 0:
+            prev_selected = set(self.generations[self.current_generation - 1].selected_trial_ids)
+            parents_not_selected_prev_gen = sorted(
+                [pid for pid in parents_used if pid not in prev_selected]
+            )
+        else:
+            parents_not_selected_prev_gen = []
+
+        gen.parents_used = parents_used
+        gen.parents_used_counts = parents_used_counts
+        gen.parents_not_selected_prev_gen = parents_not_selected_prev_gen
+
         # Log generation
         self.logger.log_generation(
             generation=self.current_generation,
@@ -736,6 +764,9 @@ class EvolutionAPI:
             best_trial_id=gen.best_trial_id,
             best_score=gen.best_score,
             trial_selections=[s.to_dict() for s in gen.trial_selections],
+            parents_used=parents_used,
+            parents_used_counts=parents_used_counts,
+            parents_not_selected_prev_gen=parents_not_selected_prev_gen,
             scratchpad=self.scratchpad,
             lineage_map=self._build_lineage_map(),
         )
@@ -899,6 +930,32 @@ class EvolutionAPI:
         """
         trial = self.all_trials.get(trial_id)
         return trial.to_dict() if trial else None
+
+    def get_top_trials(self, n: int = 5) -> list[dict[str, Any]]:
+        """
+        Retrieve a compact summary of the top-scoring trials across all generations.
+
+        Args:
+            n: Number of top trials to return
+
+        Returns:
+            List of trial summary dictionaries sorted by score (descending)
+        """
+        top_trials = self._get_best_trials(n=n)
+        summaries: list[dict[str, Any]] = []
+        for trial in top_trials:
+            metrics = trial.get("metrics", {})
+            summaries.append(
+                {
+                    "trial_id": trial.get("trial_id"),
+                    "generation": trial.get("generation"),
+                    "score": metrics.get("score", 0),
+                    "reasoning": (trial.get("reasoning") or "")[:200],
+                    "parent_id": trial.get("parent_id"),
+                    "model_alias": trial.get("model_alias"),
+                }
+            )
+        return summaries
 
     def get_trial_code(self, trial_ids: list[str]) -> dict[str, str | None]:
         """
@@ -1150,6 +1207,7 @@ class EvolutionAPI:
         - spawn_children_parallel: Generate multiple programs in parallel
         - evaluate_program: Evaluate code directly
         - terminate_evolution: End the evolution process
+        - get_top_trials: Retrieve top trials across history (summary)
         - get_trial_code: Retrieve code from specific trials on demand
         - update_scratchpad: Update persistent notes across generations
         - end_calibration_phase: End calibration and start evolution
@@ -1165,6 +1223,7 @@ class EvolutionAPI:
             "spawn_children_parallel": self.spawn_children_parallel,
             "evaluate_program": self.evaluate_program,
             "terminate_evolution": self.terminate_evolution,
+            "get_top_trials": self.get_top_trials,
             "get_trial_code": self.get_trial_code,
             "update_scratchpad": self.update_scratchpad,
             "end_calibration_phase": self.end_calibration_phase,
