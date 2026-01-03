@@ -192,7 +192,9 @@ class ScratchpadProxy:
         """Allow scratchpad + "text" but don't auto-persist (returns new string)."""
         return self._api.scratchpad + other
 
-
+    def __radd__(self, other: str) -> str:
+        """Allow "text" + scratchpad (returns new string, no auto-persist)."""
+        return other + self._api.scratchpad
 class EvolutionAPI:
     """
     Core API for evolution control.
