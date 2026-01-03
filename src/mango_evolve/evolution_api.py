@@ -20,7 +20,6 @@ from .exceptions import CalibrationBudgetError, ChildrenLimitError, GenerationLi
 from .llm.prompts import CHILD_LLM_SYSTEM_PROMPT
 from .logger import ExperimentLogger
 from .parallel_worker import child_worker
-from .utils.code_extraction import extract_python_code, extract_reasoning
 from .utils.prompt_substitution import substitute_trial_codes
 
 
@@ -330,6 +329,62 @@ class GenerationSummary:
             "parents_used_counts": self.parents_used_counts,
             "parents_not_selected_prev_gen": self.parents_not_selected_prev_gen,
         }
+
+
+class ScratchpadProxy:
+    """
+    Mutable scratchpad wrapper for REPL access.
+
+    Usage in REPL:
+        scratchpad.content  # Read current content
+        scratchpad.content = "New content"  # Triggers persistence
+        scratchpad.append("More text")  # Append and persist
+        str(scratchpad)  # Get as string
+        print(scratchpad)  # Prints content
+    """
+
+    def __init__(self, api: "EvolutionAPI"):
+        self._api = api
+
+    @property
+    def content(self) -> str:
+        """Get current scratchpad content."""
+        return self._api.scratchpad
+
+    @content.setter
+    def content(self, value: str) -> None:
+        """Set scratchpad content (triggers persistence)."""
+        self._api.update_scratchpad(value)
+
+    def append(self, text: str) -> None:
+        """Append text to scratchpad."""
+        self._api.update_scratchpad(self._api.scratchpad + text)
+
+    def clear(self) -> None:
+        """Clear the scratchpad."""
+        self._api.update_scratchpad("")
+
+    def __str__(self) -> str:
+        return self._api.scratchpad
+
+    def __repr__(self) -> str:
+        content = self._api.scratchpad
+        if len(content) == 0:
+            return "<scratchpad: empty>"
+        preview = content[:100].replace("\n", "\\n")
+        if len(content) > 100:
+            return f"<scratchpad: {len(content)} chars>\n{preview}..."
+        return f"<scratchpad: {len(content)} chars>\n{content}"
+
+    def __len__(self) -> int:
+        return len(self._api.scratchpad)
+
+    def __contains__(self, item: str) -> bool:
+        return item in self._api.scratchpad
+
+    def __add__(self, other: str) -> str:
+        """Allow scratchpad + "text" but don't auto-persist (returns new string)."""
+        return self._api.scratchpad + other
 
 
 class EvolutionAPI:
@@ -985,16 +1040,10 @@ class EvolutionAPI:
 
         Args:
             content: New scratchpad content (replaces existing content).
-                     Max recommended length: 4000 characters.
 
         Returns:
             Dictionary with success status and content length.
         """
-        max_length = 8000  # Hard limit to prevent context bloat
-        if len(content) > max_length:
-            tqdm.write(f"  ⚠️ Scratchpad truncated from {len(content)} to {max_length} chars")
-            content = content[:max_length]
-
         self.scratchpad = content
 
         # Materialize scratchpad immediately to the current generation folder
@@ -1175,9 +1224,9 @@ class EvolutionAPI:
 
         return "\n".join(lines).rstrip()
 
-    def get_api_functions(self) -> dict[str, Callable]:
+    def get_api_functions(self) -> dict[str, Any]:
         """
-        Get a dictionary of API functions to inject into the REPL.
+        Get a dictionary of API functions and objects to inject into the REPL.
 
         Core evolution functions exposed:
         - spawn_children: Generate multiple programs in parallel
@@ -1188,10 +1237,13 @@ class EvolutionAPI:
         - end_calibration_phase: End calibration and start evolution
         - get_calibration_status: Check calibration phase status
 
+        Objects exposed:
+        - scratchpad: ScratchpadProxy for direct scratchpad access
+
         Note: advance_generation is no longer exposed - it happens automatically.
 
         Returns:
-            Dictionary mapping function names to callables
+            Dictionary mapping names to callables and objects
         """
         return {
             "spawn_children": self.spawn_children,
@@ -1201,6 +1253,7 @@ class EvolutionAPI:
             "update_scratchpad": self.update_scratchpad,
             "end_calibration_phase": self.end_calibration_phase,
             "get_calibration_status": self.get_calibration_status,
+            "scratchpad": ScratchpadProxy(self),
         }
 
     def get_repl_namespace(self) -> dict[str, Any]:
