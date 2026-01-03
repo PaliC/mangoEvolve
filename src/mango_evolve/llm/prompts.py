@@ -45,21 +45,13 @@ def run_packing():
 
 ## Available Functions
 
-### spawn_child_llm(prompt, parent_id=None, model=None, temperature=0.7) -> dict
-Spawn a single child LLM. Returns `{trial_id, code, metrics, reasoning, success, error}`.
-- `model`: Child LLM alias from available models (see below). Uses default if None.
-- `temperature`: Sampling temperature (0.0-1.0). Higher = more creative.
-
-### spawn_children_parallel(children: list[dict]) -> list[dict]
+### spawn_children(children: list[dict]) -> list[TrialView]
 Spawn child LLMs in parallel. Each child dict has:
 - `prompt` (str, required)
 - `parent_id` (str, optional)
 - `model` (str, optional) - alias from available child LLMs
 - `temperature` (float, optional, default 0.7)
-Returns: `[{trial_id, code, metrics, reasoning, success, error}, ...]`
-
-### get_trial_code(trial_ids: list[str]) -> dict[str, str | None]
-Get code from previous trials by ID.
+Returns list of TrialView objects with: trial_id, code, score, success, reasoning, error, etc.
 
 ### get_top_trials(n: int = 5) -> list[dict]
 Get a compact summary of the top-scoring trials across all generations.
@@ -77,7 +69,7 @@ Example: `{{{{CODE_TRIAL_0_3}}}}` becomes the code from trial_0_3.
 
 ## Evolution Flow
 
-1. You spawn children using the `spawn_children_parallel` function with diverse prompts each generation
+1. You spawn children using the `spawn_children` function with diverse prompts each generation
 2. After spawning, you SELECT which trials to carry forward (performance, diversity, potential)
 3. Repeat until max_generations or you call terminate_evolution()
 
@@ -96,7 +88,7 @@ Example: `{{{{CODE_TRIAL_0_3}}}}` becomes the code from trial_0_3.
 ## Historical Trial Access
 
 **You can access and mutate ANY historical trial**, not just those from the current generation:
-- Use `get_trial_code(["trial_0_5", "trial_2_3"])` to retrieve code from any past trial
+- Use the `trials` variable: `trials["trial_0_5"].code` to retrieve code from any past trial
 - Use `{{CODE_TRIAL_X_Y}}` tokens in child prompts to inject historical code
 
 This enables:
@@ -186,9 +178,9 @@ trials.filter(model_alias="fast", success=True)
 `.trial_id`, `.code`, `.score`, `.success`, `.generation`,
 `.parent_id`, `.reasoning`, `.error`, `.model_alias`, `.metrics`
 
-**Return values from spawn functions:**
-`spawn_child_llm()` and `spawn_children_parallel()` return TrialView objects
-(same attributes as above). Use `.to_dict()` if you need dict format.
+**Return values from spawn_children:**
+`spawn_children()` returns TrialView objects (same attributes as above).
+Use `.to_dict()` if you need dict format.
 
 ## Guidelines
 
@@ -465,11 +457,12 @@ The main task is packing 26 circles into a unit square [0,1] x [0,1] to maximize
 
 ## Available Functions
 
-### spawn_child_llm(prompt, parent_id=None, model=None, temperature=0.7) -> dict
-Spawn a child LLM with ANY prompt. Returns `{trial_id, code, metrics, reasoning, success, error}`.
-- `prompt`: Any question or task - you're not limited to circle packing!
-- `model`: Child LLM alias (see available models below)
-- `temperature`: Sampling temperature (0.0-1.0). Higher = more creative.
+### spawn_children(children: list[dict]) -> list[TrialView]
+Spawn child LLMs with ANY prompts. Each child dict has:
+- `prompt` (str, required) - Any question or task, not limited to circle packing!
+- `model` (str, optional) - alias from available child LLMs
+- `temperature` (float, optional, default 0.7)
+Returns list of TrialView objects with: trial_id, code, score, success, reasoning, error, etc.
 
 ### get_calibration_status() -> dict
 Check remaining calibration calls per model.

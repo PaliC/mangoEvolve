@@ -157,7 +157,7 @@ class REPLEnvironment:
 
         Args:
             namespace: Optional dictionary of functions and variables to inject.
-                       This includes both API functions (spawn_child_llm, etc.)
+                       This includes both API functions (spawn_children, etc.)
                        and variables (trials, etc.).
             api_functions: Deprecated - use namespace instead. Kept for backward
                           compatibility.

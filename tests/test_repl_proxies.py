@@ -168,16 +168,14 @@ class TestTrialsProxy:
     def test_len_with_trials(self, evolution_api):
         """Test length with trials."""
         # Spawn some trials
-        evolution_api.spawn_child_llm(prompt="test 1")
-        evolution_api.spawn_child_llm(prompt="test 2")
+        evolution_api.spawn_children([{"prompt": "test 1"}, {"prompt": "test 2"}])
 
         proxy = TrialsProxy(evolution_api)
         assert len(proxy) == 2
 
     def test_iter(self, evolution_api):
         """Test iteration over trials."""
-        evolution_api.spawn_child_llm(prompt="test 1")
-        evolution_api.spawn_child_llm(prompt="test 2")
+        evolution_api.spawn_children([{"prompt": "test 1"}, {"prompt": "test 2"}])
 
         proxy = TrialsProxy(evolution_api)
         trials = list(proxy)
@@ -187,8 +185,8 @@ class TestTrialsProxy:
 
     def test_getitem(self, evolution_api):
         """Test accessing trial by ID."""
-        result = evolution_api.spawn_child_llm(prompt="test")
-        trial_id = result.trial_id
+        results = evolution_api.spawn_children([{"prompt": "test"}])
+        trial_id = results[0].trial_id
 
         proxy = TrialsProxy(evolution_api)
         trial = proxy[trial_id]
@@ -204,8 +202,8 @@ class TestTrialsProxy:
 
     def test_contains(self, evolution_api):
         """Test 'in' operator."""
-        result = evolution_api.spawn_child_llm(prompt="test")
-        trial_id = result.trial_id
+        results = evolution_api.spawn_children([{"prompt": "test"}])
+        trial_id = results[0].trial_id
 
         proxy = TrialsProxy(evolution_api)
         assert trial_id in proxy
@@ -224,31 +222,38 @@ class TestTrialsProxyFilter:
     """Tests for TrialsProxy.filter() method."""
 
     @pytest.fixture
-    def api_with_trials(self, evolution_api, mock_evaluator):
+    def api_with_trials(self, evolution_api):
         """Create API with multiple trials for filtering tests."""
-        # Create some successful trials
-        mock_evaluator.evaluate.return_value = {
-            "valid": True,
-            "score": 2.5,
-            "eval_time": 0.1,
-        }
-        evolution_api.spawn_child_llm(prompt="test 1")  # trial_0_0
-        evolution_api.spawn_child_llm(prompt="test 2")  # trial_0_1
+        # Create some successful trials directly
+        for i in range(2):
+            trial = TrialResult(
+                trial_id=f"trial_0_{i}",
+                code="def solve(): return 1.0",
+                metrics={"valid": True, "score": 2.5, "eval_time": 0.1},
+                prompt=f"test {i+1}",
+                response="test response",
+                reasoning="",
+                success=True,
+                parent_id=None,
+                error=None,
+                generation=0,
+            )
+            evolution_api._record_trial(trial)
 
         # Create a failed trial
-        mock_evaluator.evaluate.return_value = {
-            "valid": False,
-            "score": 0,
-            "error": "Failed",
-        }
-        evolution_api.spawn_child_llm(prompt="test 3")  # trial_0_2
-
-        # Reset to success
-        mock_evaluator.evaluate.return_value = {
-            "valid": True,
-            "score": 2.8,
-            "eval_time": 0.1,
-        }
+        failed_trial = TrialResult(
+            trial_id="trial_0_2",
+            code="",
+            metrics={"valid": False, "score": 0, "error": "Failed"},
+            prompt="test 3",
+            response="test response",
+            reasoning="",
+            success=False,
+            parent_id=None,
+            error="Failed",
+            generation=0,
+        )
+        evolution_api._record_trial(failed_trial)
 
         return evolution_api
 
@@ -274,11 +279,22 @@ class TestTrialsProxyFilter:
         gen1 = proxy.filter(generation=1)
         assert len(gen1) == 0
 
-    def test_filter_by_sort_ascending(self, api_with_trials, mock_evaluator):
+    def test_filter_by_sort_ascending(self, api_with_trials):
         """Test sorting by score ascending."""
         # Create a trial with higher score
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 3.0}
-        api_with_trials.spawn_child_llm(prompt="high score")
+        high_score_trial = TrialResult(
+            trial_id="trial_0_3",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 3.0},
+            prompt="high score",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=None,
+            error=None,
+            generation=0,
+        )
+        api_with_trials._record_trial(high_score_trial)
 
         proxy = TrialsProxy(api_with_trials)
         sorted_trials = proxy.filter(success=True, sort_by="score")
@@ -287,10 +303,21 @@ class TestTrialsProxyFilter:
         scores = [t.score for t in sorted_trials]
         assert scores == sorted(scores)  # Ascending
 
-    def test_filter_by_sort_descending(self, api_with_trials, mock_evaluator):
+    def test_filter_by_sort_descending(self, api_with_trials):
         """Test sorting by score descending."""
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 3.0}
-        api_with_trials.spawn_child_llm(prompt="high score")
+        high_score_trial = TrialResult(
+            trial_id="trial_0_3",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 3.0},
+            prompt="high score",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=None,
+            error=None,
+            generation=0,
+        )
+        api_with_trials._record_trial(high_score_trial)
 
         proxy = TrialsProxy(api_with_trials)
         sorted_trials = proxy.filter(success=True, sort_by="-score")
@@ -299,10 +326,21 @@ class TestTrialsProxyFilter:
         scores = [t.score for t in sorted_trials]
         assert scores == sorted(scores, reverse=True)  # Descending
 
-    def test_filter_with_limit(self, api_with_trials, mock_evaluator):
+    def test_filter_with_limit(self, api_with_trials):
         """Test limiting results."""
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 3.0}
-        api_with_trials.spawn_child_llm(prompt="high score")
+        high_score_trial = TrialResult(
+            trial_id="trial_0_3",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 3.0},
+            prompt="high score",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=None,
+            error=None,
+            generation=0,
+        )
+        api_with_trials._record_trial(high_score_trial)
 
         proxy = TrialsProxy(api_with_trials)
         limited = proxy.filter(success=True, sort_by="-score", limit=2)
@@ -317,15 +355,26 @@ class TestTrialsProxyFilter:
         assert len(result) == 2
         assert all(t.score >= 2.5 for t in result)
 
-    def test_filter_by_parent_id(self, api_with_trials, mock_evaluator):
+    def test_filter_by_parent_id(self, api_with_trials):
         """Test filtering by parent_id."""
         # Get first trial as parent
         first_trial = list(api_with_trials.all_trials.values())[0]
         parent_id = first_trial.trial_id
 
-        # Spawn a child with parent
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 2.6}
-        api_with_trials.spawn_child_llm(prompt="child", parent_id=parent_id)
+        # Create a child trial with parent
+        child_trial = TrialResult(
+            trial_id="trial_0_3",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 2.6},
+            prompt="child",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=parent_id,
+            error=None,
+            generation=0,
+        )
+        api_with_trials._record_trial(child_trial)
 
         proxy = TrialsProxy(api_with_trials)
         children = proxy.filter(parent_id=parent_id)
@@ -348,41 +397,83 @@ class TestTrialsProxyFilter:
         assert result[0].success
         assert result[0].generation == 0
 
-    def test_filter_descendant_of(self, api_with_trials, mock_evaluator):
+    def test_filter_descendant_of(self, api_with_trials):
         """Test filtering by descendant_of."""
         # Get first trial as root
         root_id = list(api_with_trials.all_trials.keys())[0]
 
-        # Spawn a child
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 2.6}
-        child_result = api_with_trials.spawn_child_llm(prompt="child", parent_id=root_id)
-        child_id = child_result.trial_id
+        # Create a child trial
+        child_trial = TrialResult(
+            trial_id="trial_0_3",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 2.6},
+            prompt="child",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=root_id,
+            error=None,
+            generation=0,
+        )
+        api_with_trials._record_trial(child_trial)
+        child_id = child_trial.trial_id
 
-        # Spawn a grandchild
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 2.7}
-        api_with_trials.spawn_child_llm(prompt="grandchild", parent_id=child_id)
+        # Create a grandchild trial
+        grandchild_trial = TrialResult(
+            trial_id="trial_0_4",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 2.7},
+            prompt="grandchild",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=child_id,
+            error=None,
+            generation=0,
+        )
+        api_with_trials._record_trial(grandchild_trial)
 
         proxy = TrialsProxy(api_with_trials)
         descendants = proxy.filter(descendant_of=root_id)
 
         assert len(descendants) == 2  # child and grandchild
 
-    def test_filter_ancestor_of(self, api_with_trials, mock_evaluator):
+    def test_filter_ancestor_of(self, api_with_trials):
         """Test filtering by ancestor_of."""
         # Get first trial as root
         root_id = list(api_with_trials.all_trials.keys())[0]
 
-        # Spawn a child
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 2.6}
-        child_result = api_with_trials.spawn_child_llm(prompt="child", parent_id=root_id)
-        child_id = child_result.trial_id
-
-        # Spawn a grandchild
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 2.7}
-        grandchild_result = api_with_trials.spawn_child_llm(
-            prompt="grandchild", parent_id=child_id
+        # Create a child trial
+        child_trial = TrialResult(
+            trial_id="trial_0_3",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 2.6},
+            prompt="child",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=root_id,
+            error=None,
+            generation=0,
         )
-        grandchild_id = grandchild_result.trial_id
+        api_with_trials._record_trial(child_trial)
+        child_id = child_trial.trial_id
+
+        # Create a grandchild trial
+        grandchild_trial = TrialResult(
+            trial_id="trial_0_4",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 2.7},
+            prompt="grandchild",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=child_id,
+            error=None,
+            generation=0,
+        )
+        api_with_trials._record_trial(grandchild_trial)
+        grandchild_id = grandchild_trial.trial_id
 
         proxy = TrialsProxy(api_with_trials)
         ancestors = proxy.filter(ancestor_of=grandchild_id)
@@ -408,18 +499,28 @@ class TestREPLNamespaceInjection:
         namespace = evolution_api.get_repl_namespace()
 
         # Check that all API functions are present
-        assert "spawn_child_llm" in namespace
-        assert "spawn_children_parallel" in namespace
+        assert "spawn_children" in namespace
         assert "evaluate_program" in namespace
         assert "terminate_evolution" in namespace
         assert "get_top_trials" in namespace
-        assert "get_trial_code" in namespace
         assert "update_scratchpad" in namespace
 
     def test_repl_can_access_trials(self, evolution_api):
         """Test that REPL can access trials variable."""
-        # Spawn a trial
-        evolution_api.spawn_child_llm(prompt="test")
+        # Create a trial directly
+        trial = TrialResult(
+            trial_id="trial_0_0",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 2.5},
+            prompt="test",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=None,
+            error=None,
+            generation=0,
+        )
+        evolution_api._record_trial(trial)
 
         # Create REPL with namespace
         repl = REPLEnvironment(namespace=evolution_api.get_repl_namespace())
@@ -429,14 +530,23 @@ class TestREPLNamespaceInjection:
         assert result.success
         assert result.return_value == 1
 
-    def test_repl_can_filter_trials(self, evolution_api, mock_evaluator):
+    def test_repl_can_filter_trials(self, evolution_api):
         """Test that REPL can use trials.filter()."""
-        # Spawn some trials
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 2.5}
-        evolution_api.spawn_child_llm(prompt="test 1")
-
-        mock_evaluator.evaluate.return_value = {"valid": True, "score": 2.8}
-        evolution_api.spawn_child_llm(prompt="test 2")
+        # Create trials directly
+        for i, score in enumerate([2.5, 2.8]):
+            trial = TrialResult(
+                trial_id=f"trial_0_{i}",
+                code="def solve(): return 1.0",
+                metrics={"valid": True, "score": score},
+                prompt=f"test {i+1}",
+                response="test",
+                reasoning="",
+                success=True,
+                parent_id=None,
+                error=None,
+                generation=0,
+            )
+            evolution_api._record_trial(trial)
 
         repl = REPLEnvironment(namespace=evolution_api.get_repl_namespace())
 
@@ -448,8 +558,21 @@ class TestREPLNamespaceInjection:
 
     def test_repl_can_access_trial_by_id(self, evolution_api):
         """Test that REPL can access trial by ID."""
-        trial_result = evolution_api.spawn_child_llm(prompt="test")
-        trial_id = trial_result.trial_id
+        # Create a trial directly
+        trial = TrialResult(
+            trial_id="trial_0_0",
+            code="def solve(): return 1.0",
+            metrics={"valid": True, "score": 2.5},
+            prompt="test",
+            response="test",
+            reasoning="",
+            success=True,
+            parent_id=None,
+            error=None,
+            generation=0,
+        )
+        evolution_api._record_trial(trial)
+        trial_id = trial.trial_id
 
         repl = REPLEnvironment(namespace=evolution_api.get_repl_namespace())
 
@@ -461,23 +584,13 @@ class TestREPLNamespaceInjection:
 class TestSpawnReturnsTrialView:
     """Tests for spawn functions returning TrialView."""
 
-    def test_spawn_child_llm_returns_trial_view(self, evolution_api):
-        """Test that spawn_child_llm returns TrialView."""
-        result = evolution_api.spawn_child_llm(prompt="test")
-
-        assert isinstance(result, TrialView)
-        assert hasattr(result, "trial_id")
-        assert hasattr(result, "score")
-        assert hasattr(result, "code")
-        assert hasattr(result, "success")
-
-    def test_spawn_children_parallel_returns_trial_views(self, evolution_api):
-        """Test that spawn_children_parallel returns list of TrialView."""
+    def test_spawn_children_returns_trial_views(self, evolution_api):
+        """Test that spawn_children returns list of TrialView."""
         children = [
             {"prompt": "test 1"},
             {"prompt": "test 2"},
         ]
-        results = evolution_api.spawn_children_parallel(children)
+        results = evolution_api.spawn_children(children)
 
         assert isinstance(results, list)
         assert len(results) == 2
@@ -485,10 +598,10 @@ class TestSpawnReturnsTrialView:
 
     def test_trial_view_to_dict_backward_compat(self, evolution_api):
         """Test that TrialView.to_dict() provides backward compatibility."""
-        result = evolution_api.spawn_child_llm(prompt="test")
+        results = evolution_api.spawn_children([{"prompt": "test"}])
 
         # Convert to dict for backward compatibility
-        d = result.to_dict()
+        d = results[0].to_dict()
 
         assert isinstance(d, dict)
         assert "trial_id" in d

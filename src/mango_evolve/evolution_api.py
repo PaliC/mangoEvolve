@@ -437,195 +437,6 @@ class EvolutionAPI:
             )
         return self.child_llm_clients[alias]
 
-    def spawn_child_llm(
-        self,
-        prompt: str,
-        parent_id: str | None = None,
-        model: str | None = None,
-        temperature: float = 0.7,
-    ) -> TrialView:
-        """
-        Spawn a child LLM to generate a program.
-
-        The prompt should be the complete prompt to send to the child LLM.
-        The Root LLM is responsible for crafting the full prompt including
-        problem specification, constraints, and parent code if mutating.
-
-        Args:
-            prompt: Complete prompt to send to the child LLM
-            parent_id: Optional trial ID of parent (for mutation tracking)
-            model: Alias of the child LLM to use (from config). If None, uses default.
-            temperature: Sampling temperature (default 0.7)
-
-        Returns:
-            TrialView object with trial result containing:
-            - trial_id: str
-            - code: str
-            - score: float
-            - success: bool
-            - generation: int
-            - parent_id: str | None
-            - reasoning: str
-            - error: str | None
-            - model_alias: str | None
-            - metrics: dict
-
-            Use .to_dict() for backward compatibility if dict format is needed.
-
-        Raises:
-            ChildrenLimitError: If max_children_per_generation limit is reached
-            CalibrationBudgetError: If in calibration phase and budget exhausted for model
-        """
-        # Resolve model alias
-        model_alias = self._resolve_model_alias(model)
-
-        # Check calibration budget if in calibration phase
-        if self.in_calibration_phase:
-            if self.calibration_calls_remaining[model_alias] <= 0:
-                raise CalibrationBudgetError(
-                    f"Calibration budget exhausted for model '{model_alias}'. "
-                    f"Remaining calls: {self.calibration_calls_remaining}. "
-                    "Use a different model or call end_calibration_phase()."
-                )
-            self.calibration_calls_remaining[model_alias] -= 1
-
-        # Check budget
-        self.cost_tracker.raise_if_over_budget()
-
-        # Determine trial generation (-1 for calibration, else current_generation)
-        trial_generation = -1 if self.in_calibration_phase else self.current_generation
-
-        # Check children limit (only during evolution, not calibration)
-        if not self.in_calibration_phase:
-            trial_num = len(self.generations[self.current_generation].trials)
-            if trial_num >= self.max_children_per_generation:
-                raise ChildrenLimitError(
-                    f"Cannot spawn more children in generation {self.current_generation}. "
-                    f"Limit of {self.max_children_per_generation} children reached."
-                )
-        else:
-            # During calibration, use a separate counter
-            trial_num = len([t for t in self.all_trials.values() if t.generation == -1])
-
-        # Generate trial ID
-        trial_id = f"trial_{trial_generation}_{trial_num}"
-
-        # Show progress for child LLM spawn
-        phase_str = "calibration" if self.in_calibration_phase else f"gen {self.current_generation}"
-        tqdm.write(
-            f"  └─ Spawning child LLM ({model_alias}): {phase_str}, "
-            f"trial {trial_num + 1}"
-            + (f" (parent: {parent_id})" if parent_id else "")
-            + f" [temp={temperature}]"
-        )
-
-        # Substitute {{CODE_TRIAL_X_Y}} tokens with actual code
-        substituted_prompt, substitution_report = substitute_trial_codes(
-            prompt,
-            all_trials=self.all_trials,
-            experiment_dir=str(self.logger.base_dir),
-        )
-        if substitution_report:
-            for sub in substitution_report:
-                if sub["success"]:
-                    tqdm.write(
-                        f"       → Substituted {sub['token']} with code from {sub['trial_id']}"
-                    )
-                else:
-                    tqdm.write(f"       ⚠ Failed to substitute {sub['token']}: {sub['error']}")
-
-        # Get or create LLM client for this model
-        child_llm = self._get_or_create_child_llm_client(model_alias)
-
-        # Build model config for trial metadata
-        config = self.child_llm_configs[model_alias]
-        model_config = {
-            "model": config.model,
-            "temperature": temperature,
-        }
-
-        # Call child LLM
-        try:
-            response = child_llm.generate(
-                messages=[{"role": "user", "content": substituted_prompt}],
-                max_tokens=4096,
-                temperature=temperature,
-            )
-            response_text = response.content
-        except Exception as e:
-            # LLM call failed
-            trial = TrialResult(
-                trial_id=trial_id,
-                code="",
-                metrics={},
-                prompt=substituted_prompt,
-                response="",
-                reasoning="",
-                success=False,
-                parent_id=parent_id,
-                error=f"LLM call failed: {str(e)}",
-                generation=trial_generation,
-                model_alias=model_alias,
-                model_config=model_config,
-            )
-            self._record_trial(trial)
-            return TrialView.from_trial_result(trial)
-
-        # Extract code from response
-        code = extract_python_code(response_text)
-        reasoning = extract_reasoning(response_text)
-
-        if not code:
-            # No code found in response
-            trial = TrialResult(
-                trial_id=trial_id,
-                code="",
-                metrics={},
-                prompt=substituted_prompt,
-                response=response_text,
-                reasoning=reasoning,
-                success=False,
-                parent_id=parent_id,
-                error="No Python code block found in response",
-                generation=trial_generation,
-                model_alias=model_alias,
-                model_config=model_config,
-            )
-            self._record_trial(trial)
-            return TrialView.from_trial_result(trial)
-
-        # Evaluate the code
-        try:
-            metrics = self.evaluator.evaluate(code)
-        except Exception as e:
-            metrics = {
-                "valid": False,
-                "error": f"Evaluation error: {str(e)}",
-            }
-
-        # Determine success
-        success = bool(metrics.get("valid", False))
-        error_value = metrics.get("error") if not success else None
-        error_msg = str(error_value) if error_value is not None else None
-
-        trial = TrialResult(
-            trial_id=trial_id,
-            code=code,
-            metrics=metrics,
-            prompt=substituted_prompt,
-            response=response_text,
-            reasoning=reasoning,
-            success=success,
-            parent_id=parent_id,
-            error=error_msg,
-            generation=trial_generation,
-            model_alias=model_alias,
-            model_config=model_config,
-        )
-
-        self._record_trial(trial)
-        return TrialView.from_trial_result(trial)
-
     def _record_trial(self, trial: TrialResult, skip_file_write: bool = False) -> None:
         """Record a trial in the current generation and log it.
 
@@ -670,16 +481,15 @@ class EvolutionAPI:
                 model_config=trial.model_config,
             )
 
-    def spawn_children_parallel(
+    def spawn_children(
         self,
         children: list[dict[str, Any]],
         num_workers: int | None = None,
     ) -> list[TrialView]:
         """
-        Spawn multiple child LLMs in parallel using multiprocessing.
+        Spawn child LLMs in parallel using multiprocessing.
 
         Each child LLM call and its evaluation runs in a separate process.
-        This significantly speeds up evolution when spawning multiple children.
 
         Args:
             children: List of dicts with keys:
@@ -690,7 +500,7 @@ class EvolutionAPI:
             num_workers: Number of parallel workers (defaults to number of children)
 
         Returns:
-            List of TrialView objects with trial results (same format as spawn_child_llm).
+            List of TrialView objects with trial results.
             Use .to_dict() on each for backward compatibility if dict format is needed.
 
         Raises:
@@ -1156,38 +966,6 @@ class EvolutionAPI:
             )
         return summaries
 
-    def get_trial_code(self, trial_ids: list[str]) -> dict[str, str | None]:
-        """
-        Retrieve the code for specific trials by their IDs.
-
-        This function allows the Root LLM to fetch code from previous trials
-        on demand, rather than having all code included in feedback messages.
-        Use this when you need to inspect or analyze specific trial code.
-
-        For including code in child LLM prompts, prefer using the {{CODE_TRIAL_X_Y}}
-        token syntax which automatically substitutes the code.
-
-        Args:
-            trial_ids: List of trial IDs to retrieve code for.
-                      Example: ["trial_0_3", "trial_1_2", "trial_2_5"]
-
-        Returns:
-            Dictionary mapping trial_id to code string (or None if not found).
-            Example: {
-                "trial_0_3": "import numpy as np\\n...",
-                "trial_1_2": None,  # Not found
-                "trial_2_5": "import numpy as np\\n..."
-            }
-        """
-        result: dict[str, str | None] = {}
-        for trial_id in trial_ids:
-            trial = self.all_trials.get(trial_id)
-            if trial:
-                result[trial_id] = trial.code
-            else:
-                result[trial_id] = None
-        return result
-
     def _get_current_generation(self) -> int:
         """Get the current generation number (internal method)."""
         return self.current_generation
@@ -1402,12 +1180,10 @@ class EvolutionAPI:
         Get a dictionary of API functions to inject into the REPL.
 
         Core evolution functions exposed:
-        - spawn_child_llm: Generate new programs via child LLM (sequential)
-        - spawn_children_parallel: Generate multiple programs in parallel
+        - spawn_children: Generate multiple programs in parallel
         - evaluate_program: Evaluate code directly
         - terminate_evolution: End the evolution process
         - get_top_trials: Retrieve top trials across history (summary)
-        - get_trial_code: Retrieve code from specific trials on demand
         - update_scratchpad: Update persistent notes across generations
         - end_calibration_phase: End calibration and start evolution
         - get_calibration_status: Check calibration phase status
@@ -1418,12 +1194,10 @@ class EvolutionAPI:
             Dictionary mapping function names to callables
         """
         return {
-            "spawn_child_llm": self.spawn_child_llm,
-            "spawn_children_parallel": self.spawn_children_parallel,
+            "spawn_children": self.spawn_children,
             "evaluate_program": self.evaluate_program,
             "terminate_evolution": self.terminate_evolution,
             "get_top_trials": self.get_top_trials,
-            "get_trial_code": self.get_trial_code,
             "update_scratchpad": self.update_scratchpad,
             "end_calibration_phase": self.end_calibration_phase,
             "get_calibration_status": self.get_calibration_status,
