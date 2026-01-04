@@ -53,9 +53,6 @@ Spawn child LLMs in parallel. Each child dict has:
 - `temperature` (float, optional, default 0.7)
 Returns list of TrialView objects with: trial_id, code, score, success, reasoning, error, etc.
 
-### get_top_trials(n: int = 5) -> list[dict]
-Get a compact summary of the top-scoring trials across all generations.
-
 ### `scratchpad` - Persistent notes
 
 A mutable scratchpad for tracking insights across generations:
