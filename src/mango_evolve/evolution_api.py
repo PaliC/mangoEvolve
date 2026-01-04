@@ -995,32 +995,6 @@ class EvolutionAPI:
         trial = self.all_trials.get(trial_id)
         return trial.to_dict() if trial else None
 
-    def get_top_trials(self, n: int = 5) -> list[dict[str, Any]]:
-        """
-        Retrieve a compact summary of the top-scoring trials across all generations.
-
-        Args:
-            n: Number of top trials to return
-
-        Returns:
-            List of trial summary dictionaries sorted by score (descending)
-        """
-        top_trials = self._get_best_trials(n=n)
-        summaries: list[dict[str, Any]] = []
-        for trial in top_trials:
-            metrics = trial.get("metrics", {})
-            summaries.append(
-                {
-                    "trial_id": trial.get("trial_id"),
-                    "generation": trial.get("generation"),
-                    "score": metrics.get("score", 0),
-                    "reasoning": (trial.get("reasoning") or "")[:200],
-                    "parent_id": trial.get("parent_id"),
-                    "model_alias": trial.get("model_alias"),
-                }
-            )
-        return summaries
-
     def _get_current_generation(self) -> int:
         """Get the current generation number (internal method)."""
         return self.current_generation
@@ -1232,7 +1206,6 @@ class EvolutionAPI:
         - spawn_children: Generate multiple programs in parallel
         - evaluate_program: Evaluate code directly
         - terminate_evolution: End the evolution process
-        - get_top_trials: Retrieve top trials across history (summary)
         - update_scratchpad: Update persistent notes across generations
         - end_calibration_phase: End calibration and start evolution
         - get_calibration_status: Check calibration phase status
@@ -1249,7 +1222,6 @@ class EvolutionAPI:
             "spawn_children": self.spawn_children,
             "evaluate_program": self.evaluate_program,
             "terminate_evolution": self.terminate_evolution,
-            "get_top_trials": self.get_top_trials,
             "update_scratchpad": self.update_scratchpad,
             "end_calibration_phase": self.end_calibration_phase,
             "get_calibration_status": self.get_calibration_status,

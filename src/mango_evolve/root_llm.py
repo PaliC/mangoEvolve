@@ -759,7 +759,7 @@ class RootLLMOrchestrator:
                 "- **Potential**: Which trials might improve with refinement, even if current scores are lower?",
                 "",
                 "You can select any trial_id from any generation (current or historical).",
-                "If you want extra history, you can use `trials[trial_id].code` or `get_top_trials(n)`,",
+                "If you want extra history, you can use `trials[trial_id].code`,",
                 "but prefer your own reasoning and notes when possible.",
                 "**Tip**: Use the All-Time Top 5 in the lineage map above to identify promising",
                 "historical trials. You can mutate any past trial using `{{CODE_TRIAL_X_Y}}` tokens",

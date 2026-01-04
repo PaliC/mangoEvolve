@@ -502,7 +502,6 @@ class TestREPLNamespaceInjection:
         assert "spawn_children" in namespace
         assert "evaluate_program" in namespace
         assert "terminate_evolution" in namespace
-        assert "get_top_trials" in namespace
         assert "update_scratchpad" in namespace
 
     def test_repl_can_access_trials(self, evolution_api):
