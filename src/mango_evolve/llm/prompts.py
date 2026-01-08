@@ -465,27 +465,65 @@ The goal is to understand what each model is good at so you can use them strateg
 The main task is packing 26 circles into a unit square [0,1] x [0,1] to maximize the sum of radii.
 - The best known solution is 2.6359850561146603. Aim to achieve as high of a score as possible.
 
+## How to Call Functions
+
+**IMPORTANT**: Write Python code in ```python blocks to call functions. Example:
+
+```python
+query_llm([
+    {"prompt": "Explain quicksort", "model": "sonnet", "temperature": 0.5},
+    {"prompt": "What is 2+2?", "model": "gpt41", "temperature": 0.3}
+])
+```
+
 ## Available Functions
 
-### spawn_children(children: list[dict]) -> list[TrialView]
-Spawn child LLMs with ANY prompts. Each child dict has:
+### query_llm(queries: list[dict]) -> list[dict]
+Query child LLMs with ANY prompts (no code evaluation - just get responses). Each dict has:
 - `prompt` (str, required) - Any question or task, not limited to circle packing!
 - `model` (str, optional) - alias from available child LLMs
 - `temperature` (float, optional, default 0.7)
-Returns list of TrialView objects with: trial_id, code, score, success, reasoning, error, etc.
+
+Returns list of dicts with: model, prompt, response, temperature, success, error.
+
+Example:
+```python
+results = query_llm([
+    {"prompt": "Explain gradient descent in 2 sentences", "model": "sonnet"},
+    {"prompt": "Write a Python function to compute factorial", "model": "gpt41"}
+])
+for r in results:
+    print(f"{r['model']}: {r['response'][:200]}")
+```
 
 ### get_calibration_status() -> dict
 Check remaining calibration calls per model.
 
+```python
+get_calibration_status()
+```
+
 ### update_scratchpad(content: str) -> dict
 Record your observations about each model's behavior. These notes will persist into evolution.
+
+```python
+update_scratchpad(\"\"\"
+## Model Observations
+- sonnet: Strong reasoning, verbose responses
+- gpt41: Concise, good at math
+\"\"\")
+```
 
 ### end_calibration_phase() -> dict
 Finish calibration and begin the evolution phase. Call this when you've learned enough.
 
+```python
+end_calibration_phase()
+```
+
 ## Guidelines
 
-1. **Ask diverse questions**: Test reasoning, math, code quality - not just circle packing. You're notes should be generic and not specific to the circle packing task.
+1. **Ask diverse questions**: Test reasoning, math, code quality - not just circle packing. Your notes should be generic and not specific to the circle packing task.
 2. **Compare models**: Give the same prompt to different models to compare their responses
 3. **Experiment with temperatures**: Generally 0 is considered the most focused / reproducible, 1 is the most creative.
 4. **Record detailed observations**: Note strengths/weaknesses of each model

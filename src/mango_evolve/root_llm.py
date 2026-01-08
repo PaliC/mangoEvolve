@@ -189,16 +189,16 @@ class RootLLMOrchestrator:
                 "## Your Task",
                 "",
                 "Use the available calibration calls to:",
-                "1. Test each model with simple circle packing prompts",
+                "1. Test each model with simple prompts (reasoning, math, code)",
                 "2. Experiment with different temperature settings (0.0-1.0)",
                 "3. Observe output quality, code style, and reasoning depth",
                 "4. Update your scratchpad with observations about each model",
                 "",
-                "Use `spawn_children([{prompt, model, temperature}])` to test models.",
-                "Use `update_scratchpad(content)` to record your observations.",
-                "Use `get_calibration_status()` to check remaining calibration calls.",
-                "",
-                "When done calibrating, call `end_calibration_phase()` to begin evolution.",
+                "Write Python code in ```python blocks to call functions:",
+                "- `query_llm([{prompt, model, temperature}])` - query models",
+                "- `update_scratchpad(content)` - record observations",
+                "- `get_calibration_status()` - check remaining calls",
+                "- `end_calibration_phase()` - finish calibration",
                 "",
             ]
         )
@@ -293,8 +293,8 @@ class RootLLMOrchestrator:
             else:
                 user_content = (
                     f"No code executed. Remaining calibration calls: {remaining_str}\n\n"
-                    "Use `spawn_children([{{prompt, model, temperature}}])` to test models, "
-                    "or call `end_calibration_phase()` when done."
+                    "Write Python in ```python blocks. Use `query_llm([{{prompt, model, temperature}}])` "
+                    "to test models, or `end_calibration_phase()` when done."
                 )
 
             self._calibration_messages.append({"role": "user", "content": user_content})
@@ -759,11 +759,11 @@ class RootLLMOrchestrator:
                 "- **Potential**: Which trials might improve with refinement, even if current scores are lower?",
                 "",
                 "You can select any trial_id from any generation (current or historical).",
-                "If you want extra history, you can use `trials[trial_id].code`,",
-                "but prefer your own reasoning and notes when possible.",
-                "**Tip**: Use the All-Time Top 5 in the lineage map above to identify promising",
-                "historical trials. You can mutate any past trial using `{{CODE_TRIAL_X_Y}}` tokens",
-                "or `trials[trial_id].code` in your next generation's prompts.",
+                "Use `trials[trial_id].code` to retrieve the code of the trial you want to select.",
+                "Furthermore, you can use the trials object in order to examine and filter the trials.",
+                "```python",
+                "trials.filter(success=True, sort_by='-score', limit=5)",
+                "```",
                 "",
                 "Respond with a ```selection``` block containing JSON:",
                 "```selection",
