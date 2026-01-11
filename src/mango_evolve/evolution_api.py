@@ -20,7 +20,6 @@ from .exceptions import CalibrationBudgetError, ChildrenLimitError, GenerationLi
 from .llm.prompts import CHILD_LLM_SYSTEM_PROMPT
 from .logger import ExperimentLogger
 from .parallel_worker import query_llm as query_llm_worker, spawn_child
-from .utils.prompt_substitution import substitute_trial_codes
 
 
 class Evaluator(Protocol):
@@ -613,25 +612,6 @@ class EvolutionAPI:
         # Get experiment directory for workers to write trial files
         experiment_dir = str(self.logger.base_dir)
 
-        # Substitute {{CODE_TRIAL_X_Y}} tokens in all prompts before passing to workers
-        substituted_prompts: dict[int, str] = {}
-        for orig_idx, child in indexed_children:
-            prompt = child.get("prompt", "")
-            substituted_prompt, substitution_report = substitute_trial_codes(
-                prompt,
-                all_trials=self.all_trials,
-                experiment_dir=experiment_dir,
-            )
-            substituted_prompts[orig_idx] = substituted_prompt
-            if substitution_report:
-                for sub in substitution_report:
-                    if sub["success"]:
-                        tqdm.write(
-                            f"       → Substituted {sub['token']} with code from {sub['trial_id']}"
-                        )
-                    else:
-                        tqdm.write(f"       ⚠ Failed to substitute {sub['token']}: {sub['error']}")
-
         # Prepare worker arguments in sorted order (by parent_id) for cache optimization
         # Each worker gets: (prompt, parent_id, model, evaluator_kwargs, max_tokens, temperature,
         #                    trial_id, generation, experiment_dir, system_prompt, provider, model_alias)
@@ -641,15 +621,14 @@ class EvolutionAPI:
             parent_id = child.get("parent_id")
             temperature = child.get("temperature", 0.7)
             model_alias, config = resolved_models[orig_idx]
-            max_tokens = 4096
+            max_tokens = 8192
             if config.provider == "google":
-                # Gemini thinking tokens count against max_output_tokens; 4096 truncates code.
-                max_tokens = 16384
+                # Gemini thinking tokens count against max_output_tokens; 8192 truncates code.
+                max_tokens = 65536
 
-            # Serialize model config for worker
             worker_args.append(
                 (
-                    substituted_prompts[orig_idx],  # Use substituted prompt
+                    child.get("prompt", ""),
                     parent_id,
                     config.model,  # Actual model name
                     self.evaluator_kwargs,
@@ -1156,9 +1135,9 @@ class EvolutionAPI:
         for i, query in enumerate(queries):
             model_alias, config = resolved_models[i]
             temperature = query.get("temperature", 0.7)
-            max_tokens = 4096
+            max_tokens = 8192
             if config.provider == "google":
-                max_tokens = 16384
+                max_tokens = 65536
 
             # Use query_llm worker (no evaluation, no file I/O)
             worker_args.append(

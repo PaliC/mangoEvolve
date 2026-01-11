@@ -395,24 +395,6 @@ class TestTrialResult:
         assert d["parent_id"] == "parent_0_0"
 
 
-class TestPromptSubstitutionUtility:
-    """Tests for prompt substitution utility (not requiring EvolutionAPI)."""
-
-    def test_substitute_trial_codes_works(self, evolution_api):
-        """Test that substitute_trial_codes utility works."""
-        from mango_evolve.utils.prompt_substitution import substitute_trial_codes
-
-        # Just test the utility function directly
-        prompt = "Test: {{CODE_TRIAL_0_0}}"
-        result, report = substitute_trial_codes(
-            prompt,
-            all_trials={},  # Empty - should show error marker
-            experiment_dir="/tmp",
-        )
-
-        assert "[CODE NOT FOUND: trial_0_0]" in result
-
-
 class TestScratchpad:
     """Tests for the scratchpad functionality."""
 

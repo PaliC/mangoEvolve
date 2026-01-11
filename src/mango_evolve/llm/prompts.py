@@ -47,11 +47,27 @@ def run_packing():
 
 ### spawn_children(children: list[dict]) -> list[TrialView]
 Spawn child LLMs in parallel. Each child dict has:
-- `prompt` (str, required)
-- `parent_id` (str, optional)
+- `prompt` (str, required) - Use `trials["trial_X_Y"].code` to include code in your prompt
+- `parent_id` (str, optional) - set to track lineage when improving a trial
 - `model` (str, optional) - alias from available child LLMs
 - `temperature` (float, optional, default 0.7)
 Returns list of TrialView objects with: trial_id, code, score, success, reasoning, error, etc.
+
+Example:
+```python
+# Improve the best trial from previous generation
+best = trials.filter(success=True, sort_by="-score", limit=1)[0]
+results = spawn_children([{
+    "prompt": f"Improve this circle packing (score={best.score}):\\n{best.code}\\nTry to increase the sum of radii.",
+    "parent_id": best.trial_id
+}])
+
+# Combine two approaches
+t1, t2 = trials.filter(success=True, sort_by="-score", limit=2)
+spawn_children([{
+    "prompt": f"Combine these two approaches:\\n# Approach 1 ({t1.score}):\\n{t1.code}\\n\\n# Approach 2 ({t2.score}):\\n{t2.code}"
+}])
+```
 
 ### query_llm(queries: list[dict]) -> list[dict]
 Query child LLMs for analysis without code evaluation or trial records. Use this to:
@@ -62,19 +78,50 @@ Query child LLMs for analysis without code evaluation or trial records. Use this
 - **Find patterns**: "What do the top 5 trials have in common?"
 
 Each query dict has:
-- `prompt` (str, required) - Include trial code/data in your prompt as needed
+- `prompt` (str, required) - Use `trials["trial_X_Y"].code` to include code in your prompt
 - `model` (str, optional) - alias from available child LLMs
 - `temperature` (float, optional, default 0.7)
 
 Returns list of dicts with: model, prompt, response, temperature, success, error.
 
-Example:
+Examples:
 ```python
-top_trials = trials.filter(success=True, sort_by="-score", limit=3)
+# Analyze top performing trials
+top = trials.filter(success=True, sort_by="-score", limit=3)
 analysis = query_llm([{
-    "prompt": f"Compare these approaches and identify what makes the best one work:\n" +
-              "\n".join(f"Score {t.score}: {t.code[:500]}" for t in top_trials),
-    "model": "strong"
+    "prompt": f"Compare these approaches and identify what makes the best one work:\\n" +
+              "\\n---\\n".join(f"# {t.trial_id} (score={t.score})\\n{t.code}" for t in top),
+    "model": "model_alias_of_your_choice"
+}])
+print(analysis[0]["response"])
+
+# Ask about a specific trial
+best = trials.filter(success=True, sort_by="-score", limit=1)[0]
+query_llm([{"prompt": f"What optimization technique does this use?\\n{best.code}"}])
+
+# Compare all trials of a generation
+generation = trials.filter(generation=0)
+analysis = query_llm([{
+    "prompt": f"Compare all trials of generation 0 and identify what makes the best ones work vs the rest:\\n" +
+              "\\n---\\n".join(f"# {t.trial_id} (score={t.score})\\n{t.code}" for t in generation),
+    "model": "model_alias_of_your_choice"
+}])
+print(analysis[0]["response"])
+
+# Find diversity in a generation
+generation = trials.filter(generation=0)
+analysis = query_llm([{
+    "prompt": f"Look throug the various approaches and identify which ones may not be the best, but may be interesting to try again in the future:\\n" +
+              "\\n---\\n".join(f"# {t.trial_id} (score={t.score})\\n{t.code}" for t in generation),
+    "model": "model_alias_of_your_choice"
+}])
+print(analysis[0]["response"])
+
+# Identify bugs in a trial
+trial = trials["trial_0_5"]
+analysis = query_llm([{
+    "prompt": f"Identify bugs in the following code:\\n{trial.code}",
+    "model": "model_alias_of_your_choice"
 }])
 print(analysis[0]["response"])
 ```
@@ -98,15 +145,12 @@ Alternative function to update persistent notes (same as `scratchpad.content = c
 ### terminate_evolution(reason: str, best_program: str = None) -> dict
 End evolution early.
 
-## Code References
-
-Use `{{{{CODE_TRIAL_X_Y}}}}` in prompts to inject code from trial X_Y.
-Example: `{{{{CODE_TRIAL_0_3}}}}` becomes the code from trial_0_3.
-
 ## Evolution Flow
 
-1. You spawn children using the `spawn_children` function with diverse prompts each generation
-2. After spawning, you SELECT which trials to carry forward (performance, diversity, potential)
+1. (Optional) Run analysis in one or more ```python``` blocks
+2. When ready, spawn children using the `spawn_children` function with diverse prompts
+2. Using the trials variable do some analysis on the results in order to inform your strategy. We recommend at lookingings at all of the results. As the contents of trials may be large, you can use the `query_llm` function to analyze the results. Note you have access and are encouraged to consider all past trials not just the past generation.
+3. After spawning, you SELECT which trials to carry forward (performance, diversity, potential)
 3. Repeat until max_generations or you call terminate_evolution()
 
 ## Selection Format
@@ -222,7 +266,9 @@ Use `.to_dict()` if you need dict format.
 
 **Learn from results**: Use scores and patterns you observe to guide your strategy. If an approach is working, refine it. If you're stuck, try something radically different.
 
-**Use query_llm for analysis**: When you want to understand *why* something works, compare approaches, or get strategic advice, use `query_llm()` to analyze trials. This helps you make more informed decisions about what to try next.
+**Use query_llm for analysis**: When you want to understand *why* something works, compare approaches, or get strategic advice, use `query_llm(queries: list[dict])` to analyze trials. This helps you make more informed decisions about what to try next.
+
+**Exploration and Exploitation**: You are encouraged to explore different approaches and to exploit the best ones. Given the amount of trials you are encouraged to allocate some for exploration and exploring ideas with potential or new ideas, and others for refining the best solution(s).
 '''
 
 # Dynamic suffix template - appended after the static prefix
