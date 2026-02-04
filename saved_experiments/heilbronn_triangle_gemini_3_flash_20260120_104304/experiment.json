@@ -1,0 +1,867 @@
+{
+  "experiment_id": "circle_packing_gemini_3_flash_20260120_104304",
+  "config": {
+    "experiment": {
+      "name": "circle_packing_gemini_3_flash",
+      "output_dir": "./experiments",
+      "seed": null
+    },
+    "root_llm": {
+      "model": "gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "google",
+      "max_iterations": null,
+      "reasoning": {
+        "enabled": true,
+        "effort": "high",
+        "max_tokens": null,
+        "exclude": false
+      }
+    },
+    "child_llms": [
+      {
+        "model": "gemini-3-flash-preview",
+        "cost_per_million_input_tokens": 0.5,
+        "cost_per_million_output_tokens": 3.0,
+        "alias": "flash",
+        "provider": "google",
+        "calibration_calls": 2,
+        "reasoning": {
+          "enabled": true,
+          "effort": "high",
+          "max_tokens": null,
+          "exclude": false
+        }
+      },
+      {
+        "model": "gemini-3-pro-preview",
+        "cost_per_million_input_tokens": 2.0,
+        "cost_per_million_output_tokens": 12.0,
+        "alias": "pro",
+        "provider": "google",
+        "calibration_calls": 1,
+        "reasoning": {
+          "enabled": true,
+          "effort": "high",
+          "max_tokens": null,
+          "exclude": false
+        }
+      }
+    ],
+    "evaluation": {
+      "evaluator_fn": "problems.heilbronn_triangle.evaluator:HeilbronnTriangleEvaluator",
+      "evaluator_kwargs": {
+        "num_points": 11,
+        "timeout_seconds": 30
+      }
+    },
+    "evolution": {
+      "max_generations": 20,
+      "max_children_per_generation": 16
+    },
+    "budget": {
+      "max_total_cost": 50.0
+    },
+    "default_child_llm_alias": "flash",
+    "calibration_notes_file": null
+  },
+  "start_time": "2026-01-20T10:43:04.190965",
+  "end_time": null,
+  "termination_reason": null,
+  "num_generations": 16,
+  "total_trials": 0,
+  "best_trial": {
+    "trial_id": "trial_12_5",
+    "score": 0.9999999999999939,
+    "generation": 12
+  },
+  "scratchpad": "",
+  "generations": [
+    {
+      "generation_num": 0,
+      "num_trials": 12,
+      "num_successful_trials": 12,
+      "best_trial_id": "trial_0_7",
+      "best_score": 0.9637028937435187,
+      "selected_trial_ids": [
+        "trial_0_7",
+        "trial_0_6",
+        "trial_0_11",
+        "trial_0_2"
+      ],
+      "selection_reasoning": "The selection focuses on the most successful optimization architecture (coordinate mapping + L-BFGS-B + Log-Sum-Exp), a strong geometric prior (3-fold symmetry), a robust global search (CMA-ES), and a targeted local heuristic (Smart Mutation).",
+      "trial_selections": [
+        {
+          "trial_id": "trial_0_7",
+          "reasoning": "Highest score (0.9637). The winning move was the coordinate mapping (u,v) -> triangle, which transformed a constrained problem into a box-bounded one, allowing L-BFGS-B to excel. It also used a stable Log-Sum-Exp objective.",
+          "category": "performance",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_6",
+          "reasoning": "Second highest score (0.9008). Uses 3-fold rotational symmetry. While the score is lower than trial_0_7, the symmetry prior is very strong for this problem and could be combined with trial_0_7's coordinate mapping.",
+          "category": "diversity",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_11",
+          "reasoning": "Third highest score (0.8929). Uses CMA-ES. This derivative-free approach is a good fallback if the smoothed gradient landscape of trial_0_7 becomes too complex or trapped in local optima.",
+          "category": "performance",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_2",
+          "reasoning": "Uses 'Smart Mutation' (targeting the smallest triangle). This heuristic is conceptually different from the global optimization of the other selections and could be used as a post-processing refinement step.",
+          "category": "potential",
+          "source_generation": 0
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T10:52:23.867536"
+    },
+    {
+      "generation_num": 1,
+      "num_trials": 16,
+      "num_successful_trials": 11,
+      "best_trial_id": "trial_1_2",
+      "best_score": 0.9963955590169408,
+      "selected_trial_ids": [
+        "trial_1_2",
+        "trial_1_0",
+        "trial_1_12",
+        "trial_1_11",
+        "trial_1_7"
+      ],
+      "selection_reasoning": "Trial 1_2 is the primary lead, having found a highly effective combination of coordinate mapping, analytical gradients, and a two-phase symmetry-breaking strategy. The next generation will focus on refining this approach (e.g., higher precision, more restarts, and alternative smoothing functions) while maintaining diversity through trial 1_11 and 1_7's mapping concepts.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_1_2",
+          "reasoning": "Top performer (0.9964). Uses a clever coordinate mapping (unit square to triangle) and analytical gradients with a symmetry-then-relaxation strategy.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_0",
+          "reasoning": "Strong performance (0.942). Uses an annealed Log-Sum-Exp objective. The annealing schedule is a robust optimization technique.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_12",
+          "reasoning": "High score (0.937). Demonstrates that COBYLA can be effective for fine-tuning existing high-quality solutions.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_11",
+          "reasoning": "Provides structural diversity from the 'pro' model's geometric exploration, avoiding the potential local optima of the LSE approaches.",
+          "category": "diversity",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_7",
+          "reasoning": "Uses a different coordinate mapping approach. While the initial score was low, the mapping technique itself is a powerful way to handle triangle constraints.",
+          "category": "potential",
+          "source_generation": 1
+        }
+      ],
+      "parents_used": [
+        "trial_0_11",
+        "trial_0_6",
+        "trial_0_7"
+      ],
+      "parents_used_counts": {
+        "trial_0_11": 1,
+        "trial_0_6": 1,
+        "trial_0_7": 3
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T10:59:54.547406"
+    },
+    {
+      "generation_num": 2,
+      "num_trials": 10,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_2_7",
+      "best_score": 0.9971327567151517,
+      "selected_trial_ids": [
+        "trial_2_7",
+        "trial_2_9",
+        "trial_2_2",
+        "trial_0_7"
+      ],
+      "selection_reasoning": "The focus is now on the 'ratchet' mechanism and the two-stage alpha refinement discovered in trial_2_7. I will also carry forward the Barycentric approach to see if its superior constraint handling can be merged with the symmetric starting configurations to avoid the 'INVALID' errors seen in other symmetry-breaking attempts.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "Current best score (0.9971). It successfully used a 'ratchet' mechanism to break symmetry and refine the configuration using a two-stage alpha schedule in the Log-Sum-Exp objective.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_2_9",
+          "reasoning": "Second best (0.9964). It provides a slightly different implementation of the symmetric initialization which can be used for cross-breeding or as an alternative starting point.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_2_2",
+          "reasoning": "Uses Barycentric coordinates. While the score is lower (0.898), this coordinate system is more robust for keeping points inside the triangle and could be combined with the symmetric initialization strategy.",
+          "category": "diversity",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_0_7",
+          "reasoning": "The best non-symmetric approach (0.9637). It serves as a strong baseline for global search methods that don't rely on the 3-fold symmetry prior.",
+          "category": "diversity",
+          "source_generation": 0
+        }
+      ],
+      "parents_used": [
+        "trial_0_7",
+        "trial_1_2"
+      ],
+      "parents_used_counts": {
+        "trial_0_7": 1,
+        "trial_1_2": 6
+      },
+      "parents_not_selected_prev_gen": [
+        "trial_0_7"
+      ],
+      "timestamp": "2026-01-20T11:04:27.675563"
+    },
+    {
+      "generation_num": 3,
+      "num_trials": 12,
+      "num_successful_trials": 9,
+      "best_trial_id": "trial_3_1",
+      "best_score": 0.9453692675207827,
+      "selected_trial_ids": [
+        "trial_2_7",
+        "trial_1_2",
+        "trial_3_5",
+        "trial_3_1"
+      ],
+      "selection_reasoning": "The strategy for the next generation is to combine the winning bilateral symmetry (1+5*2) from trial_2_7 with the robust barycentric parameterization from trial_3_5 and a more aggressive alpha-annealing schedule (ramping from 100 to 100,000). This aims to overcome the numerical 'softness' that has plateaued the scores at 0.997.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "Best overall score (0.9971). Its bilateral symmetry (1+5*2) is the most effective prior found so far, likely approximating the C5v symmetry of the optimal 11-point configuration.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_1_2",
+          "reasoning": "Second best score (0.9964). Uses a robust two-phase approach (Symmetric -> Full) that will be combined with the bilateral symmetry of 2_7.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_3_5",
+          "reasoning": "Uses barycentric coordinates. This provides a more stable parameterization for high-alpha optimization than Cartesian coordinates with linear constraints.",
+          "category": "diversity",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_3_1",
+          "reasoning": "Highest score in Gen 3. Attempted alpha-annealing, which is the key technique for refining the solution from 0.997 to 1.0.",
+          "category": "potential",
+          "source_generation": 3
+        }
+      ],
+      "parents_used": [
+        "trial_2_7"
+      ],
+      "parents_used_counts": {
+        "trial_2_7": 5
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:11:34.756652"
+    },
+    {
+      "generation_num": 4,
+      "num_trials": 6,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_4_3",
+      "best_score": 0.947233172186906,
+      "selected_trial_ids": [
+        "trial_2_7",
+        "trial_4_3",
+        "trial_1_2",
+        "trial_4_5"
+      ],
+      "selection_reasoning": "The strategy for the next generation is to build upon the success of trial_2_7's 'Symmetry-First' subspace optimization. We will refine the 11D-to-22D transition, improve the alpha-annealing schedule, and explore different starting seeds. We also maintain diversity by carrying forward the best 3-fold symmetry and non-symmetric basin-hopping approaches.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "Current state-of-the-art (0.9971). Its 11D-to-22D optimization strategy with analytic gradients is the most effective approach discovered so far.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_4_3",
+          "reasoning": "Best of the recent generation. Provides a non-symmetric alternative using basin-hopping, which is useful if the symmetric basin is not the global optimum.",
+          "category": "potential",
+          "source_generation": 4
+        },
+        {
+          "trial_id": "trial_1_2",
+          "reasoning": "Uses 3-fold symmetry (1 center + 3 orbits of 3). This is a distinct symmetry group from trial_2_7's reflection symmetry, offering a different structural prior.",
+          "category": "diversity",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_4_5",
+          "reasoning": "Implements a targeted perturbation strategy. The logic of focusing on the 'worst' triangles is a classic and effective heuristic for this problem.",
+          "category": "potential",
+          "source_generation": 4
+        }
+      ],
+      "parents_used": [
+        "trial_2_7"
+      ],
+      "parents_used_counts": {
+        "trial_2_7": 2
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:17:42.466170"
+    },
+    {
+      "generation_num": 5,
+      "num_trials": 6,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_5_0",
+      "best_score": 0.9544351440879159,
+      "selected_trial_ids": [
+        "trial_2_7",
+        "trial_1_2",
+        "trial_5_1",
+        "trial_0_7"
+      ],
+      "selection_reasoning": "We are carrying forward the best-performing trials that utilize symmetry-constrained optimization (2_7, 1_2) and bilateral symmetry (5_1). Analysis of trial_2_7 revealed that its coordinate mapping is biased and non-uniform; the next generation will focus on improving this mapping (using folding or barycentric coordinates) and increasing the multi-start intensity to break the 1.0 barrier.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "Current best score (0.9971). Its two-stage strategy (symmetry-constrained then relaxed) is the most successful methodology. Future trials should refine its coordinate mapping and multi-start density.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_1_2",
+          "reasoning": "Consistently high score (0.9964). Provides a robust alternative implementation of the Softmin objective and 3-fold symmetry logic.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_5_1",
+          "reasoning": "Best bilateral symmetry implementation. While the score is lower, bilateral symmetry is a strong candidate for the global optimum of n=11, and the code structure is useful for further refinement.",
+          "category": "diversity",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_0_7",
+          "reasoning": "Best non-symmetric approach (0.9637). Uses L-BFGS-B with a smoothed objective, serving as a good baseline for asymmetric search.",
+          "category": "diversity",
+          "source_generation": 0
+        }
+      ],
+      "parents_used": [
+        "trial_2_7"
+      ],
+      "parents_used_counts": {
+        "trial_2_7": 2
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:24:54.036372"
+    },
+    {
+      "generation_num": 6,
+      "num_trials": 16,
+      "num_successful_trials": 13,
+      "best_trial_id": "trial_6_1",
+      "best_score": 0.9994837280338643,
+      "selected_trial_ids": [
+        "trial_6_1",
+        "trial_6_13",
+        "trial_2_7",
+        "trial_1_2"
+      ],
+      "selection_reasoning": "Trial 6_1 has nearly reached the target of 1.0. The strategy for the next generation will be to exploit the 22D relaxation technique and the square-to-triangle mapping used in 6_1. We will also incorporate the 'Slack Variable' (exact minimax) approach suggested by the analysis to push past the Softmin approximation limit.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "New state-of-the-art score (0.999484). Successfully used symmetry-breaking relaxation and robust coordinate mapping.",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_6_13",
+          "reasoning": "Second best in this generation (0.9814). Provides a high-quality alternative basin.",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "The previous best (0.9971); still a very strong symmetric seed for other relaxation attempts.",
+          "category": "potential",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_1_2",
+          "reasoning": "High score (0.9964) using 3-fold symmetry constraints, providing diversity in configuration.",
+          "category": "diversity",
+          "source_generation": 1
+        }
+      ],
+      "parents_used": [
+        "trial_2_7"
+      ],
+      "parents_used_counts": {
+        "trial_2_7": 2
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:33:00.394691"
+    },
+    {
+      "generation_num": 7,
+      "num_trials": 6,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_7_5",
+      "best_score": 0.9475023862761036,
+      "selected_trial_ids": [
+        "trial_6_1",
+        "trial_2_7",
+        "trial_7_5",
+        "trial_0_6"
+      ],
+      "selection_reasoning": "The strategy for the next generation is to double down on the 'Global Softmin' approach from trial_6_1 while fixing the technical failures of Gen 7 (like the bound violations in 7_0 and 7_4). We will focus on high-precision refinement of 6_1's coordinates using Basin-Hopping and SLSQP with extremely high alpha values, ensuring the objective function remains global to avoid the 'Whac-A-Mole' effect.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "Global best (0.99948). The most successful strategy using a 2-stage (symmetric then relaxed) global Softmin optimization.",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "The symmetric precursor to 6_1. Its high score (0.9971) proves the value of the symmetric starting point.",
+          "category": "potential",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_7_5",
+          "reasoning": "Despite the 'Whac-A-Mole' flaw identified in analysis, it explored a different 3-fold symmetry orbit (1+3+3+3+1), which is a valid structural alternative.",
+          "category": "diversity",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_0_6",
+          "reasoning": "A strong early symmetric approach (0.9008) that provides a different basin of attraction for relaxation.",
+          "category": "diversity",
+          "source_generation": 0
+        }
+      ],
+      "parents_used": [
+        "trial_6_1"
+      ],
+      "parents_used_counts": {
+        "trial_6_1": 4
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:37:32.643464"
+    },
+    {
+      "generation_num": 8,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_8_4",
+      "best_score": 0.999999999996817,
+      "selected_trial_ids": [
+        "trial_8_4",
+        "trial_8_0",
+        "trial_8_3",
+        "trial_6_1"
+      ],
+      "selection_reasoning": "Generation 8 successfully reached the target score of 1.0. The winning strategy combined a 3-fold symmetric initialization, a high-alpha softmin relaxation, and a final minimax refinement using slack variables. I am carrying forward the three trials that hit 1.0 to explore if higher precision or alternative configurations exist, while keeping the successful lineage of trial_6_1 as a reference.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_8_4",
+          "reasoning": "Highest score (0.999999999996817). Uses a robust 3-stage optimization with a targeted bottleneck refinement that handle triangle orientations dynamically.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_0",
+          "reasoning": "Achieved 1.0 using a slack variable formulation with pre-calculated triangle orientations, providing a slightly different optimization landscape.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_3",
+          "reasoning": "Achieved 1.0 using a distinct barycentric mapping and a stochastic hill-climbing refinement phase, offering algorithmic diversity.",
+          "category": "diversity",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "The parent of the 1.0 trials; its 2-stage relaxation strategy is the foundation for the current success.",
+          "category": "potential",
+          "source_generation": 6
+        }
+      ],
+      "parents_used": [
+        "trial_6_1"
+      ],
+      "parents_used_counts": {
+        "trial_6_1": 5
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:42:35.015341"
+    },
+    {
+      "generation_num": 9,
+      "num_trials": 6,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_9_2",
+      "best_score": 0.9076921992921969,
+      "selected_trial_ids": [
+        "trial_8_4",
+        "trial_8_0",
+        "trial_9_2",
+        "trial_6_1"
+      ],
+      "selection_reasoning": "Generation 9's refinement attempts failed due to implementation errors (missing code blocks). I am carrying forward the successful 1.0 trials from Generation 8 to re-attempt high-precision refinement, while keeping the best bilateral symmetry trial for structural diversity.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_8_4",
+          "reasoning": "Highest score achieved (approx 1.0). Uses a bottleneck refinement strategy that proved very effective.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_0",
+          "reasoning": "Achieved 1.0 using a direct slack-variable formulation. Extremely stable base for further optimization.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_9_2",
+          "reasoning": "Best bilateral symmetry result. While lower in score, it represents a fundamentally different geometric packing that might be a local optimum worth exploring.",
+          "category": "diversity",
+          "source_generation": 9
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "The 0.99948 result that served as the successful seed for all 1.0 trials. Useful if the 1.0 solutions are too 'locked' in their current basin.",
+          "category": "potential",
+          "source_generation": 6
+        }
+      ],
+      "parents_used": [
+        "trial_8_0",
+        "trial_8_4"
+      ],
+      "parents_used_counts": {
+        "trial_8_0": 3,
+        "trial_8_4": 1
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:47:51.792973"
+    },
+    {
+      "generation_num": 10,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_10_2",
+      "best_score": 0.8299916073447517,
+      "selected_trial_ids": [
+        "trial_8_0",
+        "trial_8_4",
+        "trial_6_1",
+        "trial_10_2"
+      ],
+      "selection_reasoning": "Analysis of Generation 10 revealed that the drop in performance was due to the loss of analytic gradients and the use of 'topology locking' constraints. To reach or exceed 1.0, we must revert to the high-precision methods of Generation 8 (8_0, 8_4) which utilized explicit Jacobians and coordinate mappings. We will carry these forward to re-attempt refinement with more careful implementation of the gradient-based solvers.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_8_0",
+          "reasoning": "Highest score (1.0). This trial uses a sophisticated slack-variable formulation with analytic Jacobians and a coordinate mapping that transforms the triangle into a unit square, which is the most robust approach found so far.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_4",
+          "reasoning": "Achieved 1.0 using a 'bottleneck' optimization strategy. It provides a slightly different numerical path to the same optimum, which is valuable for robustness.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "The 0.99948 trial that served as the seed for the 1.0 solutions. It represents the high-quality 3-fold symmetric basin before the final relaxation.",
+          "category": "diversity",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_10_2",
+          "reasoning": "The best of the recent generation. Although it scored lower, it explored bilateral symmetry and a two-phase optimization that might be improved with analytic gradients.",
+          "category": "diversity",
+          "source_generation": 10
+        }
+      ],
+      "parents_used": [
+        "trial_6_1",
+        "trial_8_0",
+        "trial_8_4"
+      ],
+      "parents_used_counts": {
+        "trial_6_1": 1,
+        "trial_8_0": 4,
+        "trial_8_4": 1
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:52:51.075665"
+    },
+    {
+      "generation_num": 11,
+      "num_trials": 5,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_11_1",
+      "best_score": 0.9999980090016944,
+      "selected_trial_ids": [
+        "trial_8_4",
+        "trial_8_0",
+        "trial_11_1",
+        "trial_6_1"
+      ],
+      "selection_reasoning": "The selection prioritizes the high-precision 1.0 solutions (8_4, 8_0) and their most successful ancestor (6_1). Trial 11_1 is included to refine the basin-hopping approach. The goal for the next generation is to use these seeds with even tighter optimizer tolerances (ftol=1e-12) and more iterations to see if numerical precision can push the score beyond 1.0.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_8_4",
+          "reasoning": "Highest precision 1.0 solution. It uses a robust two-stage optimization (Symmetric -> Slack Variable) and serves as the best current seed.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_0",
+          "reasoning": "Another 1.0 solution with a slightly different implementation of the slack-variable formulation. Provides a robust baseline for refinement.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_11_1",
+          "reasoning": "The best result from Gen 11 (0.999998). Although slightly lower than the seed, it demonstrates that basin-hopping can maintain high-quality results if precision is improved.",
+          "category": "potential",
+          "source_generation": 11
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "The 0.9994 precursor. It is the most fertile starting basin found so far and is useful for testing new relaxation strategies that might break the 1.0 barrier.",
+          "category": "diversity",
+          "source_generation": 6
+        }
+      ],
+      "parents_used": [
+        "trial_8_4"
+      ],
+      "parents_used_counts": {
+        "trial_8_4": 3
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T11:58:58.322949"
+    },
+    {
+      "generation_num": 12,
+      "num_trials": 8,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_12_5",
+      "best_score": 0.9999999999999939,
+      "selected_trial_ids": [
+        "trial_12_5",
+        "trial_12_2",
+        "trial_12_1",
+        "trial_6_1"
+      ],
+      "selection_reasoning": "The top trials have converged on a single optimal configuration with bilateral symmetry. I am selecting the highest precision versions of this (12_5, 12_2) and a diverse symmetric attempt (12_1) to ensure we aren't missing other high-quality basins.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_12_5",
+          "reasoning": "Highest precision 1.0 solution using jitter-and-refine. It represents the optimal symmetric basin.",
+          "category": "performance",
+          "source_generation": 12
+        },
+        {
+          "trial_id": "trial_12_2",
+          "reasoning": "Explicitly enforces bilateral symmetry, confirming the optimal structure for N=11.",
+          "category": "performance",
+          "source_generation": 12
+        },
+        {
+          "trial_id": "trial_12_1",
+          "reasoning": "A bilateral symmetry approach that reached 0.87. While lower, it might be a different symmetric basin or just needs the slack-variable refinement used in the 1.0 trials.",
+          "category": "diversity",
+          "source_generation": 12
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "The 3-fold symmetric precursor to the 1.0 solutions. Useful to keep as a reference for how the symmetry was broken/refined.",
+          "category": "potential",
+          "source_generation": 6
+        }
+      ],
+      "parents_used": [
+        "trial_8_4"
+      ],
+      "parents_used_counts": {
+        "trial_8_4": 5
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T12:04:26.119660"
+    },
+    {
+      "generation_num": 13,
+      "num_trials": 9,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_13_5",
+      "best_score": 0.9999999999216338,
+      "selected_trial_ids": [
+        "trial_13_5",
+        "trial_8_4",
+        "trial_13_6",
+        "trial_6_1"
+      ],
+      "selection_reasoning": "We are carrying forward the two distinct 1.0-score lineages: the 'topology-locked' random-start approach (13_5) and the 'analytical gradient/mapped' approach (8_4). The goal for the next generation is to merge these techniques\u2014using analytical gradients on a topology-locked objective.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_13_5",
+          "reasoning": "Achieved 1.0 using a 'topology locking' technique that fixes triangle orientations, making the optimization landscape smoother for SLSQP.",
+          "category": "performance",
+          "source_generation": 13
+        },
+        {
+          "trial_id": "trial_8_4",
+          "reasoning": "The previous gold standard (1.0). Uses analytical gradients and coordinate mapping. Its methodology is more robust than 13_5.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_13_6",
+          "reasoning": "High-precision 0.999996 result, likely a slightly different configuration or a very close competitor.",
+          "category": "potential",
+          "source_generation": 13
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "The 3-fold symmetric ancestor. Essential for restarting the relaxation process if the 1.0 configurations become numerically unstable.",
+          "category": "diversity",
+          "source_generation": 6
+        }
+      ],
+      "parents_used": [
+        "trial_12_5"
+      ],
+      "parents_used_counts": {
+        "trial_12_5": 7
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T12:10:11.713524"
+    },
+    {
+      "generation_num": 14,
+      "num_trials": 10,
+      "num_successful_trials": 8,
+      "best_trial_id": "trial_14_7",
+      "best_score": 0.9313525655016835,
+      "selected_trial_ids": [
+        "trial_8_4",
+        "trial_8_0",
+        "trial_6_1",
+        "trial_13_5"
+      ],
+      "selection_reasoning": "I am selecting the high-performing trials from Generation 8 as the primary seeds. Generation 14 showed that moving away from the LSE-smoothed objective and symmetric priors leads to significant regression. The next generation will focus on high-precision refinement and micro-perturbation of the 1.0 solutions to push the boundaries of numerical precision, using the extracted coordinates from Trial 8_4 as a hard-coded starting point.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_8_4",
+          "reasoning": "The current best-performing trial (1.0). Its multi-stage optimization (Symmetric -> LSE -> Slack) is the most robust methodology found so far.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_0",
+          "reasoning": "Another 1.0 solution that used a different implementation of the slack variable method. Good for verifying the stability of the 1.0 basin.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "The 0.9994 solution. It represents the best asymmetric (relaxed) configuration before the final slack-variable push.",
+          "category": "diversity",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_13_5",
+          "reasoning": "Despite the lower score, the 'topology locking' concept is useful for the final refinement stage where the combinatorial structure is already optimal.",
+          "category": "potential",
+          "source_generation": 13
+        }
+      ],
+      "parents_used": [
+        "trial_8_4"
+      ],
+      "parents_used_counts": {
+        "trial_8_4": 8
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T12:22:12.406459"
+    },
+    {
+      "generation_num": 15,
+      "num_trials": 4,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_15_2",
+      "best_score": 0.7216942550462887,
+      "selected_trial_ids": [
+        "trial_8_4",
+        "trial_12_5",
+        "trial_8_0",
+        "trial_6_1"
+      ],
+      "selection_reasoning": "Generation 15 failed because children did not inherit the 1.0 solution from trial_8_4. I am re-selecting the 1.0 and near-1.0 solutions to try the refinement strategy again in Gen 16, with explicit instructions to use the symmetry-based search and hardcoded seeds extracted from trial_8_4.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_8_4",
+          "reasoning": "Global best (1.0). Its 2-stage symmetry-to-relaxation approach is the most proven method for this problem.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_12_5",
+          "reasoning": "Highest precision trial (0.9999999999999939). Essential for further refinement and breaking the 1.0 barrier.",
+          "category": "performance",
+          "source_generation": 12
+        },
+        {
+          "trial_id": "trial_8_0",
+          "reasoning": "Clean 1.0 score using a direct slack-variable formulation, providing a robust alternative to trial_8_4.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_6_1",
+          "reasoning": "The high-quality 0.999 ancestor that provided the basin for the 1.0 solutions; useful for exploring alternative relaxations.",
+          "category": "ancestor",
+          "source_generation": 6
+        }
+      ],
+      "parents_used": [
+        "trial_8_4"
+      ],
+      "parents_used_counts": {
+        "trial_8_4": 3
+      },
+      "parents_not_selected_prev_gen": [],
+      "timestamp": "2026-01-20T12:27:38.254196"
+    }
+  ]
+}

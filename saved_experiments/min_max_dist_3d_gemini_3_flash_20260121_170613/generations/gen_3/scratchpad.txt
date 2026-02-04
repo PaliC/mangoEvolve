@@ -1,0 +1,35 @@
+============================================================
+SCRATCHPAD FOR GENERATION 3
+============================================================
+
+
+# Strategy for Generation 1
+- Aim: Maximize (min_dist / max_dist)^2 for 14 points in 3D.
+- 14 points is a classic problem size (related to the Tammes problem if constrained to a sphere, but here max_dist is flexible).
+- Approach 1: Physical repulsion models (1/r^p) with high p to approximate max-min.
+- Approach 2: Global optimization (Basin-hopping, Differential Evolution).
+- Approach 3: Local refinement of geometric seeds (Lattices, Spherical codes).
+- Approach 4: SoftMin/LogSumExp optimization to handle the non-differentiable 'min' function.
+
+## Generation 1 Insights
+- Best score: 1.000015313987643 (trial_1_1)
+- trial_1_1 uses Basin-hopping with SLSQP and a specific normalization step.
+- trial_1_9 (score 0.998) uses a lattice-based initialization followed by refinement.
+- trial_1_7 (score 0.996) uses a constrained optimization approach.
+- Key observation: Multi-start global optimization (Basin-hopping) combined with local refinement is highly effective. 
+- Normalizing max_dist to 1.0 at each step helps the optimizer focus on min_dist.
+
+## Generation 2 Insights
+- Generation 2 did not exceed the best score from Generation 1 (1.000015).
+- trial_2_5 (0.9994) used LogSumExp but didn't quite reach the peak.
+- trial_2_1 (0.9994) used multi-start SLSQP.
+- trial_2_0 (the intended improvement of trial_1_1) failed, likely due to a timeout or implementation error.
+- The best performing approach remains the specific Basin-hopping implementation in trial_1_1.
+- Next steps: Focus on hyper-parameter tuning for trial_1_1 and exploring high-precision local refinement (e.g., trust-region methods).
+
+## Generation 3 Insights
+- New best score: 1.000016 (trial_3_6 and trial_3_4).
+- trial_3_6 used a multi-start SLSQP with a specific perturbation strategy.
+- trial_3_4 used a stochastic hill-climbing approach starting from trial_1_1's configuration.
+- The improvement is marginal but consistent, suggesting we are approaching a very sharp local optimum.
+- High-precision polishing (low ftol/gtol) is essential at this stage.

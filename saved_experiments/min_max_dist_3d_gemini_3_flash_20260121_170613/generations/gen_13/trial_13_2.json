@@ -1,0 +1,33 @@
+{
+  "trial_id": "trial_13_2",
+  "generation": 13,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Finds 14 points in 3D space to maximize the squared ratio (min_dist / max_dist)^2.\n    Uses D6d symmetry (Bicapped Hexagonal Antiprism) to reduce the search space\n    and improve optimization stability.\n    \"\"\"\n    \n    def get_points(params):\n        \"\"\"\n        Generates 14 points based on D6d symmetry.\n        params: [z_pole, z_ring, radius_ring, theta_offset]\n        \"\"\"\n        zp, zr, r, theta = params\n        pts = np.zeros((14, 3))\n        # Two poles on the z-axis\n        pts[0] = [0, 0, zp]\n        pts[1] = [0, 0, -zp]\n        # Two hexagonal rings\n        for i in range(6):\n            angle = i * np.pi / 3\n            # Ring 1 at z = zr\n            pts[2+i] = [r * np.cos(angle), r * np.sin(angle), zr]\n            # Ring 2 at z = -zr, rotated by theta\n            pts[8+i] = [r * np.cos(angle + theta), r * np.sin(angle + theta), -zr]\n        return pts\n\n    def objective(params):\n        \"\"\"\n        Objective function: negative of the squared ratio (min_dist / max_dist)^2.\n        \"\"\"\n        pts = get_points(params)\n        # Calculate all pairwise squared Euclidean distances\n        dists_sq = pdist(pts, 'sqeuclidean')\n        dmin2 = np.min(dists_sq)\n        dmax2 = np.max(dists_sq)\n        \n        if dmax2 == 0:\n            return 0\n        \n        # We want to maximize dmin2 / dmax2, so we minimize its negative\n        return -dmin2 / dmax2\n\n    # Global best result tracker\n    best_res_x = None\n    best_fun = float('inf')\n    \n    # Heuristic starting points for the D6d configuration\n    # These cover a range of proportions for the bicapped hexagonal antiprism.\n    starts = [\n        [1.0, 0.25, 0.95, np.pi/6],  # Near-spherical configuration\n        [1.0, 0.5, 0.8, np.pi/6],    # Elongated antiprism\n        [1.0, 0.0, 1.0, np.pi/6],    # Flat rings\n        [0.8, 0.4, 0.9, 0.52],       # Generic starting point\n        [1.2, 0.3, 0.7, np.pi/6]     # Tall configuration\n    ]\n    \n    # Run the optimizer from multiple starting points to find the global optimum\n    for start in starts:\n        res = minimize(\n            objective, \n            start, \n            method='SLSQP', \n            tol=1e-12, \n            options={'maxiter': 1000}\n        )\n        if res.fun < best_fun:\n            best_fun = res.fun\n            best_res_x = res.x\n            \n    # Generate and return the optimized 14 points\n    final_points = get_points(best_res_x)\n    return final_points",
+  "metrics": {
+    "valid": true,
+    "score": 0.9331888295334416,
+    "min_max_ratio": 0.22400923742515788,
+    "min_distance": 1.1545486669764427,
+    "max_distance": 2.4393789978125335,
+    "eval_time": 0.2859368324279785,
+    "error": null
+  },
+  "prompt": "For 14 points in 3D, the optimal packing might be the Bicapped Hexagonal Antiprism (D6d symmetry).\nImplement an optimizer that:\n1. Enforces D6d symmetry to reduce the number of free variables.\n2. Variables: z_pole, z_ring, radius_ring, theta_offset.\n3. Points: 2 at (0, 0, \u00b1z_pole), 6 at (r*cos(k*pi/3), r*sin(k*pi/3), z_ring), 6 at (r*cos(k*pi/3 + theta), r*sin(k*pi/3 + theta), -z_ring).\n4. Maximize the ratio (min_dist/max_dist)^2 using high-precision SLSQP.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Finds 14 points in 3D space to maximize the squared ratio (min_dist / max_dist)^2.\n    Uses D6d symmetry (Bicapped Hexagonal Antiprism) to reduce the search space\n    and improve optimization stability.\n    \"\"\"\n    \n    def get_points(params):\n        \"\"\"\n        Generates 14 points based on D6d symmetry.\n        params: [z_pole, z_ring, radius_ring, theta_offset]\n        \"\"\"\n        zp, zr, r, theta = params\n        pts = np.zeros((14, 3))\n        # Two poles on the z-axis\n        pts[0] = [0, 0, zp]\n        pts[1] = [0, 0, -zp]\n        # Two hexagonal rings\n        for i in range(6):\n            angle = i * np.pi / 3\n            # Ring 1 at z = zr\n            pts[2+i] = [r * np.cos(angle), r * np.sin(angle), zr]\n            # Ring 2 at z = -zr, rotated by theta\n            pts[8+i] = [r * np.cos(angle + theta), r * np.sin(angle + theta), -zr]\n        return pts\n\n    def objective(params):\n        \"\"\"\n        Objective function: negative of the squared ratio (min_dist / max_dist)^2.\n        \"\"\"\n        pts = get_points(params)\n        # Calculate all pairwise squared Euclidean distances\n        dists_sq = pdist(pts, 'sqeuclidean')\n        dmin2 = np.min(dists_sq)\n        dmax2 = np.max(dists_sq)\n        \n        if dmax2 == 0:\n            return 0\n        \n        # We want to maximize dmin2 / dmax2, so we minimize its negative\n        return -dmin2 / dmax2\n\n    # Global best result tracker\n    best_res_x = None\n    best_fun = float('inf')\n    \n    # Heuristic starting points for the D6d configuration\n    # These cover a range of proportions for the bicapped hexagonal antiprism.\n    starts = [\n        [1.0, 0.25, 0.95, np.pi/6],  # Near-spherical configuration\n        [1.0, 0.5, 0.8, np.pi/6],    # Elongated antiprism\n        [1.0, 0.0, 1.0, np.pi/6],    # Flat rings\n        [0.8, 0.4, 0.9, 0.52],       # Generic starting point\n        [1.2, 0.3, 0.7, np.pi/6]     # Tall configuration\n    ]\n    \n    # Run the optimizer from multiple starting points to find the global optimum\n    for start in starts:\n        res = minimize(\n            objective, \n            start, \n            method='SLSQP', \n            tol=1e-12, \n            options={'maxiter': 1000}\n        )\n        if res.fun < best_fun:\n            best_fun = res.fun\n            best_res_x = res.x\n            \n    # Generate and return the optimized 14 points\n    final_points = get_points(best_res_x)\n    return final_points\n\n```",
+  "reasoning": "",
+  "timestamp": "2026-01-21T18:22:33.587036",
+  "cost_data": null,
+  "model_config": {
+    "model": "gemini-3-flash-preview",
+    "temperature": 0.7,
+    "provider_debug": {
+      "finish_reason": "STOP",
+      "usage_metadata": {
+        "prompt_token_count": 349,
+        "candidates_token_count": 848,
+        "thoughts_token_count": 20380
+      },
+      "response_text_len": 2578
+    }
+  }
+}

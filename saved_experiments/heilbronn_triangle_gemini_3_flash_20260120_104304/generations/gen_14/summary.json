@@ -1,0 +1,48 @@
+{
+  "generation_num": 14,
+  "num_trials": 10,
+  "num_successful_trials": 8,
+  "best_trial_id": "trial_14_7",
+  "best_score": 0.9313525655016835,
+  "selected_trial_ids": [
+    "trial_8_4",
+    "trial_8_0",
+    "trial_6_1",
+    "trial_13_5"
+  ],
+  "selection_reasoning": "I am selecting the high-performing trials from Generation 8 as the primary seeds. Generation 14 showed that moving away from the LSE-smoothed objective and symmetric priors leads to significant regression. The next generation will focus on high-precision refinement and micro-perturbation of the 1.0 solutions to push the boundaries of numerical precision, using the extracted coordinates from Trial 8_4 as a hard-coded starting point.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_8_4",
+      "reasoning": "The current best-performing trial (1.0). Its multi-stage optimization (Symmetric -> LSE -> Slack) is the most robust methodology found so far.",
+      "category": "performance",
+      "source_generation": 8
+    },
+    {
+      "trial_id": "trial_8_0",
+      "reasoning": "Another 1.0 solution that used a different implementation of the slack variable method. Good for verifying the stability of the 1.0 basin.",
+      "category": "performance",
+      "source_generation": 8
+    },
+    {
+      "trial_id": "trial_6_1",
+      "reasoning": "The 0.9994 solution. It represents the best asymmetric (relaxed) configuration before the final slack-variable push.",
+      "category": "diversity",
+      "source_generation": 6
+    },
+    {
+      "trial_id": "trial_13_5",
+      "reasoning": "Despite the lower score, the 'topology locking' concept is useful for the final refinement stage where the combinatorial structure is already optimal.",
+      "category": "potential",
+      "source_generation": 13
+    }
+  ],
+  "parents_used": [
+    "trial_8_4"
+  ],
+  "parents_used_counts": {
+    "trial_8_4": 8
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2026-01-20T12:22:12.406459"
+}

@@ -1,0 +1,156 @@
+============================================================
+SCRATCHPAD FOR GENERATION 12
+============================================================
+
+
+# Strategy: Heilbronn Triangle (n=11)
+
+## Core Constraints
+- Container: Equilateral triangle (0,0), (1,0), (0.5, sqrt(3)/2).
+- Area: sqrt(3)/4 ≈ 0.433.
+- Points: 11.
+- Objective: Maximize the minimum area of any triangle formed by 3 points.
+
+## Initial Hypotheses
+1. **Geometric Priors**: Optimal configurations often place points on the boundary and in a roughly hexagonal interior lattice.
+2. **Robust Optimization**: Simulated Annealing (SA) and Basin-Hopping are likely to outperform standard local search due to the "rugged" nature of the min-area landscape.
+3. **Targeted Perturbation**: A heuristic that specifically moves points involved in the current minimum-area triangle could accelerate convergence.
+4. **Symmetry**: Exploring 3-fold rotational symmetry or reflections might yield high-performing initial seeds.
+
+## Planned Approaches for Gen 0
+- SA with geometric constraints.
+- Basin-hopping using scipy's minimize.
+- Differential Evolution for global search.
+- Targeted "Smart Mutation" evolutionary strategy.
+- Grid-based initialization with jitter.
+
+## Generation 0 Analysis
+- **Top Score**: 0.9637 (trial_0_7) - Multi-start L-BFGS-B with a smoothed objective (log-sum-exp).
+- **Runner Up**: 0.9008 (trial_0_6) - 3-fold symmetry optimization. This is a very strong result for a constrained search space.
+- **Third**: 0.8929 (trial_0_11) - CMA-ES.
+- **Observation**: Smoothed objectives (like log-sum-exp or soft-min) seem crucial for gradient-based solvers to handle the non-differentiable 'min' function.
+- **Observation**: Symmetry (trial_0_6) is a powerful prior for this problem.
+
+## Generation 1 Strategy
+- Focus on refining the Log-Sum-Exp (LSE) smoothing technique which yielded the highest score (0.9637).
+- Explore the interaction between symmetry constraints and local optimization.
+- Test Basin-Hopping with SLSQP to better handle the linear boundary constraints of the triangle.
+- Investigate 'annealing' the alpha parameter in the LSE objective (starting smooth and getting sharper).
+
+## Generation 1 Analysis
+- **Breakthrough**: trial_1_2 achieved 0.9964. It combined 3-fold symmetry with a Log-Sum-Exp (LSE) objective and SLSQP. 
+- **Symmetry**: The symmetric starting point seems to place the optimizer in a very high-quality basin.
+- **Failures**: Several trials (1_3, 1_4, 1_8, 1_10, 1_14) were INVALID. This usually means points fell outside the triangle or the array shape was wrong. 
+- **Constraint Tip**: When using SLSQP, linear constraints for the triangle (x >= 0, y >= 0, x + y/sqrt(3) <= 1, etc. depending on coordinate system) must be robust.
+
+## Generation 1 Insights
+- Best score: 0.9963955590169408 (trial_1_2)
+- Successful approach: 3-fold symmetry (with orbits and a center point) + SLSQP + Log-Sum-Exp.
+- 11 points symmetry breakdown used in trial_1_2: 
+    - 1 point at the centroid.
+    - 3 orbits of 3 points each (total 10 points).
+    - Wait, trial_1_2 actually defined 11 points by using a specific parameterization.
+- High failure rate (INVALID) was due to points drifting outside (1e-6 tolerance) or incorrect array shapes.
+- The Log-Sum-Exp (LSE) alpha parameter is sensitive; trial_1_2 used alpha=1000.
+
+## Generation 2 Insights
+- New Best Score: 0.997133 (trial_2_7).
+- Trial 2_7 refined the 3-fold symmetry approach.
+- Symmetry-breaking (trial_2_1, 2_0) failed due to 'INVALID' status, likely point-in-triangle constraint violations or shape mismatches.
+- The gap to 1.0 is closing, but the 'min' function's non-differentiability remains the primary hurdle.
+
+## Generation 3 Strategy
+- Targeting the 1.0 score barrier.
+- Primary focus: Relaxing symmetry constraints from trial trial_2_7.
+- Experimenting with alpha-annealing and barycentric coordinates for better constraint handling.
+- Diversifying with bilateral symmetry and boundary-constrained configurations.
+## Generation 4 Insights
+- **Trial 2_7** is the current SOTA (0.9971).
+- **Key Success Factors**:
+    1. **Dimensionality Reduction**: Optimizing 11 parameters (enforcing symmetry) before relaxing to 22.
+    2. **Coordinate Mapping**: Using a transform to turn triangle constraints into box constraints [0,1].
+    3. **Analytic Gradients**: Calculating exact derivatives for the Softmin objective.
+    4. **Objective**: Softmin on squared area ($Area^2$) with alpha up to 100,000.
+- **Symmetry Pattern**: The 11 points are likely 5 pairs (mirrored) + 1 point on the axis of symmetry.
+- **Next Steps**: Refine the alpha-annealing schedule and try different starting seeds for the 11D optimization.
+
+## Generation 5 Analysis
+- Trial 5_0 (0.9544) failed to improve on trial_2_7 (0.9971).
+- The "refinement" might have introduced more complexity or less effective local search.
+- Symmetry-breaking (trial_5_3, 5_4) resulted in INVALID points, suggesting the constraint handling needs to be more robust when symmetry is removed.
+- Current SOTA remains trial_2_7 (0.9971).
+
+## Strategy for Gen 6
+- **Exploit**: Use trial_2_7's "Symmetry First, Relax Later" strategy.
+- **Improve Mapping**: Investigate if the mapping (u, v) -> triangle is causing issues at the boundaries.
+- **Increase Multi-start**: Trial 2_7 used a limited number of starts. Scale this up.
+- **Alpha Schedule**: Refine the transition from Softmin to Min.
+- **Symmetry Type**: Trial 2_7 used 3-fold symmetry. Trial 5_1 used bilateral. Optimal for n=11 is likely bilateral.
+
+## Generation 6 Insights
+- **New SOTA**: trial_6_1 achieved 0.999484.
+- **Breakthrough**: This trial used a 22-parameter relaxation of trial_2_7's symmetric result, combined with a very high alpha (1,000,000) and a robust barycentric coordinate mapping.
+- **Key Observation**: The transition from a symmetric 11D search space to a full 22D search space is the most effective way to break the symmetry-imposed local optima.
+- **Next Step**: Attempt to refine trial_6_1 using even higher precision and perhaps a more granular annealing schedule or basin-hopping in the 22D space.
+
+## Generation 7 Strategy
+- Current Best: 0.9994837280338643 (trial_6_1)
+- trial_6_1 used a 2-stage approach: 11D symmetric optimization followed by 22D relaxation.
+- We will now focus on:
+    1. Refining trial_6_1 using Basin-Hopping in the 22D space.
+    2. Exploring Bilateral Symmetry (reflection) as a starting point, which is often optimal for odd N.
+    3. Increasing the precision of the Softmin objective (alpha annealing).
+    4. Using a more robust multi-start around the best known solution.
+
+## Generation 7 Retrospective
+- Trial 6_1 remains the global best (0.99948).
+- Generation 7 attempts at refinement (7_0, 7_2, 7_5) were less successful or failed.
+- Trial 7_0 (Basin-Hopping) failed with a 'ValueError: `x0` violates bound constraints', suggesting the 22D relaxation needs better initialization or bound handling.
+- Trial 7_5 (3-fold symmetry variant) achieved 0.9475, confirming that the specific 3-fold configuration in 6_1 is superior.
+- The 1.0 barrier is extremely close; the next step must be a very high-precision local search (perhaps using `method='trust-constr'` or `SLSQP` with tighter tolerances) starting exactly from 6_1's output.
+
+## Generation 8 Strategy
+- Best score remains 0.999484 (trial_6_1).
+- Focal point: Refine trial_6_1 using the 'Slack Variable' method (Linear Programming style maximization of the minimum).
+- Optimization: Use SLSQP or trust-constr with 165 constraints (one for each triangle).
+- Diversification: Re-examine bilateral symmetry (reflection) which is often optimal for odd N.
+- Precision: Increase alpha for Softmin or use exact min with a slack variable.
+
+## Generation 8 Breakthrough
+- ACHIEVED SCORE 1.000000 in multiple trials (8_4, 8_0, 8_3).
+- Method: The 'Slack Variable' formulation (maximizing t s.t. Area >= t) proved extremely effective when initialized with the high-quality basin from trial_6_1.
+- Trial 8_4 used a targeted bottleneck optimization.
+- Trial 8_0 used the slack variable formulation directly.
+- Trial 8_3 used a stochastic refinement.
+- Next steps: Verify if these are the same configuration or distinct local optima. Try to push beyond 1.0 if possible (though 1.0 is the stated 'best known').
+
+## Generation 8 Recap
+- Achieved the 1.0 score barrier using a slack variable formulation (maximizing 't' such that all triangle areas >= 't').
+- Trial 8_0, 8_3, and 8_4 are the top performers.
+- All were derived from the 22D relaxation of a 3-fold symmetric starting point (trial 6_1).
+
+## Generation 9 Goals
+- Push beyond 1.0 if possible.
+- Use Basin-Hopping and high-precision SLSQP on the slack variable objective.
+- Explore bilateral symmetry as an alternative basin.
+- Verify if 1.0 is a hard limit or if numerical precision can uncover better values.
+
+## Generation 9 Analysis
+- Gen 9 attempts to refine the 1.0 solutions (8_0, 8_4) largely failed due to implementation errors (bound violations and import errors).
+- The successful Gen 9 trials (9_2, 9_3) used bilateral symmetry and jitter but didn't reach the 1.0 level.
+- The 1.0 barrier is robust. The slack-variable formulation is the correct path, but the implementation of Basin-Hopping needs to be more careful with constraints.
+- Next step: Fix the refinement code to properly handle boundaries and use trial_8_0 as a hard-coded seed rather than trying to import it.
+
+## Generation 10 Strategy
+- The 1.0 score barrier has been reached by trials 8_0, 8_3, and 8_4.
+- These trials utilized a two-stage approach: a symmetric 11D optimization followed by a 22D relaxation using a slack-variable formulation (maximizing the minimum area directly).
+- Generation 9 attempts to refine these failed mostly due to implementation errors (bounds/imports).
+- Goal for Gen 10:
+    1. Robustly refine the 1.0 solutions using high-precision solvers (SLSQP, trust-constr) and Basin-Hopping.
+    2. Ensure constraint handling is rock-solid to avoid 'INVALID' results.
+    3. Test if bilateral symmetry (reflection) can match or exceed the 3-fold symmetry results.
+
+## Generation 12 Strategy
+- Aiming to break the 1.0 barrier or increase precision.
+- Best trial used as seed: trial_8_4.
+- Techniques: High-precision SLSQP, Jittering, Bilateral Symmetry, and trust-constr solver.

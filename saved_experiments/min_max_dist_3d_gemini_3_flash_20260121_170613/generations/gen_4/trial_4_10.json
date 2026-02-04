@@ -1,0 +1,33 @@
+{
+  "trial_id": "trial_4_10",
+  "generation": 4,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Places 14 points in 3D space to maximize the ratio (min pairwise distance / max pairwise distance).\n    Uses several initializations including a Fibonacci spiral on a sphere and a hexagonal antiprism,\n    then refines them using the SLSQP optimizer.\n    \"\"\"\n    n_pts = 14\n    \n    def objective(coords):\n        pts = coords.reshape((n_pts, 3))\n        dists = pdist(pts)\n        d_min = np.min(dists)\n        d_max = np.max(dists)\n        if d_max == 0:\n            return 0\n        return -d_min / d_max\n\n    best_val = -1.0\n    best_pts = None\n\n    # Use a fixed seed for reproducibility within the optimization process\n    np.random.seed(42)\n\n    # 1. Fibonacci spiral initialization on a sphere\n    phi_golden = np.pi * (3.0 - np.sqrt(5.0))\n    pts_fib = np.zeros((n_pts, 3))\n    for i in range(n_pts):\n        z = -1.0 + 2.0 * i / (n_pts - 1)\n        r = np.sqrt(max(0.0, 1.0 - z*z))\n        theta = i * phi_golden\n        pts_fib[i] = [r * np.cos(theta), r * np.sin(theta), z]\n    \n    # 2. Hexagonal antiprism initialization with two caps (D6d symmetry)\n    # This is often the optimal configuration for N=14 in the Tammes problem.\n    pts_hex = np.zeros((n_pts, 3))\n    pts_hex[0] = [0, 0, 1]\n    pts_hex[1] = [0, 0, -1]\n    h = 0.33  # Initial guess for the height of the hexagons\n    r = np.sqrt(max(0.0, 1.0 - h*h))\n    for i in range(6):\n        theta1 = i * 2 * np.pi / 6\n        pts_hex[2+i] = [r * np.cos(theta1), r * np.sin(theta1), h]\n        theta2 = (i + 0.5) * 2 * np.pi / 6\n        pts_hex[8+i] = [r * np.cos(theta2), r * np.sin(theta2), -h]\n\n    # Create a list of starting points (flattened)\n    seeds = [pts_fib.flatten(), pts_hex.flatten()]\n    \n    # 3. Add a few random seeds to explore other regions of the search space\n    for _ in range(3):\n        pts_rand = np.random.normal(0, 1, (n_pts, 3))\n        # Project random points onto a unit sphere surface for better starting stability\n        norms = np.linalg.norm(pts_rand, axis=1)[:, np.newaxis]\n        pts_rand /= np.where(norms == 0, 1, norms)\n        seeds.append(pts_rand.flatten())\n\n    # Optimize each seed using SLSQP\n    for seed in seeds:\n        # SLSQP is effective for non-smooth objectives like min/max ratios in small dimensions\n        res = minimize(objective, seed, method='SLSQP', tol=1e-10, options={'maxiter': 400})\n        if -res.fun > best_val:\n            best_val = -res.fun\n            best_pts = res.x.reshape((n_pts, 3))\n            \n    # Return the best configuration found\n    return best_pts",
+  "metrics": {
+    "valid": true,
+    "score": 0.9331878953417848,
+    "min_max_ratio": 0.2240090131751947,
+    "min_distance": 0.9236417055342375,
+    "max_distance": 1.9515100317529535,
+    "eval_time": 0.9330520629882812,
+    "error": null
+  },
+  "prompt": "Try a completely different initialization: 14 points sampled from a Fibonacci spiral on a sphere, then allow them to expand/contract in 3D space to maximize the min-max ratio.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Places 14 points in 3D space to maximize the ratio (min pairwise distance / max pairwise distance).\n    Uses several initializations including a Fibonacci spiral on a sphere and a hexagonal antiprism,\n    then refines them using the SLSQP optimizer.\n    \"\"\"\n    n_pts = 14\n    \n    def objective(coords):\n        pts = coords.reshape((n_pts, 3))\n        dists = pdist(pts)\n        d_min = np.min(dists)\n        d_max = np.max(dists)\n        if d_max == 0:\n            return 0\n        return -d_min / d_max\n\n    best_val = -1.0\n    best_pts = None\n\n    # Use a fixed seed for reproducibility within the optimization process\n    np.random.seed(42)\n\n    # 1. Fibonacci spiral initialization on a sphere\n    phi_golden = np.pi * (3.0 - np.sqrt(5.0))\n    pts_fib = np.zeros((n_pts, 3))\n    for i in range(n_pts):\n        z = -1.0 + 2.0 * i / (n_pts - 1)\n        r = np.sqrt(max(0.0, 1.0 - z*z))\n        theta = i * phi_golden\n        pts_fib[i] = [r * np.cos(theta), r * np.sin(theta), z]\n    \n    # 2. Hexagonal antiprism initialization with two caps (D6d symmetry)\n    # This is often the optimal configuration for N=14 in the Tammes problem.\n    pts_hex = np.zeros((n_pts, 3))\n    pts_hex[0] = [0, 0, 1]\n    pts_hex[1] = [0, 0, -1]\n    h = 0.33  # Initial guess for the height of the hexagons\n    r = np.sqrt(max(0.0, 1.0 - h*h))\n    for i in range(6):\n        theta1 = i * 2 * np.pi / 6\n        pts_hex[2+i] = [r * np.cos(theta1), r * np.sin(theta1), h]\n        theta2 = (i + 0.5) * 2 * np.pi / 6\n        pts_hex[8+i] = [r * np.cos(theta2), r * np.sin(theta2), -h]\n\n    # Create a list of starting points (flattened)\n    seeds = [pts_fib.flatten(), pts_hex.flatten()]\n    \n    # 3. Add a few random seeds to explore other regions of the search space\n    for _ in range(3):\n        pts_rand = np.random.normal(0, 1, (n_pts, 3))\n        # Project random points onto a unit sphere surface for better starting stability\n        norms = np.linalg.norm(pts_rand, axis=1)[:, np.newaxis]\n        pts_rand /= np.where(norms == 0, 1, norms)\n        seeds.append(pts_rand.flatten())\n\n    # Optimize each seed using SLSQP\n    for seed in seeds:\n        # SLSQP is effective for non-smooth objectives like min/max ratios in small dimensions\n        res = minimize(objective, seed, method='SLSQP', tol=1e-10, options={'maxiter': 400})\n        if -res.fun > best_val:\n            best_val = -res.fun\n            best_pts = res.x.reshape((n_pts, 3))\n            \n    # Return the best configuration found\n    return best_pts\n\n```",
+  "reasoning": "",
+  "timestamp": "2026-01-21T17:31:30.559013",
+  "cost_data": null,
+  "model_config": {
+    "model": "gemini-3-flash-preview",
+    "temperature": 0.7,
+    "provider_debug": {
+      "finish_reason": "STOP",
+      "usage_metadata": {
+        "prompt_token_count": 211,
+        "candidates_token_count": 919,
+        "thoughts_token_count": 17395
+      },
+      "response_text_len": 2660
+    }
+  }
+}

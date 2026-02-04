@@ -1,0 +1,70 @@
+============================================================
+LINEAGE MAP FOR GENERATION 1
+============================================================
+
+### All-Time Top 5 (cross-generation selection candidates)
+  1. trial_1_1 [Gen 1] = 1.0000153140
+     To solve the problem of placing 14 points in 3D sp...
+  2. trial_1_9 [Gen 1] = 0.9982386546
+  3. trial_0_8 [Gen 0] = 0.9961040898
+  4. trial_1_7 [Gen 1] = 0.9960282132
+     Here is the Python solution using a constrained op...
+  5. trial_1_6 [Gen 1] = 0.9953905825
+
+### Full Lineage Tree
+
+trial_1_1 (1.0000153139876431) [To solve the problem of placing 14 point...] ← best
+
+trial_1_9 (0.9982386545725288)
+
+trial_0_8 (0.9961040897874706)
+
+trial_1_7 (0.9960282131789477) [Here is the Python solution using a cons...]
+
+trial_1_6 (0.9953905825460567)
+
+trial_1_12 (0.9902788469301429)
+
+trial_1_5 (0.9867521799977155)
+
+trial_0_3 (0.9796708394773059)
+
+trial_0_10 (0.9776929793115771) [Here is the Python solution using `scipy...]
+
+trial_1_0 (0.9776173062646258)
+
+trial_0_0 (0.9645335634039062) [Here is the Python solution using Differ...]
+
+trial_0_6 (0.9412488659611474)
+
+trial_0_5 (0.9379341101763063) [An implementation of the **CMA-ES (Covar...]
+
+trial_1_10 (0.9321116912653278)
+
+trial_1_4 (0.9317858369517380)
+
+trial_0_2 (0.9304889676907147)
+
+trial_1_15 (0.9290791083117687)
+
+trial_1_2 (0.9242320997012057)
+
+trial_0_1 (0.8979905790518879)
+
+trial_0_11 (0.8803476413095053)
+
+trial_0_4 (0.8803474972615929)
+
+trial_1_13 (0.8728378161595290) [To solve the problem of placing 14 point...]
+
+trial_0_7 (0.8539334837905175)
+
+trial_1_8 (0.8520129305389257)
+
+trial_1_3 (0.7568342732588266)
+
+trial_1_14 (0.6840791772768392)
+
+trial_0_9 (0.6540347415797906)
+
+trial_1_11 (0.4894693924267075)

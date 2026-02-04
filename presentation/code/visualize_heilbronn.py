@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Path to best trial
 BASE_DIR = Path(__file__).parent.parent.parent
-BEST_TRIAL = BASE_DIR / "experiments/circle_packing_gemini_3_flash_20260120_104304/generations/gen_12/trial_12_5.json"
+BEST_TRIAL = BASE_DIR / "saved_experiments/heilbronn_triangle_gemini_3_flash_20260120_104304/generations/gen_12/trial_12_5.json"
 
 def execute_heilbronn_code(code: str) -> np.ndarray:
     """Execute the Heilbronn code and return point coordinates."""

@@ -1,0 +1,33 @@
+{
+  "trial_id": "trial_2_6",
+  "generation": 2,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import differential_evolution\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Places 14 points in 3D space to maximize the ratio (min pairwise distance / max pairwise distance).\n    Uses scipy.optimize.differential_evolution with the 'best1bin' strategy and a large population.\n    The points are constrained within a [0, 1]^3 unit cube.\n    \"\"\"\n    \n    num_points = 14\n    dim = 3\n    num_variables = num_points * dim\n\n    def objective(coords):\n        \"\"\"\n        Calculates the negative of the min/max distance ratio.\n        Differential evolution minimizes the objective, so minimizing the negative\n        ratio is equivalent to maximizing the ratio itself.\n        \"\"\"\n        pts = coords.reshape((num_points, dim))\n        # pdist efficiently calculates the pairwise Euclidean distances\n        dists = pdist(pts)\n        \n        # Avoid edge cases like zero distance or identical points\n        if dists.size == 0:\n            return 0\n        \n        min_d = np.min(dists)\n        max_d = np.max(dists)\n        \n        # Prevent division by zero if all points are at the same location\n        if max_d < 1e-12:\n            return 0\n            \n        # The ratio min_d / max_d is scale-invariant.\n        # We return the negative ratio for minimization.\n        return -(min_d / max_d)\n\n    # All 42 coordinates (14 points * 3 dims) are bounded between 0 and 1\n    bounds = [(0, 1)] * num_variables\n    \n    # Run the Differential Evolution optimizer\n    # - strategy='best1bin': uses the best solution to guide the search (as requested)\n    # - popsize=20: multiplier for the number of parameters (Total population = 20 * 42 = 840)\n    # - maxiter=500: limits the generations to ensure completion within 60 seconds\n    # - polish=True: performs a local optimization (L-BFGS-B) to refine the best member found\n    result = differential_evolution(\n        objective,\n        bounds,\n        strategy='best1bin',\n        popsize=20,\n        maxiter=500,\n        tol=1e-7,\n        mutation=(0.5, 1),\n        recombination=0.7,\n        init='latinhypercube',\n        polish=True,\n        disp=False\n    )\n    \n    # Reshape the flat result array of 42 coordinates into a (14, 3) matrix\n    best_points = result.x.reshape((num_points, dim))\n    \n    return best_points",
+  "metrics": {
+    "valid": true,
+    "score": 0.6140493746781731,
+    "min_max_ratio": 0.147400748712159,
+    "min_distance": 0.38674234221901266,
+    "max_distance": 1.007330255576711,
+    "eval_time": 12.145946264266968,
+    "error": null
+  },
+  "prompt": "Use 'scipy.optimize.differential_evolution' to solve the 14-point problem. Set the bounds to [0, 1] for all 42 coordinates. Use a large population and 'best1bin' strategy. The objective should be the negative of the min/max distance ratio.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import differential_evolution\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Places 14 points in 3D space to maximize the ratio (min pairwise distance / max pairwise distance).\n    Uses scipy.optimize.differential_evolution with the 'best1bin' strategy and a large population.\n    The points are constrained within a [0, 1]^3 unit cube.\n    \"\"\"\n    \n    num_points = 14\n    dim = 3\n    num_variables = num_points * dim\n\n    def objective(coords):\n        \"\"\"\n        Calculates the negative of the min/max distance ratio.\n        Differential evolution minimizes the objective, so minimizing the negative\n        ratio is equivalent to maximizing the ratio itself.\n        \"\"\"\n        pts = coords.reshape((num_points, dim))\n        # pdist efficiently calculates the pairwise Euclidean distances\n        dists = pdist(pts)\n        \n        # Avoid edge cases like zero distance or identical points\n        if dists.size == 0:\n            return 0\n        \n        min_d = np.min(dists)\n        max_d = np.max(dists)\n        \n        # Prevent division by zero if all points are at the same location\n        if max_d < 1e-12:\n            return 0\n            \n        # The ratio min_d / max_d is scale-invariant.\n        # We return the negative ratio for minimization.\n        return -(min_d / max_d)\n\n    # All 42 coordinates (14 points * 3 dims) are bounded between 0 and 1\n    bounds = [(0, 1)] * num_variables\n    \n    # Run the Differential Evolution optimizer\n    # - strategy='best1bin': uses the best solution to guide the search (as requested)\n    # - popsize=20: multiplier for the number of parameters (Total population = 20 * 42 = 840)\n    # - maxiter=500: limits the generations to ensure completion within 60 seconds\n    # - polish=True: performs a local optimization (L-BFGS-B) to refine the best member found\n    result = differential_evolution(\n        objective,\n        bounds,\n        strategy='best1bin',\n        popsize=20,\n        maxiter=500,\n        tol=1e-7,\n        mutation=(0.5, 1),\n        recombination=0.7,\n        init='latinhypercube',\n        polish=True,\n        disp=False\n    )\n    \n    # Reshape the flat result array of 42 coordinates into a (14, 3) matrix\n    best_points = result.x.reshape((num_points, dim))\n    \n    return best_points\n\n```",
+  "reasoning": "",
+  "timestamp": "2026-01-21T17:21:13.318449",
+  "cost_data": null,
+  "model_config": {
+    "model": "gemini-3-flash-preview",
+    "temperature": 0.7,
+    "provider_debug": {
+      "finish_reason": "STOP",
+      "usage_metadata": {
+        "prompt_token_count": 236,
+        "candidates_token_count": 659,
+        "thoughts_token_count": 11952
+      },
+      "response_text_len": 2369
+    }
+  }
+}

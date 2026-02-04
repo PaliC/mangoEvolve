@@ -1,0 +1,41 @@
+# MangoEvolve Calibration Notes
+# The root LLM only sees the 'notes' section during evolution.
+# Metadata is stored for validation purposes.
+
+notes: "\n## Model Observations\n\n### pro (gemini-3-pro-preview)\n- **Strengths**:\
+  \ Exceptional reasoning and mathematical depth. Correctly identified the \"jagged\"\
+  \ nature of the Heilbronn objective function. Provided a robust Simulated Annealing\
+  \ implementation with proper geometric constraints for an equilateral triangle.\n\
+  - **Code Quality**: Clean, well-commented, and includes helper functions for coordinate\
+  \ validation and random point generation within the specific triangle bounds.\n\
+  - **Strategic Utility**: Best used for architectural decisions, initial solver implementation,\
+  \ and complex optimization logic where precision and depth are critical.\n\n###\
+  \ flash (gemini-3-flash-preview)\n- **Strengths**: Highly capable at proposing creative\
+  \ hybrid strategies. Suggested a \"Smart Mutation\" operator that targets the specific\
+  \ points forming the smallest triangle, which is a very efficient heuristic for\
+  \ this problem.\n- **Code Quality**: Strong; uses libraries like `numpy` effectively\
+  \ for vector math. \n- **Strategic Utility**: Ideal for generating multiple variations\
+  \ of mutation operators, performing local search refinements, and running faster\
+  \ evolutionary loops.\n\n## Tactical Insights for Heilbronn Triangle (n=11)\n- **Objective\
+  \ Function**: The minimum area is non-smooth. Moving one point causes the \"bottleneck\"\
+  \ triangle to jump.\n- **Search Space**: 22 dimensions (11 points * 2 coordinates).\n\
+  - **Recommended Approaches**:\n    1. **Simulated Annealing**: To escape local optima\
+  \ in the rugged landscape.\n    2. **Memetic Algorithm**: GA for global exploration\
+  \ combined with \"Smart Mutation\" (moving vertices perpendicular to the opposite\
+  \ base) for local refinement.\n    3. **Constraint Handling**: Vertices (0,0), (1,0),\
+  \ (0.5, sqrt(3)/2). Points must satisfy $y \\ge 0$, $y \\le \\sqrt{3}x$, and $y\
+  \ \\le \\sqrt{3}(1-x)$.\n"
+metadata:
+  child_llms:
+  - alias: flash
+    model: gemini-3-flash-preview
+    provider: google
+    cost_per_million_input_tokens: 0.5
+    cost_per_million_output_tokens: 3.0
+  - alias: pro
+    model: gemini-3-pro-preview
+    provider: google
+    cost_per_million_input_tokens: 2.0
+    cost_per_million_output_tokens: 12.0
+  created_at: '2026-01-20T15:44:30.247056+00:00'
+  experiment_name: circle_packing_gemini_3_flash

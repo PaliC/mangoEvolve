@@ -1,0 +1,48 @@
+{
+  "generation_num": 15,
+  "num_trials": 4,
+  "num_successful_trials": 4,
+  "best_trial_id": "trial_15_2",
+  "best_score": 0.7216942550462887,
+  "selected_trial_ids": [
+    "trial_8_4",
+    "trial_12_5",
+    "trial_8_0",
+    "trial_6_1"
+  ],
+  "selection_reasoning": "Generation 15 failed because children did not inherit the 1.0 solution from trial_8_4. I am re-selecting the 1.0 and near-1.0 solutions to try the refinement strategy again in Gen 16, with explicit instructions to use the symmetry-based search and hardcoded seeds extracted from trial_8_4.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_8_4",
+      "reasoning": "Global best (1.0). Its 2-stage symmetry-to-relaxation approach is the most proven method for this problem.",
+      "category": "performance",
+      "source_generation": 8
+    },
+    {
+      "trial_id": "trial_12_5",
+      "reasoning": "Highest precision trial (0.9999999999999939). Essential for further refinement and breaking the 1.0 barrier.",
+      "category": "performance",
+      "source_generation": 12
+    },
+    {
+      "trial_id": "trial_8_0",
+      "reasoning": "Clean 1.0 score using a direct slack-variable formulation, providing a robust alternative to trial_8_4.",
+      "category": "performance",
+      "source_generation": 8
+    },
+    {
+      "trial_id": "trial_6_1",
+      "reasoning": "The high-quality 0.999 ancestor that provided the basin for the 1.0 solutions; useful for exploring alternative relaxations.",
+      "category": "ancestor",
+      "source_generation": 6
+    }
+  ],
+  "parents_used": [
+    "trial_8_4"
+  ],
+  "parents_used_counts": {
+    "trial_8_4": 3
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2026-01-20T12:27:38.254196"
+}

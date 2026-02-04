@@ -1,0 +1,39 @@
+============================================================
+LINEAGE MAP FOR GENERATION 0
+============================================================
+
+### All-Time Top 5 (cross-generation selection candidates)
+  1. trial_0_7 [Gen 0] = 0.9637028937
+     To solve the Heilbronn Triangle problem for $N=11$...
+  2. trial_0_6 [Gen 0] = 0.9008578388
+     An optimized Python solution for the Heilbronn Tri...
+  3. trial_0_11 [Gen 0] = 0.8929077293
+  4. trial_0_9 [Gen 0] = 0.7265380185
+  5. trial_0_1 [Gen 0] = 0.7047082783
+     An implementation of the Heilbronn Triangle optimi...
+
+### Full Lineage Tree
+
+trial_0_7 (0.9637028937435187) [To solve the Heilbronn Triangle problem...] ← best
+
+trial_0_6 (0.9008578388138304) [An optimized Python solution for the Hei...]
+
+trial_0_11 (0.8929077293198500)
+
+trial_0_9 (0.7265380184808454)
+
+trial_0_1 (0.7047082783000368) [An implementation of the Heilbronn Trian...]
+
+trial_0_5 (0.6665048871621664)
+
+trial_0_2 (0.6442715177520373)
+
+trial_0_10 (0.6382183432008108)
+
+trial_0_4 (0.6215487715229991)
+
+trial_0_8 (0.5701489321218501)
+
+trial_0_3 (0.2867836948840182)
+
+trial_0_0 (0.2548015714858958)

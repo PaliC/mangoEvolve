@@ -1,0 +1,51 @@
+{
+  "generation_num": 0,
+  "num_trials": 12,
+  "num_successful_trials": 12,
+  "best_trial_id": "trial_0_8",
+  "best_score": 0.9961040897874706,
+  "selected_trial_ids": [
+    "trial_0_8",
+    "trial_0_3",
+    "trial_0_10",
+    "trial_0_0",
+    "trial_0_5"
+  ],
+  "selection_reasoning": "The selection includes the top 3 performers which represent three distinct successful strategies: custom force-directed heuristics (0_8), smoothed gradient descent (0_3), and subgradient-based local optimization (0_10). I've also included the best global search frameworks (DE and CMA-ES) to maintain evolutionary potential and diversity.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_0_8",
+      "reasoning": "Top performer (0.9961). Uses a custom force-directed heuristic with adaptive thresholds and periodic normalization. This approach effectively navigates the non-differentiable landscape of min-max ratios.",
+      "category": "performance",
+      "source_generation": 0
+    },
+    {
+      "trial_id": "trial_0_3",
+      "reasoning": "Second best (0.9797). Uses a robust multi-start L-BFGS-B strategy with a SoftMin (LogSumExp) objective. This is the most successful gradient-based approach.",
+      "category": "performance",
+      "source_generation": 0
+    },
+    {
+      "trial_id": "trial_0_10",
+      "reasoning": "Third best (0.9777). Uses SLSQP with a subgradient-summation approach. It provides a different way of handling non-smoothness compared to trial_0_3.",
+      "category": "performance",
+      "source_generation": 0
+    },
+    {
+      "trial_id": "trial_0_0",
+      "reasoning": "Hybrid global-local approach (DE + SLSQP). While it scored lower (0.9645), the framework is sound and might benefit from the 'SoftMin' or 'Force-Directed' techniques found in better trials.",
+      "category": "potential",
+      "source_generation": 0
+    },
+    {
+      "trial_id": "trial_0_5",
+      "reasoning": "Uses CMA-ES (0.9379). Represents a fundamentally different optimization philosophy (evolutionary/derivative-free) that provides diversity to the pool.",
+      "category": "diversity",
+      "source_generation": 0
+    }
+  ],
+  "parents_used": [],
+  "parents_used_counts": {},
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2026-01-21T17:12:39.222796"
+}

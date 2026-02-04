@@ -1,0 +1,207 @@
+============================================================
+SCRATCHPAD FOR GENERATION 13
+============================================================
+
+
+# Strategy for Generation 1
+- Aim: Maximize (min_dist / max_dist)^2 for 14 points in 3D.
+- 14 points is a classic problem size (related to the Tammes problem if constrained to a sphere, but here max_dist is flexible).
+- Approach 1: Physical repulsion models (1/r^p) with high p to approximate max-min.
+- Approach 2: Global optimization (Basin-hopping, Differential Evolution).
+- Approach 3: Local refinement of geometric seeds (Lattices, Spherical codes).
+- Approach 4: SoftMin/LogSumExp optimization to handle the non-differentiable 'min' function.
+
+## Generation 1 Insights
+- Best score: 1.000015313987643 (trial_1_1)
+- trial_1_1 uses Basin-hopping with SLSQP and a specific normalization step.
+- trial_1_9 (score 0.998) uses a lattice-based initialization followed by refinement.
+- trial_1_7 (score 0.996) uses a constrained optimization approach.
+- Key observation: Multi-start global optimization (Basin-hopping) combined with local refinement is highly effective. 
+- Normalizing max_dist to 1.0 at each step helps the optimizer focus on min_dist.
+
+## Generation 2 Insights
+- Generation 2 did not exceed the best score from Generation 1 (1.000015).
+- trial_2_5 (0.9994) used LogSumExp but didn't quite reach the peak.
+- trial_2_1 (0.9994) used multi-start SLSQP.
+- trial_2_0 (the intended improvement of trial_1_1) failed, likely due to a timeout or implementation error.
+- The best performing approach remains the specific Basin-hopping implementation in trial_1_1.
+- Next steps: Focus on hyper-parameter tuning for trial_1_1 and exploring high-precision local refinement (e.g., trust-region methods).
+
+## Generation 3 Insights
+- New best score: 1.000016 (trial_3_6 and trial_3_4).
+- trial_3_6 used a multi-start SLSQP with a specific perturbation strategy.
+- trial_3_4 used a stochastic hill-climbing approach starting from trial_1_1's configuration.
+- The improvement is marginal but consistent, suggesting we are approaching a very sharp local optimum.
+- High-precision polishing (low ftol/gtol) is essential at this stage.
+
+## Analysis of Generation 3
+The analysis of the top-performing trials (Score: **1.000016**) for placing 14 points in 3D space reveals a highly specific combination of geometric initialization, constraint formulation, and optimization "manifold" management.
+
+Here are the specific coordinate patterns and optimization techniques yielding these results:
+
+### 1. Geometric Initialization: The Fibonacci Sphere
+All top trials (3_6, 3_4, 1_1) abandoned random initialization in favor of the **Fibonacci Sphere** (also known as a spiral grid).
+*   **Why it works:** For $N=14$, the optimal configuration is likely a slight perturbation of a spherical distribution. The Fibonacci sphere provides a near-uniform distribution of points on a surface, ensuring that the initial $d_{min}$ is already high and the points are not "tangled" in a way that local optimizers like SLSQP cannot resolve.
+*   **The Pattern:** Points are placed using a golden-ratio-based spiral:
+    ```python
+    phi = np.arccos(1 - 2 * indices / N)
+    theta = np.pi * (1 + 5**0.5) * indices
+    ```
+
+### 2. Optimization Strategy: Slack Variable Formulation
+Instead of directly maximizing the ratio, the successful trials reformulate the problem into a standard constrained optimization form using a **slack variable $s$**:
+*   **Objective:** Maximize $s$ (implemented as `minimize -x[-1]`).
+*   **Constraints:**
+    1.  $d_{ij}^2 \ge s$ for all pairs (ensures the minimum distance is at least $\sqrt{s}$).
+    2.  $d_{ij}^2 \le 1$ for all pairs (fixes the maximum distance to 1.0).
+*   **Benefit:** This turns the non-smooth `max(min/max)` function into a smooth, differentiable problem that **SLSQP** can solve with high precision.
+
+### 3. Vectorized Analytical Jacobians
+The jump from a score of ~0.999 to 1.000016 is largely attributed to the use of **vectorized analytical Jacobians**. 
+*   Trials 3_6 and 3_4 explicitly calculate the partial derivatives of all $N(N-1)/2$ distance constraints (182 constraints for 14 points).
+*   **Precision:** Using the analytical Jacobian allows the optimizer to reach extremely tight tolerances (`ftol: 1e-13`). Without it, numerical gradient estimation becomes too noisy near the optimum.
+
+### 4. "Manifold Projection" in Basin-Hopping
+The most effective technique for escaping local optima in these trials is **Normalizing within the perturbation step**.
+*   In Trial 3_6’s `CustomStep` and Trial 1_1’s `NormalizedStep`, after a random perturbation is applied to the coordinates, the points are immediately **re-normalized** so that the maximum distance is exactly 1.0.
+    ```python
+    def normalize_pts(p):
+        diffs = p[idx_i] - p[idx_j]
+        dmax = np.sqrt(np.max(np.sum(diffs**2, axis=1)))
+        return p / dmax
+    ```
+*   **Why it works:** This keeps the search trajectory strictly on the "boundary" of the feasibility region. By forcing $d_{max}=1$ at every step, the optimizer only has to focus on maximizing $d_{min}$, rather than balancing the expansion and contraction of the entire point cloud.
+
+### 5. High-Precision Polishing
+The top trials use a two-stage approach:
+1.  **Global Search:** Basin-hopping or Simulated Annealing with a moderate tolerance to find the best "basin" (the right geometric arrangement).
+2.  **The Polish:** A final `minimize` call with `method='SLSQP'` and an extremely low tolerance (`1e-12` to `1e-14`). This "squeezes" the points into their perfect mathematical positions.
+
+### Summary of the Optimal Coordinate Pattern
+For $N=14$, the coordinates tend to settle into a **Bicapped Hexagonal Antiprism** or a similar variation of the **Thomson Problem** solution. The points are not perfectly on a sphere; some "breathe" slightly inward or outward to satisfy the $d_{max}=1$ constraint across multiple pairs simultaneously, creating a "rigid" structure where many distances are exactly equal to $d_{min}$ or $d_{max}$.
+## Generation 4 Insights
+- Best score: 1.0000159135539046 (trial_4_8). It seems we are hitting a hard limit at 1.000016.
+- Analysis of 4_8 vs 3_6: ### Comparison: Trial 3_6 vs. Trial 4_8
+
+**Verdict:** They found the **exact same geometric configuration** (the global optimum), but reached it through completely different strategies.
+
+The score difference is negligible ($\approx 1 \times 10^{-14}$), representing numerical floating-point noise rather than a distinct geometric arrangement.
+
+#### 1. Optimization Strategy Comparison
+
+| Feature | **Trial 3_6 (Gen 3 Best)** | **Trial 4_8 (Gen 4 Best)** |
+| :--- | :--- | :--- |
+| **Strategy** | **Ba...
+- Many diverse approaches (CMA-ES, LogSumExp) in Gen 4 failed to reach the benchmark, suggesting the landscape is extremely rugged with very narrow peaks.
+- Strategy for Gen 5: Focus on extremely fine-grained perturbations of the 1.000016 configuration and perhaps a 'brute force' multi-start of the successful SLSQP logic.
+## Generation 5 Strategy
+- We are at a score plateau of ~1.000016.
+- Strategy: Intensive local refinement of the best known configuration (trial_4_8/3_6).
+- Using 'pro' models for higher-precision logic and 'flash' for diverse search.
+- Focus on analytical Jacobians, slack variables, and high-restart counts.
+
+## Generation 5 Insights
+- trial_5_6 reached 1.000015913552411, effectively matching the best known.
+- The plateau at 1.000016 seems extremely robust. This value likely corresponds to a specific geometric configuration (Bicapped Hexagonal Antiprism) where the constraints are perfectly balanced.
+- Most trials in Gen 5 failed to reach the peak, indicating that the 'basin' for the 1.000016 solution is very narrow and requires specific initialization (Fibonacci) and high-precision SLSQP.
+- Next: Try to use the exact coordinates from 5_6 as a starting point for a 'coordinate descent' or 'pattern search' that doesn't rely on gradients, to see if we can squeeze out 1e-10 more.
+
+## Generation 6 Strategy
+- Focused on high-precision refinement of trial_4_8 (score 1.0000159135539157).
+- Exploring alternative metallic ratios for Fibonacci initialization.
+- Testing 'trust-constr' and symmetry-based construction.
+## Generation 6 Insights
+- Best score remains at ~1.000016.
+- The plateau is extremely flat. 
+- Symmetry-based approaches were suggested but need rigorous implementation.
+- Current best: trial_6_0 (1.0000159135539164).
+
+## Generation 7 Insights
+- Best score remains at 1.0000159135539164 (trial_7_5 and trial_6_0).
+- All top trials used the 'slack variable' formulation with SLSQP.
+- Trial 7_5 is the cleanest implementation using `pdist` and standard Fibonacci initialization.
+- Trial 7_8 attempted manual Jacobians but had slightly lower precision (likely numerical noise in the gradient calculation).
+- The plateau at 1.000016 is extremely stable across different initializations and solvers, suggesting it is the global maximum for this configuration.
+- Next: Focus on 'Coordinate Descent' or 'Nelder-Mead' polishing of the 1.000016 coordinates to see if floating-point limits can be pushed.
+
+## Generation 9 Strategy
+- The score 1.0000159135539164 is extremely stable.
+- Hypothesis: This is the numerical limit of the Bicapped Hexagonal Antiprism configuration in float64.
+- Action:
+  1. Enforce D6d symmetry to see if reducing variables yields higher precision.
+  2. Use 'trust-constr' with analytical Hessians.
+  3. Micro-perturbations of the best-known trial (trial_7_5).
+
+## Generation 11 Analysis
+Based on the analysis of the provided Python code (`trial_7_5`), here is the evaluation of the resulting coordinates and symmetry.
+
+### **Does it exhibit $D_{6d}$ symmetry?**
+
+**No.** While $D_{6d}$ (the Bicapped Hexagonal Antiprism) is the optimal solution for 14 points **constrained to the surface of a sphere** (the Tammes problem), the provided code solves the **unconstrained 3D problem** (maximizing the minimum distance ratio within a defined volume).
+
+The code includes a "Strategy B" (random restart in a uniform box) and runs for 50 seconds, which allows the optimizer to escape the spherical constraint. The global optimum for $N=14$ in unconstrained 3D space corresponds to the vertices of a **Rhombic Dodecahedron**, which provides a better separation ratio ($\approx 0.433$) than the spherical $D_{6d}$ configuration ($\approx 0.419$).
+
+Therefore, the resulting coordinates will exhibit **$O_h$ (Full Octahedral)** symmetry.
+
+---
+
+### **Approximate Coordinates ($O_h$ Symmetry)**
+
+The optimal configuration corresponds to the 14 vertices of a Rhombic Dodecahedron. When normalized such that the maximum distance ($d_{max}$) is $1.0$, the points are arranged as:
+1.  **6 points** forming an Octahedron (scaled to diameter 1.0).
+2.  **8 points** forming a Cube (nested inside).
+
+**Coordinates:**
+
+*   **Set A (Octahedral vertices, 6 points):**
+    $$(\pm 0.5, 0.0, 0.0)$$
+    $$(0.0, \pm 0.5, 0.0)$$
+    $$(0.0, 0.0, \pm 0.5)$$
+
+*   **Set B (Cubic vertices, 8 points):**
+    $$(\pm 0.25, \pm 0.25, \pm 0.25)$$
+
+*(Note: The optimizer may output these rotated in 3D space, but the relative geometry remains the same.)*
+
+---
+
+### **Symmetry Groups Identified**
+
+1.  **Primary Result: $O_h$ (Octahedral Symmetry)**
+    *   **Structure:** Rhombic Dodecahedron.
+    *   **Condition:** Found because the code allows points to move strictly inside the bounding diameter (volumetric packing) via the random uniform restart.
+    *   **Ratio:** $d_{min}/d_{max} = \frac{\sqrt{3}}{4} \approx 0.433$.
+
+2.  **Alternative Local Optimum: $D_{6d}$ (Prismatic Symmetry)**
+    *   **Structure:** Bicapped Hexagonal Antiprism.
+    *   **Condition:** This would only occur if the random search failed to trigger "Strategy B" effectively and the solver stayed trapped in the initial spherical topology provided by the Fibonacci sphere.
+    *   **Ratio:** $d_{min}/d_{max} \approx 0.419$.
+    *   **Coordinates (if trapped):** Two poles at $(0,0,\pm 0.5)$ and two staggered hexagonal rings at $z \approx \pm 0.1$.
+
+**Conclusion:** The code is robust enough to find the global maximum, so the output is the **$O_h$** group.
+## Generation 11 Failure Analysis
+The specific reason for the performance drop in `trial_11_0` compared to `trial_7_5` is the **Search Strategy (Global Optimization)**, specifically the lack of a mechanism to escape local optima through perturbation and the insufficient number of optimization attempts.
+
+While `trial_11_0` used higher precision solver settings (`tol=1e-15`), it failed because the problem of packing 14 points is highly non-convex with many local maxima. `trial_11_0` got stuck in a suboptimal local maximum and stopped, whereas `trial_7_5` used a time-bounded continuous search to find the global maximum.
+
+Here is the detailed comparison:
+
+### 1. Search Strategy (The Deciding Factor)
+*   **Trial 7_5 (Basin Hopping):**
+    *   **Mechanism:** It employs a `while` loop that runs for **50 seconds**. Inside this loop, it constantly takes the *current best* solution and applies random noise (perturbation) to it before re-optimizing.
+    *   **Impact:** This allows the algorithm to "hop" out of local maxima while staying in the neighborhood of good solutions. It likely performed hundreds of optimizations within the time limit.
+*   **Trial 11_0 (Limited Multi-Start):**
+    *   **Mechanism:** It runs exactly **6 optimizations** based on fixed seeds (2 geometric heuristics, 1 Fibonacci, 3 random).
+    *   **Impact:** Once those 6 specific guesses were optimized, the script stopped. Since none of those 6 starting basins led to the global optimum for $N=14$, the algorithm returned a suboptimal result (likely a local optimum around 0.947).
+
+### 2. Initialization
+*   **Trial 7_5:** Uses a Fibonacci sphere once, but essentially generates hundreds of new initializations by perturbing previous results (`best_pts + np.random.normal(...)`). This evolutionary-style approach adapts the initialization based on previous successes.
+*   **Trial 11_0:** Relies on "smart" geometric heuristics (1-6-6-1, 1-4-4-4-1). While these look logical, the optimal configuration for $N=14$ (often related to the capped hexagonal antiprism or specific Tammes configurations) might not align perfectly with these rigid geometric starting points. By limiting itself to these specific shapes, it missed the true optimum.
+
+### 3. Optimization Parameters
+*   **Trial 7_5:** Uses standard precision (`ftol=1e-8`) but relies on the *volume* of attempts to find the answer.
+*   **Trial 11_0:** Uses extremely high precision (`tol=1e-15`) and high iteration counts (`maxiter=2000`) for a final polish.
+*   **Conclusion:** This highlights that **finding the correct basin of attraction** is far more important than the numerical precision of the solver. `trial_11_0` found a very precise, but wrong, answer.
+
+### Summary
+**`trial_11_0` failed because it traded exploration for precision.** It assumed 6 "smart" guesses were enough to find the global maximum. **`trial_7_5` succeeded because it utilized the full available runtime (50s)** to explore the landscape aggressively using a Basin-hopping algorithm.

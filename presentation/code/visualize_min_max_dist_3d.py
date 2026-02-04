@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Path to best trial
 BASE_DIR = Path(__file__).parent.parent.parent
-BEST_TRIAL = BASE_DIR / "experiments/circle_packing_gemini_3_flash_20260121_170613/generations/gen_8/trial_8_0.json"
+BEST_TRIAL = BASE_DIR / "saved_experiments/min_max_dist_3d_gemini_3_flash_20260121_170613/generations/gen_8/trial_8_0.json"
 
 def execute_minmax_code(code: str) -> np.ndarray:
     """Execute the min-max distance code and return point coordinates."""

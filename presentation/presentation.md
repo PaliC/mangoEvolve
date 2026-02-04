@@ -697,10 +697,10 @@ This is the known optimal arrangement for N=14 points in 3D when maximizing the 
 - `saved_experiments/openevolve_config_gemini_flash_20260114_120026/`
 
 **Heilbronn Triangle Experiment:**
-- `experiments/circle_packing_gemini_3_flash_20260120_104304/` (mislabeled)
+- `saved_experiments/heilbronn_triangle_gemini_3_flash_20260120_104304/`
 
 **Min-Max Distance 3D Experiment:**
-- `experiments/circle_packing_gemini_3_flash_20260121_170613/` (mislabeled)
+- `saved_experiments/min_max_dist_3d_gemini_3_flash_20260121_170613/`
 
 **Visualization Scripts:**
 - `presentation/code/visualize_circle_packing.py`

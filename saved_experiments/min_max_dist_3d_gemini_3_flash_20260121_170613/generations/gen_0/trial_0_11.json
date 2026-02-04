@@ -1,0 +1,33 @@
+{
+  "trial_id": "trial_0_11",
+  "generation": 0,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Finds 14 points in 3D space to maximize (min_dist / max_dist)^2.\n    The strategy uses a combination of a lattice-based start (BCC) and random \n    initializations, refined using the Nelder-Mead optimization method.\n    \"\"\"\n    n = 14\n    \n    def objective(x):\n        \"\"\"\n        The objective is to minimize (max_dist^2 / min_dist^2), which is equivalent\n        to maximizing the squared ratio (min_dist / max_dist)^2.\n        \"\"\"\n        pts = x.reshape((n, 3))\n        # Compute all-pairs squared Euclidean distances\n        diff = pts[:, np.newaxis, :] - pts[np.newaxis, :, :]\n        dists_sq = np.sum(diff**2, axis=2)\n        \n        # Extract the upper triangle of the distance matrix to get unique pairs\n        indices = np.triu_indices(n, k=1)\n        d2 = dists_sq[indices]\n        \n        min_d2 = np.min(d2)\n        max_d2 = np.max(d2)\n        \n        # Avoid division by zero if points collapse to the same location\n        if min_d2 < 1e-12:\n            return 1e12\n        \n        return max_d2 / min_d2\n\n    best_pts = None\n    best_val = float('inf')\n    \n    # Starting configurations: one based on a Body-Centered Cubic (BCC) lattice\n    # fragment and several random initializations to explore the space.\n    a = np.sqrt(3)\n    bcc_start = np.array([\n        [1, 1, 1], [1, 1, -1], [1, -1, 1], [1, -1, -1],\n        [-1, 1, 1], [-1, 1, -1], [-1, -1, 1], [-1, -1, -1],\n        [a, 0, 0], [-a, 0, 0], [0, a, 0], [0, -a, 0], [0, 0, a], [0, 0, -a]\n    ], dtype=float)\n    \n    # Run the optimization from several starting points\n    num_starts = 10\n    for i in range(num_starts):\n        if i == 0:\n            x0 = bcc_start.flatten()\n        else:\n            # Generate random points in a cube to diversify the search\n            x0 = np.random.uniform(-1.5, 1.5, n * 3)\n        \n        # Nelder-Mead is used because the objective function (min/max) is non-differentiable.\n        # It is robust for small numbers of variables like 14*3=42.\n        res = minimize(objective, x0, method='Nelder-Mead', options={'maxiter': 2500, 'xatol': 1e-5})\n        \n        if res.fun < best_val:\n            best_val = res.fun\n            best_pts = res.x.reshape((n, 3))\n            \n    # Normalize the output to ensure the points are centered and manageable\n    best_pts -= np.mean(best_pts, axis=0)\n    max_norm = np.max(np.linalg.norm(best_pts, axis=1))\n    if max_norm > 0:\n        best_pts /= max_norm\n        \n    return best_pts",
+  "metrics": {
+    "valid": true,
+    "score": 0.8803476413095053,
+    "min_max_ratio": 0.21132486540518716,
+    "min_distance": 0.9194016867619662,
+    "max_distance": 2.0,
+    "eval_time": 1.0960969924926758,
+    "error": null
+  },
+  "prompt": "Maximize (min_dist / max_dist)^2 for 14 points in 3D. Try a lattice-based search: start with a dense Face-Centered Cubic (FCC) or Hexagonal Close-Packed (HCP) lattice, select 14 points, and then perturb and optimize them using a local search.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Finds 14 points in 3D space to maximize (min_dist / max_dist)^2.\n    The strategy uses a combination of a lattice-based start (BCC) and random \n    initializations, refined using the Nelder-Mead optimization method.\n    \"\"\"\n    n = 14\n    \n    def objective(x):\n        \"\"\"\n        The objective is to minimize (max_dist^2 / min_dist^2), which is equivalent\n        to maximizing the squared ratio (min_dist / max_dist)^2.\n        \"\"\"\n        pts = x.reshape((n, 3))\n        # Compute all-pairs squared Euclidean distances\n        diff = pts[:, np.newaxis, :] - pts[np.newaxis, :, :]\n        dists_sq = np.sum(diff**2, axis=2)\n        \n        # Extract the upper triangle of the distance matrix to get unique pairs\n        indices = np.triu_indices(n, k=1)\n        d2 = dists_sq[indices]\n        \n        min_d2 = np.min(d2)\n        max_d2 = np.max(d2)\n        \n        # Avoid division by zero if points collapse to the same location\n        if min_d2 < 1e-12:\n            return 1e12\n        \n        return max_d2 / min_d2\n\n    best_pts = None\n    best_val = float('inf')\n    \n    # Starting configurations: one based on a Body-Centered Cubic (BCC) lattice\n    # fragment and several random initializations to explore the space.\n    a = np.sqrt(3)\n    bcc_start = np.array([\n        [1, 1, 1], [1, 1, -1], [1, -1, 1], [1, -1, -1],\n        [-1, 1, 1], [-1, 1, -1], [-1, -1, 1], [-1, -1, -1],\n        [a, 0, 0], [-a, 0, 0], [0, a, 0], [0, -a, 0], [0, 0, a], [0, 0, -a]\n    ], dtype=float)\n    \n    # Run the optimization from several starting points\n    num_starts = 10\n    for i in range(num_starts):\n        if i == 0:\n            x0 = bcc_start.flatten()\n        else:\n            # Generate random points in a cube to diversify the search\n            x0 = np.random.uniform(-1.5, 1.5, n * 3)\n        \n        # Nelder-Mead is used because the objective function (min/max) is non-differentiable.\n        # It is robust for small numbers of variables like 14*3=42.\n        res = minimize(objective, x0, method='Nelder-Mead', options={'maxiter': 2500, 'xatol': 1e-5})\n        \n        if res.fun < best_val:\n            best_val = res.fun\n            best_pts = res.x.reshape((n, 3))\n            \n    # Normalize the output to ensure the points are centered and manageable\n    best_pts -= np.mean(best_pts, axis=0)\n    max_norm = np.max(np.linalg.norm(best_pts, axis=1))\n    if max_norm > 0:\n        best_pts /= max_norm\n        \n    return best_pts\n\n```",
+  "reasoning": "",
+  "timestamp": "2026-01-21T17:11:54.227446",
+  "cost_data": null,
+  "model_config": {
+    "model": "gemini-3-flash-preview",
+    "temperature": 0.7,
+    "provider_debug": {
+      "finish_reason": "STOP",
+      "usage_metadata": {
+        "prompt_token_count": 240,
+        "candidates_token_count": 867,
+        "thoughts_token_count": 22494
+      },
+      "response_text_len": 2563
+    }
+  }
+}
