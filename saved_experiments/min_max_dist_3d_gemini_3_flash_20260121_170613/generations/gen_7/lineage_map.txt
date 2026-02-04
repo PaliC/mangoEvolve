@@ -1,0 +1,161 @@
+============================================================
+LINEAGE MAP FOR GENERATION 7
+============================================================
+
+### All-Time Top 5 (cross-generation selection candidates)
+  1. trial_6_0 [Gen 6] = 1.0000159136
+  2. trial_7_5 [Gen 7] = 1.0000159136
+  3. trial_3_6 [Gen 3] = 1.0000159136
+  4. trial_7_9 [Gen 7] = 1.0000159136
+  5. trial_4_8 [Gen 4] = 1.0000159136
+
+### Full Lineage Tree
+
+trial_7_5 (1.0000159135539164)
+
+trial_7_9 (1.0000159135539108)
+
+trial_7_6 (1.0000159135537656)
+
+trial_7_8 (1.0000159135536253)
+
+trial_1_1 (1.0000153139876431) [To solve the problem of placing 14 point...]
+    └── trial_2_0 (INVALID) [Here is the improved Python solution. It...]
+    └── trial_2_5 (0.9994412152467665) [Here is the polished solution using an I...]
+    └── trial_2_9 (0.9110783011043523) [An algorithm to place 14 points in 3D sp...]
+    └── trial_3_0 (INVALID) [Here is the improved solution using Iter...]
+    └── trial_3_4 (1.0000159135538387) [Here is the Python solution implementing...]
+    └── trial_3_6 (1.0000159135539157)
+        └── trial_4_0 (0.9421887509658941) [An algorithm to place 14 points in 3D sp...]
+        └── trial_4_1 (0.9366924219501670)
+        └── trial_4_3 (0.9396774503164101)
+        └── trial_4_4 (0.9750190058510569)
+        └── trial_4_7 (0.9331269725962539)
+        └── trial_4_8 (1.0000159135539046)
+        │   └── trial_6_2 (0.2176832890883010)
+        └── trial_4_9 (0.9412488659581957)
+        └── trial_5_0 (0.9948200769610471) [An implementation of the algorithm to ma...]
+        └── trial_5_1 (0.9910643587759035) [An implementation of the 'basin-hopping'...]
+        └── trial_5_3 (INVALID) [An optimized Python solution that places...]
+        └── trial_5_4 (0.9164582212651530)
+        └── trial_5_6 (1.0000159135524109)
+        └── trial_6_0 (1.0000159135539164) ← best
+        │   └── trial_7_0 (0.8803476413094987) [To maximize the squared ratio $(d_{min}...]
+        │   └── trial_7_1 (0.9983375578621241)
+        │   └── trial_7_2 (0.9974937358553562)
+        │   └── trial_7_4 (0.9278476775013801)
+        └── trial_6_1 (1.0000159134503421)
+
+trial_4_15 (0.9994412128823078) [An implementation of an algorithm to pla...]
+
+trial_2_1 (0.9994306985930083)
+
+trial_3_8 (0.9987063917727923)
+
+trial_1_9 (0.9982386545725288)
+
+trial_4_5 (0.9977426558199168)
+
+trial_4_12 (0.9975236911635875)
+
+trial_4_13 (0.9967000084434186) [An algorithm to place 14 points in 3D sp...]
+
+trial_0_8 (0.9961040897874706)
+
+trial_1_7 (0.9960282131789477) [Here is the Python solution using a cons...]
+
+trial_1_6 (0.9953905825460567)
+
+trial_3_9 (0.9947124087398145) [An optimizer is implemented to find the...]
+
+trial_4_11 (0.9926270206914677)
+
+trial_3_5 (0.9916482273132637)
+
+trial_1_12 (0.9902788469301429)
+
+trial_1_5 (0.9867521799977155)
+
+trial_0_3 (0.9796708394773059)
+
+trial_0_10 (0.9776929793115771) [Here is the Python solution using `scipy...]
+
+trial_1_0 (0.9776173062646258)
+
+trial_3_2 (0.9732883208377839)
+
+trial_2_3 (0.9687299120964199) [An algorithm to find a configuration of...]
+
+trial_0_0 (0.9645335634039062) [Here is the Python solution using Differ...]
+
+trial_4_6 (0.9636572521927705)
+
+trial_6_5 (0.9613508754069949)
+
+trial_4_2 (0.9598474802569423)
+
+trial_2_4 (0.9515534981527467)
+
+trial_3_1 (0.9451733108785565)
+
+trial_5_2 (0.9419566537148402)
+
+trial_0_6 (0.9412488659611474)
+
+trial_0_5 (0.9379341101763063) [An implementation of the **CMA-ES (Covar...]
+
+trial_6_4 (0.9331888304916024) [An expert algorithm designer's solution...]
+
+trial_4_10 (0.9331878953417848)
+
+trial_1_10 (0.9321116912653278)
+
+trial_1_4 (0.9317858369517380)
+
+trial_3_7 (0.9305122146756699)
+
+trial_0_2 (0.9304889676907147)
+
+trial_1_15 (0.9290791083117687)
+
+trial_1_2 (0.9242320997012057)
+
+trial_2_2 (0.9169480709743910)
+
+trial_0_1 (0.8979905790518879)
+
+trial_0_11 (0.8803476413095053)
+
+trial_0_4 (0.8803474972615929)
+
+trial_7_3 (0.8802894001148265)
+
+trial_2_7 (0.8758469870934845)
+
+trial_1_13 (0.8728378161595290) [To solve the problem of placing 14 point...]
+
+trial_0_7 (0.8539334837905175)
+
+trial_1_8 (0.8520129305389257)
+
+trial_1_3 (0.7568342732588266)
+
+trial_4_14 (0.7174870661191572) [Here is the Python solution using `scipy...]
+
+trial_1_14 (0.6840791772768392)
+
+trial_0_9 (0.6540347415797906)
+
+trial_2_6 (0.6140493746781731)
+
+trial_2_8 (0.5265092893368767)
+
+trial_1_11 (0.4894693924267075)
+
+trial_5_5 (0.3204499820769230)
+
+trial_3_3 (0.0403120009295274)
+
+trial_7_7 (0.0022704448924357)
+
+trial_6_3 (INVALID)

@@ -1,0 +1,33 @@
+{
+  "trial_id": "trial_1_14",
+  "generation": 1,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Places 14 points in 3D space to maximize the squared ratio (min_dist / max_dist)^2.\n    Uses a Nelder-Mead simplex search starting from a 7-gonal antiprism configuration.\n    \"\"\"\n\n    def objective(coords):\n        # Reshape the flat array of coordinates back to (14, 3)\n        pts = coords.reshape((14, 3))\n        \n        # Compute all-pairs squared distances efficiently using broadcasting\n        # Shape: (14, 1, 3) - (1, 14, 3) -> (14, 14, 3)\n        diff = pts[:, np.newaxis, :] - pts[np.newaxis, :, :]\n        dist_sq = np.sum(diff**2, axis=2)\n        \n        # Use a mask to ignore self-distances (diagonal elements)\n        mask = ~np.eye(14, dtype=bool)\n        \n        # Find the minimum and maximum squared distances\n        min_d2 = np.min(dist_sq[mask])\n        max_d2 = np.max(dist_sq)\n        \n        # Avoid division by zero if all points converge to the same location\n        if max_d2 < 1e-9:\n            return 0\n        \n        # The goal is to maximize the squared ratio (min_dist / max_dist)^2.\n        # This is equivalent to maximizing (min_dist^2 / max_dist^2).\n        # Since minimize() finds the minimum, we return the negative value.\n        return -min_d2 / max_d2\n\n    # Step 1: Define the starting configuration - two nested 7-point rings.\n    # A 7-gonal antiprism is a high-symmetry 14-vertex configuration.\n    # It consists of two rings of 7 points each, shifted and stacked.\n    R = 1.0  # Radius of the rings\n    h = 0.35 # Half-height between the rings\n    \n    pts = []\n    # Ring 1 at z = +h\n    for i in range(7):\n        angle = 2 * np.pi * i / 7\n        pts.append([R * np.cos(angle), R * np.sin(angle), h])\n    # Ring 2 at z = -h, rotated by pi/7 to interleave with Ring 1\n    for i in range(7):\n        angle = 2 * np.pi * i / 7 + np.pi / 7\n        pts.append([R * np.cos(angle), R * np.sin(angle), -h])\n    \n    pts = np.array(pts)\n    \n    # Step 2: Add a small amount of noise to the initial coordinates.\n    # This helps Nelder-Mead break symmetry and explore the 42D space more effectively.\n    np.random.seed(42)\n    pts += np.random.normal(0, 1e-4, pts.shape)\n    \n    # Step 3: Perform Nelder-Mead simplex search.\n    # Optimization is performed on the flattened (42,) array of coordinates.\n    # The maxiter is set to ensure the search completes well within the 60s limit.\n    res = minimize(\n        objective, \n        pts.flatten(), \n        method='Nelder-Mead', \n        options={\n            'maxiter': 10000, \n            'xatol': 1e-7, \n            'fatol': 1e-7\n        }\n    )\n    \n    # Step 4: Return the optimized configuration as a (14, 3) numpy array.\n    optimized_pts = res.x.reshape((14, 3))\n    return optimized_pts",
+  "metrics": {
+    "valid": true,
+    "score": 0.6840791772768392,
+    "min_max_ratio": 0.1642111971237678,
+    "min_distance": 0.8560348513842148,
+    "max_distance": 2.1124676292864786,
+    "eval_time": 0.3551609516143799,
+    "error": null
+  },
+  "prompt": "Use a Nelder-Mead simplex search to optimize the (min_dist/max_dist)^2 ratio for 14 points, starting from a configuration of two nested 7-point rings.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Places 14 points in 3D space to maximize the squared ratio (min_dist / max_dist)^2.\n    Uses a Nelder-Mead simplex search starting from a 7-gonal antiprism configuration.\n    \"\"\"\n\n    def objective(coords):\n        # Reshape the flat array of coordinates back to (14, 3)\n        pts = coords.reshape((14, 3))\n        \n        # Compute all-pairs squared distances efficiently using broadcasting\n        # Shape: (14, 1, 3) - (1, 14, 3) -> (14, 14, 3)\n        diff = pts[:, np.newaxis, :] - pts[np.newaxis, :, :]\n        dist_sq = np.sum(diff**2, axis=2)\n        \n        # Use a mask to ignore self-distances (diagonal elements)\n        mask = ~np.eye(14, dtype=bool)\n        \n        # Find the minimum and maximum squared distances\n        min_d2 = np.min(dist_sq[mask])\n        max_d2 = np.max(dist_sq)\n        \n        # Avoid division by zero if all points converge to the same location\n        if max_d2 < 1e-9:\n            return 0\n        \n        # The goal is to maximize the squared ratio (min_dist / max_dist)^2.\n        # This is equivalent to maximizing (min_dist^2 / max_dist^2).\n        # Since minimize() finds the minimum, we return the negative value.\n        return -min_d2 / max_d2\n\n    # Step 1: Define the starting configuration - two nested 7-point rings.\n    # A 7-gonal antiprism is a high-symmetry 14-vertex configuration.\n    # It consists of two rings of 7 points each, shifted and stacked.\n    R = 1.0  # Radius of the rings\n    h = 0.35 # Half-height between the rings\n    \n    pts = []\n    # Ring 1 at z = +h\n    for i in range(7):\n        angle = 2 * np.pi * i / 7\n        pts.append([R * np.cos(angle), R * np.sin(angle), h])\n    # Ring 2 at z = -h, rotated by pi/7 to interleave with Ring 1\n    for i in range(7):\n        angle = 2 * np.pi * i / 7 + np.pi / 7\n        pts.append([R * np.cos(angle), R * np.sin(angle), -h])\n    \n    pts = np.array(pts)\n    \n    # Step 2: Add a small amount of noise to the initial coordinates.\n    # This helps Nelder-Mead break symmetry and explore the 42D space more effectively.\n    np.random.seed(42)\n    pts += np.random.normal(0, 1e-4, pts.shape)\n    \n    # Step 3: Perform Nelder-Mead simplex search.\n    # Optimization is performed on the flattened (42,) array of coordinates.\n    # The maxiter is set to ensure the search completes well within the 60s limit.\n    res = minimize(\n        objective, \n        pts.flatten(), \n        method='Nelder-Mead', \n        options={\n            'maxiter': 10000, \n            'xatol': 1e-7, \n            'fatol': 1e-7\n        }\n    )\n    \n    # Step 4: Return the optimized configuration as a (14, 3) numpy array.\n    optimized_pts = res.x.reshape((14, 3))\n    return optimized_pts\n\n```",
+  "reasoning": "",
+  "timestamp": "2026-01-21T17:17:01.007142",
+  "cost_data": null,
+  "model_config": {
+    "model": "gemini-3-flash-preview",
+    "temperature": 0.7,
+    "provider_debug": {
+      "finish_reason": "STOP",
+      "usage_metadata": {
+        "prompt_token_count": 213,
+        "candidates_token_count": 912,
+        "thoughts_token_count": 17166
+      },
+      "response_text_len": 2808
+    }
+  }
+}

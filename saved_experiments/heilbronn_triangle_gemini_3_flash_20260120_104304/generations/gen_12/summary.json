@@ -1,0 +1,48 @@
+{
+  "generation_num": 12,
+  "num_trials": 8,
+  "num_successful_trials": 5,
+  "best_trial_id": "trial_12_5",
+  "best_score": 0.9999999999999939,
+  "selected_trial_ids": [
+    "trial_12_5",
+    "trial_12_2",
+    "trial_12_1",
+    "trial_6_1"
+  ],
+  "selection_reasoning": "The top trials have converged on a single optimal configuration with bilateral symmetry. I am selecting the highest precision versions of this (12_5, 12_2) and a diverse symmetric attempt (12_1) to ensure we aren't missing other high-quality basins.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_12_5",
+      "reasoning": "Highest precision 1.0 solution using jitter-and-refine. It represents the optimal symmetric basin.",
+      "category": "performance",
+      "source_generation": 12
+    },
+    {
+      "trial_id": "trial_12_2",
+      "reasoning": "Explicitly enforces bilateral symmetry, confirming the optimal structure for N=11.",
+      "category": "performance",
+      "source_generation": 12
+    },
+    {
+      "trial_id": "trial_12_1",
+      "reasoning": "A bilateral symmetry approach that reached 0.87. While lower, it might be a different symmetric basin or just needs the slack-variable refinement used in the 1.0 trials.",
+      "category": "diversity",
+      "source_generation": 12
+    },
+    {
+      "trial_id": "trial_6_1",
+      "reasoning": "The 3-fold symmetric precursor to the 1.0 solutions. Useful to keep as a reference for how the symmetry was broken/refined.",
+      "category": "potential",
+      "source_generation": 6
+    }
+  ],
+  "parents_used": [
+    "trial_8_4"
+  ],
+  "parents_used_counts": {
+    "trial_8_4": 5
+  },
+  "parents_not_selected_prev_gen": [],
+  "timestamp": "2026-01-20T12:04:26.119660"
+}

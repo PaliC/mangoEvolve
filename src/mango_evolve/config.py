@@ -102,7 +102,7 @@ class EvaluationConfig:
     """Evaluation configuration.
 
     The evaluator_fn should be a module path to an evaluator function or class,
-    e.g., "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator"
+    e.g., "problems.circle_packing.evaluator:CirclePackingEvaluator"
 
     The evaluator_kwargs are passed to the evaluator function/class constructor.
     """
@@ -365,11 +365,33 @@ def load_evaluator(config: EvaluationConfig) -> Any:
     Raises:
         ConfigValidationError: If the evaluator cannot be loaded
     """
+    return load_evaluator_from_string(config.evaluator_fn, config.evaluator_kwargs)
+
+
+def load_evaluator_from_string(
+    evaluator_fn: str, evaluator_kwargs: dict[str, Any] | None = None
+) -> Any:
+    """
+    Load an evaluator from a module path string and kwargs.
+
+    Args:
+        evaluator_fn: Module path like "module.path:ClassName"
+        evaluator_kwargs: Keyword arguments to pass to the evaluator constructor
+
+    Returns:
+        Instantiated evaluator object
+
+    Raises:
+        ConfigValidationError: If the evaluator cannot be loaded
+    """
+    if evaluator_kwargs is None:
+        evaluator_kwargs = {}
+
     try:
-        module_path, obj_name = config.evaluator_fn.rsplit(":", 1)
+        module_path, obj_name = evaluator_fn.rsplit(":", 1)
     except ValueError:
         raise ConfigValidationError(
-            f"Invalid evaluator_fn format: {config.evaluator_fn}. "
+            f"Invalid evaluator_fn format: {evaluator_fn}. "
             "Expected 'module.path:ClassName' or 'module.path:function_name'"
         ) from None
 
@@ -386,7 +408,7 @@ def load_evaluator(config: EvaluationConfig) -> Any:
         ) from None
 
     try:
-        return evaluator_class_or_fn(**config.evaluator_kwargs)
+        return evaluator_class_or_fn(**evaluator_kwargs)
     except TypeError as e:
         raise ConfigValidationError(f"Cannot instantiate evaluator: {e}") from e
 

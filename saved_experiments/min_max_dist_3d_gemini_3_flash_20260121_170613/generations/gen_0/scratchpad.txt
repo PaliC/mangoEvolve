@@ -1,0 +1,15 @@
+============================================================
+SCRATCHPAD FOR GENERATION 0
+============================================================
+
+
+# Strategy for Generation 0
+The goal is to maximize (min_dist / max_dist)^2 for 14 points in 3D.
+This is scale-invariant, so we can optimize points within a unit sphere or cube.
+Key approaches to explore:
+1. Global search: Differential Evolution, Basin-Hopping, CMA-ES.
+2. Local refinement: SLSQP/L-BFGS-B with smoothed objectives (SoftMin/LogSumExp).
+3. Physical analogies: Repulsion models (Thomson problem style), force-directed layouts.
+4. Geometric initializations: Spherical arrangements, lattices, perturbed polyhedra.
+
+I will spawn a diverse set of 12 children to cover these strategies.

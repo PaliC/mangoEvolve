@@ -1,0 +1,33 @@
+{
+  "trial_id": "trial_1_3",
+  "generation": 1,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import differential_evolution\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Places 14 points in 3D space to maximize the squared ratio:\n    (min pairwise distance / max pairwise distance)^2.\n    \n    The problem is normalized by a benchmark, so we aim to find the arrangement \n    that gives the highest possible ratio. Differential Evolution is used as a \n    global optimizer to search the 42-dimensional space (14 points * 3 coordinates).\n    \"\"\"\n    n_points = 14\n    dim = 3\n    \n    def objective(coords):\n        \"\"\"\n        Objective function for the optimizer.\n        Differential evolution minimizes the function, so we return the negative\n        of the squared ratio (min_dist / max_dist)**2.\n        \"\"\"\n        # Reshape the 1D input array into a (14, 3) matrix of coordinates\n        pts = coords.reshape((n_points, dim))\n        \n        # Calculate all pairwise Euclidean distances\n        # For N=14, there are 14*(14-1)/2 = 91 distances\n        dists = pdist(pts)\n        \n        # Extract the minimum and maximum distances\n        d_min = np.min(dists)\n        d_max = np.max(dists)\n        \n        # Avoid division by zero if all points are at the same location\n        if d_max == 0:\n            return 0.0\n        \n        # Calculate the squared ratio (min_dist / max_dist)^2\n        ratio_squared = (d_min / d_max)**2\n        \n        # Return negative ratio for minimization\n        return -float(ratio_squared)\n\n    # Define the search space: 14 points * 3 coordinates = 42 variables\n    # Each coordinate is bounded between 0 and 1. \n    # Note: Since the ratio is scale-invariant, the specific bounds [0, 1] \n    # do not restrict the possible values of the ratio.\n    bounds = [(0.0, 1.0)] * (n_points * dim)\n    \n    # Run the Differential Evolution optimizer\n    # - maxiter: Number of generations. 300 is chosen to fit within 60 seconds.\n    # - popsize: Multiplier for population size (15 * 42 = 630 individuals).\n    # - tol: Tolerance for convergence.\n    # - polish: Uses L-BFGS-B at the end to refine the best solution.\n    # - strategy: 'best1bin' is efficient for finding the global minimum.\n    res = differential_evolution(\n        objective,\n        bounds,\n        strategy='best1bin',\n        maxiter=300,\n        popsize=15,\n        tol=1e-7,\n        mutation=(0.5, 1.0),\n        recombination=0.7,\n        polish=True,\n        init='latinhypercube'\n    )\n    \n    # Reshape the resulting flat array into the required (14, 3) shape\n    best_points = res.x.reshape((n_points, dim))\n    \n    return best_points",
+  "metrics": {
+    "valid": true,
+    "score": 0.7568342732588266,
+    "min_max_ratio": 0.18167584420689614,
+    "min_distance": 0.41478700484827363,
+    "max_distance": 0.9731427425718687,
+    "eval_time": 5.43157696723938,
+    "error": null
+  },
+  "prompt": "Use scipy.optimize.differential_evolution to maximize the ratio (min_dist / max_dist)**2 for 14 points in 3D. Set the bounds for each coordinate between 0 and 1.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import differential_evolution\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Places 14 points in 3D space to maximize the squared ratio:\n    (min pairwise distance / max pairwise distance)^2.\n    \n    The problem is normalized by a benchmark, so we aim to find the arrangement \n    that gives the highest possible ratio. Differential Evolution is used as a \n    global optimizer to search the 42-dimensional space (14 points * 3 coordinates).\n    \"\"\"\n    n_points = 14\n    dim = 3\n    \n    def objective(coords):\n        \"\"\"\n        Objective function for the optimizer.\n        Differential evolution minimizes the function, so we return the negative\n        of the squared ratio (min_dist / max_dist)**2.\n        \"\"\"\n        # Reshape the 1D input array into a (14, 3) matrix of coordinates\n        pts = coords.reshape((n_points, dim))\n        \n        # Calculate all pairwise Euclidean distances\n        # For N=14, there are 14*(14-1)/2 = 91 distances\n        dists = pdist(pts)\n        \n        # Extract the minimum and maximum distances\n        d_min = np.min(dists)\n        d_max = np.max(dists)\n        \n        # Avoid division by zero if all points are at the same location\n        if d_max == 0:\n            return 0.0\n        \n        # Calculate the squared ratio (min_dist / max_dist)^2\n        ratio_squared = (d_min / d_max)**2\n        \n        # Return negative ratio for minimization\n        return -float(ratio_squared)\n\n    # Define the search space: 14 points * 3 coordinates = 42 variables\n    # Each coordinate is bounded between 0 and 1. \n    # Note: Since the ratio is scale-invariant, the specific bounds [0, 1] \n    # do not restrict the possible values of the ratio.\n    bounds = [(0.0, 1.0)] * (n_points * dim)\n    \n    # Run the Differential Evolution optimizer\n    # - maxiter: Number of generations. 300 is chosen to fit within 60 seconds.\n    # - popsize: Multiplier for population size (15 * 42 = 630 individuals).\n    # - tol: Tolerance for convergence.\n    # - polish: Uses L-BFGS-B at the end to refine the best solution.\n    # - strategy: 'best1bin' is efficient for finding the global minimum.\n    res = differential_evolution(\n        objective,\n        bounds,\n        strategy='best1bin',\n        maxiter=300,\n        popsize=15,\n        tol=1e-7,\n        mutation=(0.5, 1.0),\n        recombination=0.7,\n        polish=True,\n        init='latinhypercube'\n    )\n    \n    # Reshape the resulting flat array into the required (14, 3) shape\n    best_points = res.x.reshape((n_points, dim))\n    \n    return best_points\n\n```",
+  "reasoning": "",
+  "timestamp": "2026-01-21T17:14:52.575891",
+  "cost_data": null,
+  "model_config": {
+    "model": "gemini-3-flash-preview",
+    "temperature": 0.7,
+    "provider_debug": {
+      "finish_reason": "STOP",
+      "usage_metadata": {
+        "prompt_token_count": 217,
+        "candidates_token_count": 757,
+        "thoughts_token_count": 15976
+      },
+      "response_text_len": 2647
+    }
+  }
+}

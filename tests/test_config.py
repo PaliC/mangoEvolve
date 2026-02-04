@@ -32,7 +32,7 @@ class TestConfigFromDict:
         assert config.budget.max_total_cost == 10.0
         assert (
             config.evaluation.evaluator_fn
-            == "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator"
+            == "problems.circle_packing.evaluator:CirclePackingEvaluator"
         )
 
     def test_load_with_defaults(self, sample_config_dict):
@@ -211,7 +211,7 @@ class TestLoadEvaluator:
     def test_load_evaluator_attribute_not_found(self):
         """Raise on non-existent attribute."""
         config = EvaluationConfig(
-            evaluator_fn="mango_evolve.evaluation.circle_packing:NonExistentClass",
+            evaluator_fn="problems.circle_packing.evaluator:NonExistentClass",
             evaluator_kwargs={},
         )
 
@@ -223,7 +223,7 @@ class TestLoadEvaluator:
     def test_load_evaluator_with_kwargs(self):
         """Load evaluator with custom kwargs."""
         config = EvaluationConfig(
-            evaluator_fn="mango_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+            evaluator_fn="problems.circle_packing.evaluator:CirclePackingEvaluator",
             evaluator_kwargs={"n_circles": 10, "timeout_seconds": 5},
         )
 

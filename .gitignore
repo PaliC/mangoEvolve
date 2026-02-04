@@ -79,6 +79,9 @@ checkpoints/
 experiments/
 logs/*
 node_modules/
-node_modules/
+
+# Problem datasets and experiments (downloaded externally)
+problems/*/data/
+problems/*/experiments/
 
 

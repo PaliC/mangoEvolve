@@ -1,0 +1,44 @@
+============================================================
+SCRATCHPAD FOR GENERATION 1
+============================================================
+
+
+# Strategy: Heilbronn Triangle (n=11)
+
+## Core Constraints
+- Container: Equilateral triangle (0,0), (1,0), (0.5, sqrt(3)/2).
+- Area: sqrt(3)/4 ≈ 0.433.
+- Points: 11.
+- Objective: Maximize the minimum area of any triangle formed by 3 points.
+
+## Initial Hypotheses
+1. **Geometric Priors**: Optimal configurations often place points on the boundary and in a roughly hexagonal interior lattice.
+2. **Robust Optimization**: Simulated Annealing (SA) and Basin-Hopping are likely to outperform standard local search due to the "rugged" nature of the min-area landscape.
+3. **Targeted Perturbation**: A heuristic that specifically moves points involved in the current minimum-area triangle could accelerate convergence.
+4. **Symmetry**: Exploring 3-fold rotational symmetry or reflections might yield high-performing initial seeds.
+
+## Planned Approaches for Gen 0
+- SA with geometric constraints.
+- Basin-hopping using scipy's minimize.
+- Differential Evolution for global search.
+- Targeted "Smart Mutation" evolutionary strategy.
+- Grid-based initialization with jitter.
+
+## Generation 0 Analysis
+- **Top Score**: 0.9637 (trial_0_7) - Multi-start L-BFGS-B with a smoothed objective (log-sum-exp).
+- **Runner Up**: 0.9008 (trial_0_6) - 3-fold symmetry optimization. This is a very strong result for a constrained search space.
+- **Third**: 0.8929 (trial_0_11) - CMA-ES.
+- **Observation**: Smoothed objectives (like log-sum-exp or soft-min) seem crucial for gradient-based solvers to handle the non-differentiable 'min' function.
+- **Observation**: Symmetry (trial_0_6) is a powerful prior for this problem.
+
+## Generation 1 Strategy
+- Focus on refining the Log-Sum-Exp (LSE) smoothing technique which yielded the highest score (0.9637).
+- Explore the interaction between symmetry constraints and local optimization.
+- Test Basin-Hopping with SLSQP to better handle the linear boundary constraints of the triangle.
+- Investigate 'annealing' the alpha parameter in the LSE objective (starting smooth and getting sharper).
+
+## Generation 1 Analysis
+- **Breakthrough**: trial_1_2 achieved 0.9964. It combined 3-fold symmetry with a Log-Sum-Exp (LSE) objective and SLSQP. 
+- **Symmetry**: The symmetric starting point seems to place the optimizer in a very high-quality basin.
+- **Failures**: Several trials (1_3, 1_4, 1_8, 1_10, 1_14) were INVALID. This usually means points fell outside the triangle or the array shape was wrong. 
+- **Constraint Tip**: When using SLSQP, linear constraints for the triangle (x >= 0, y >= 0, x + y/sqrt(3) <= 1, etc. depending on coordinate system) must be robust.

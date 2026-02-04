@@ -20,6 +20,9 @@ dependencies = [
     "scipy>=1.10.0",
     "tenacity>=8.0",
     "tqdm>=4.65.0",
+    "datasets>=4.5.0",
+    "h5py>=3.10.0",
+    "huggingface_hub>=0.20.0",
 ]
 
 [project.optional-dependencies]
@@ -32,7 +35,8 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", "."]
+include = ["mango_evolve*", "problems*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -43,7 +47,7 @@ addopts = "-v --tb=short"
 [tool.ruff]
 target-version = "py310"
 line-length = 100
-src = ["src", "tests"]
+src = ["src", "tests", "problems"]
 
 [tool.ruff.lint]
 select = [

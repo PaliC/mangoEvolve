@@ -52,25 +52,29 @@ advance_generation() / terminate_evolution()
 - **Root LLM Orchestrator** (`root_llm.py`): Manages the evolution loop, executes REPL code blocks
 - **Evolution API** (`evolution_api.py`): Functions available to Root LLM (spawn_children, evaluate_program, terminate_evolution)
 - **REPL Environment** (`repl.py`): Python execution environment with Evolution API injected
-- **LLM Providers** (`llm/providers/`): Pluggable LLM backends - Anthropic and OpenRouter supported
+- **LLM Providers** (`llm/providers/`): Pluggable LLM backends - Anthropic, OpenRouter, and native Google Gemini supported
 - **Evaluator** (`evaluation/`): Pluggable evaluation system loaded dynamically from config
 
 ### LLM Provider System
 
 The system supports multiple LLM providers configured via YAML:
 
+- **anthropic**: Direct Anthropic API (`ANTHROPIC_API_KEY`)
+- **openrouter**: OpenRouter proxy for multiple models (`OPENROUTER_API_KEY`)
+- **google**: Native Google Gemini API (`GEMINI_API_KEY`)
+
 ```yaml
 root_llm:
-  provider: "anthropic"  # or "openrouter"
+  provider: "anthropic"  # or "openrouter" or "google"
   model: "claude-sonnet-4-20250514"
   reasoning:
     enabled: true  # Enable reasoning/thinking for supported models
+    effort: "high"  # minimal, low, medium, high, xhigh
 
 child_llms:
   - alias: "fast"
-    model: "google/gemini-3-flash-preview"
-    provider: "openrouter"
-    calibration_calls: 2
+    model: "gemini-2.5-flash"
+    provider: "google"
   - alias: "strong"
     model: "claude-sonnet-4-20250514"
     provider: "anthropic"
@@ -78,7 +82,7 @@ child_llms:
 default_child_llm_alias: "fast"
 ```
 
-OpenRouter configs support multiple child LLM definitions with aliases, allowing the Root LLM to select different models for different tasks.
+Multiple child LLM definitions with aliases allow the Root LLM to select different models for different tasks.
 
 ### Adding a New Evaluator
 
@@ -95,6 +99,7 @@ evaluation:
 
 - `ANTHROPIC_API_KEY`: Required for Anthropic provider
 - `OPENROUTER_API_KEY`: Required for OpenRouter provider
+- `GEMINI_API_KEY`: Required for native Google Gemini provider
 
 ## Test Patterns
 

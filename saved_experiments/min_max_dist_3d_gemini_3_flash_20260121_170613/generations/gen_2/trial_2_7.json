@@ -1,0 +1,33 @@
+{
+  "trial_id": "trial_2_7",
+  "generation": 2,
+  "parent_id": null,
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Finds a configuration of 14 points in 3D space that maximizes the ratio \n    (min pairwise distance / max pairwise distance)^2 by enforcing centro-symmetry.\n    The centro-symmetric configuration consists of 7 pairs of points (x, y, z) and (-x, -y, -z).\n    \"\"\"\n\n    def get_ratio_sq(pts7_flat):\n        \"\"\"\n        Computes the squared ratio (d_min / d_max)^2 for a 14-point set \n        generated from 7 points via centro-symmetry.\n        \"\"\"\n        pts7 = pts7_flat.reshape((7, 3))\n        # Generate the full set of 14 points using centro-symmetry\n        all_pts = np.vstack([pts7, -pts7])\n        \n        # Compute all pairwise distances (14 * 13 / 2 = 91 pairs)\n        dists = pdist(all_pts)\n        if len(dists) == 0:\n            return 0.0\n            \n        d_min = np.min(dists)\n        d_max = np.max(dists)\n        \n        if d_max < 1e-9:\n            return 0.0\n            \n        return (d_min / d_max)**2\n\n    best_pts7 = None\n    best_ratio_sq = -1.0\n\n    # Number of random restarts to explore the solution space\n    num_restarts = 25\n    \n    for i in range(num_restarts):\n        # Use a mix of normal and uniform distributions for varied starting points\n        if i % 2 == 0:\n            initial_pts7 = np.random.normal(0, 1.0, (7, 3))\n        else:\n            initial_pts7 = np.random.uniform(-1.0, 1.0, (7, 3))\n            \n        # Optimize using SLSQP (Sequential Least Squares Programming)\n        # It handles non-smooth functions like min/max reasonably well for small N\n        res = minimize(\n            lambda x: -get_ratio_sq(x),\n            initial_pts7.flatten(),\n            method='SLSQP',\n            options={'maxiter': 100, 'ftol': 1e-7}\n        )\n        \n        if -res.fun > best_ratio_sq:\n            best_ratio_sq = -res.fun\n            best_pts7 = res.x.reshape((7, 3))\n            \n    # Refine the best found solution with higher precision\n    if best_pts7 is not None:\n        res_refine = minimize(\n            lambda x: -get_ratio_sq(x),\n            best_pts7.flatten(),\n            method='SLSQP',\n            options={'maxiter': 200, 'ftol': 1e-9}\n        )\n        if -res_refine.fun > best_ratio_sq:\n            best_pts7 = res_refine.x.reshape((7, 3))\n\n    # Generate the final 14-point set\n    final_pts14 = np.vstack([best_pts7, -best_pts7])\n    \n    # Normalize the configuration so that the maximum pairwise distance is exactly 1.0\n    dists = pdist(final_pts14)\n    d_max = np.max(dists)\n    if d_max > 0:\n        final_pts14 /= d_max\n        \n    return final_pts14",
+  "metrics": {
+    "valid": true,
+    "score": 0.8758469870934845,
+    "min_max_ratio": 0.21024449658063835,
+    "min_distance": 0.45852425953338427,
+    "max_distance": 1.0,
+    "eval_time": 1.0821030139923096,
+    "error": null
+  },
+  "prompt": "Explore the possibility that the optimal 14-point configuration has some symmetry. Try optimizing the points while enforcing centro-symmetry (7 pairs of points (x, y, z) and (-x, -y, -z)).",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial.distance import pdist\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Finds a configuration of 14 points in 3D space that maximizes the ratio \n    (min pairwise distance / max pairwise distance)^2 by enforcing centro-symmetry.\n    The centro-symmetric configuration consists of 7 pairs of points (x, y, z) and (-x, -y, -z).\n    \"\"\"\n\n    def get_ratio_sq(pts7_flat):\n        \"\"\"\n        Computes the squared ratio (d_min / d_max)^2 for a 14-point set \n        generated from 7 points via centro-symmetry.\n        \"\"\"\n        pts7 = pts7_flat.reshape((7, 3))\n        # Generate the full set of 14 points using centro-symmetry\n        all_pts = np.vstack([pts7, -pts7])\n        \n        # Compute all pairwise distances (14 * 13 / 2 = 91 pairs)\n        dists = pdist(all_pts)\n        if len(dists) == 0:\n            return 0.0\n            \n        d_min = np.min(dists)\n        d_max = np.max(dists)\n        \n        if d_max < 1e-9:\n            return 0.0\n            \n        return (d_min / d_max)**2\n\n    best_pts7 = None\n    best_ratio_sq = -1.0\n\n    # Number of random restarts to explore the solution space\n    num_restarts = 25\n    \n    for i in range(num_restarts):\n        # Use a mix of normal and uniform distributions for varied starting points\n        if i % 2 == 0:\n            initial_pts7 = np.random.normal(0, 1.0, (7, 3))\n        else:\n            initial_pts7 = np.random.uniform(-1.0, 1.0, (7, 3))\n            \n        # Optimize using SLSQP (Sequential Least Squares Programming)\n        # It handles non-smooth functions like min/max reasonably well for small N\n        res = minimize(\n            lambda x: -get_ratio_sq(x),\n            initial_pts7.flatten(),\n            method='SLSQP',\n            options={'maxiter': 100, 'ftol': 1e-7}\n        )\n        \n        if -res.fun > best_ratio_sq:\n            best_ratio_sq = -res.fun\n            best_pts7 = res.x.reshape((7, 3))\n            \n    # Refine the best found solution with higher precision\n    if best_pts7 is not None:\n        res_refine = minimize(\n            lambda x: -get_ratio_sq(x),\n            best_pts7.flatten(),\n            method='SLSQP',\n            options={'maxiter': 200, 'ftol': 1e-9}\n        )\n        if -res_refine.fun > best_ratio_sq:\n            best_pts7 = res_refine.x.reshape((7, 3))\n\n    # Generate the final 14-point set\n    final_pts14 = np.vstack([best_pts7, -best_pts7])\n    \n    # Normalize the configuration so that the maximum pairwise distance is exactly 1.0\n    dists = pdist(final_pts14)\n    d_max = np.max(dists)\n    if d_max > 0:\n        final_pts14 /= d_max\n        \n    return final_pts14\n\n```",
+  "reasoning": "",
+  "timestamp": "2026-01-21T17:21:34.503153",
+  "cost_data": null,
+  "model_config": {
+    "model": "gemini-3-flash-preview",
+    "temperature": 0.7,
+    "provider_debug": {
+      "finish_reason": "STOP",
+      "usage_metadata": {
+        "prompt_token_count": 219,
+        "candidates_token_count": 867,
+        "thoughts_token_count": 18560
+      },
+      "response_text_len": 2693
+    }
+  }
+}

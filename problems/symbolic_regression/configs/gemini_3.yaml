@@ -1,0 +1,54 @@
+# Symbolic Regression with Gemini Flash
+# Evolve mathematical expressions to fit data
+
+experiment:
+  name: "symbolic_regression_gemini_flash"
+  output_dir: "experiments"
+
+# Root LLM orchestrates the evolution
+root_llm:
+    model: "gemini-3-flash-preview"
+    provider: "google"
+    cost_per_million_input_tokens: 0.50
+    cost_per_million_output_tokens: 3.00
+    calibration_calls: 2
+    reasoning:
+      enabled: true
+      effort: "xhigh"
+
+child_llms:
+
+  - alias: "flash"
+    model: "gemini-3-flash-preview"
+    provider: "google"
+    cost_per_million_input_tokens: 0.50
+    cost_per_million_output_tokens: 3.00
+    calibration_calls: 2
+    reasoning:
+      enabled: true
+      effort: "xhigh"
+
+
+default_child_llm_alias: "flash"
+
+# Evolution parameters
+evolution:
+  max_generations: 20
+  max_children_per_generation: 10
+
+# Budget limits
+budget:
+  max_cost_usd: 10.0
+
+# Evaluator configuration
+evaluation:
+  evaluator_fn: "problems.symbolic_regression.evaluator:SymbolicRegressionEvaluator"
+  evaluator_kwargs:
+    n_samples: 100
+    n_features: 1
+    n_params: 5
+    timeout_seconds: 90.0
+    # Target function to discover (comment out for random polynomial)
+    target_function: "np.sin(x[:, 0]) + 0.5 * x[:, 0]**2"
+    noise_std: 0.1
+    x_range: [-5.0, 5.0]

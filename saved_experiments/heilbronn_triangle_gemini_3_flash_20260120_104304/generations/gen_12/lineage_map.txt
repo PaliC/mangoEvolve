@@ -1,0 +1,201 @@
+============================================================
+LINEAGE MAP FOR GENERATION 12
+============================================================
+
+### All-Time Top 5 (cross-generation selection candidates)
+  1. trial_12_5 [Gen 12] = 1.0000000000
+  2. trial_8_4 [Gen 8] = 1.0000000000
+  3. trial_8_0 [Gen 8] = 1.0000000000
+     Here is the improved solution using a Slack Variab...
+  4. trial_8_3 [Gen 8] = 1.0000000000
+  5. trial_12_2 [Gen 12] = 0.9999999948
+
+### Full Lineage Tree
+
+trial_12_2 (0.9999999948332597)
+
+trial_6_13 (0.9814020789290971)
+
+trial_6_15 (0.9802759354415438)
+
+trial_0_7 (0.9637028937435187) [To solve the Heilbronn Triangle problem...]
+    └── trial_1_0 (0.9422552514323557) [To improve the solution for the Heilbron...]
+    └── trial_1_1 (0.8583232241108528)
+    └── trial_1_12 (0.9371595019946961)
+    └── trial_2_4 (0.0000000000000000)
+
+trial_4_3 (0.9472331721869059)
+
+trial_6_2 (0.9421919268187307)
+
+trial_6_11 (0.9374957996735171)
+
+trial_6_8 (0.9322316430240453)
+
+trial_6_9 (0.9290684375690883)
+
+trial_6_5 (0.9257145514097282)
+
+trial_9_2 (0.9076921992921969)
+
+trial_0_6 (0.9008578388138304) [An optimized Python solution for the Hei...]
+    └── trial_1_2 (0.9963955590169408) [An algorithm to find the optimal configu...]
+        └── trial_2_0 (INVALID) [Here is the improved solution for the He...]
+        └── trial_2_1 (INVALID) [To solve the Heilbronn Triangle problem...]
+        └── trial_2_2 (0.8981105885703535)
+        └── trial_2_7 (0.9971327567151517) [An optimized Python solution for the Hei...]
+        │   └── trial_3_0 (INVALID) [```python import numpy as np from scipy....]
+        │   └── trial_3_1 (0.9453692675207827) [Here is the Python solution using `scipy...]
+        │   └── trial_3_10 (0.8427697170319862)
+        │   └── trial_3_3 (0.8472451826343335)
+        │   └── trial_3_5 (0.9154783308268235)
+        │   └── trial_4_0 (0.4925409400318560) [Here is the Python solution for the Heil...]
+        │   └── trial_4_5 (0.9447313136833668)
+        │   └── trial_5_0 (0.9544351440879159) [An optimized Python solution for the Hei...]
+        │   └── trial_5_3 (INVALID) [Here is the Python solution for the Heil...]
+        │   └── trial_6_0 (0.8581144654768658) [To solve the Heilbronn Triangle problem...]
+        │   └── trial_6_1 (0.9994837280338643)
+        │       └── trial_10_6 (0.6350938202827263)
+        │       └── trial_7_0 (INVALID) [An implementation of the Heilbronn Trian...]
+        │       └── trial_7_2 (0.8869296794901232)
+        │       └── trial_7_4 (INVALID) [Here is the Python solution for the Heil...]
+        │       └── trial_7_5 (0.9475023862761036)
+        │       └── trial_8_0 (0.9999999999967767) [Here is the improved solution using a Sl...]
+        │       │   └── trial_10_0 (INVALID) [Here is the Python solution for the Heil...]
+        │       │   └── trial_10_4 (0.0005668216937784)
+        │       │   └── trial_10_5 (0.5417938851546683)
+        │       │   └── trial_10_7 (0.6798459216521465)
+        │       │   └── trial_9_0 (INVALID) [To solve the Heilbronn Triangle problem...]
+        │       │   └── trial_9_3 (0.8563018333246591)
+        │       │   └── trial_9_4 (0.0000001165058862)
+        │       └── trial_8_1 (INVALID) [An optimized solution for the Heilbronn...]
+        │       └── trial_8_3 (0.9999999999726953)
+        │       └── trial_8_4 (0.9999999999968170)
+        │       │   └── trial_10_1 (0.5766050619877919) [An implementation of the Heilbronn Trian...]
+        │       │   └── trial_11_0 (0.8204641053109877)
+        │       │   └── trial_11_1 (0.9999980090016944) [Here is the Python solution implementing...]
+        │       │   └── trial_11_3 (0.6877357858728783)
+        │       │   └── trial_12_0 (0.4530320661630610) [Here is the refined solution using the s...]
+        │       │   └── trial_12_1 (0.8744745939843264)
+        │       │   └── trial_12_4 (0.8493084141821442) [An optimized Python solution for the Hei...]
+        │       │   └── trial_12_5 (0.9999999999999939) ← best
+        │       │   └── trial_12_7 (INVALID)
+        │       │   └── trial_9_1 (INVALID) [An implementation of the `heilbronn_tria...]
+        │       └── trial_8_6 (0.7780243187560649)
+        └── trial_2_8 (INVALID) [Here is the improved solution for the He...]
+        └── trial_2_9 (0.9964313808797625) [Here is the Python solution maximizing t...]
+
+trial_6_6 (0.8942592681992593)
+
+trial_0_11 (0.8929077293198500)
+    └── trial_1_5 (0.8487721018145279)
+
+trial_11_4 (0.8661361493884451)
+
+trial_5_1 (0.8508462050919146)
+
+trial_3_2 (0.8324605400013477)
+
+trial_1_11 (0.8305231207914541) [To solve the Heilbronn Triangle problem...]
+
+trial_10_2 (0.8299916073447517)
+
+trial_5_5 (0.8290131383823931) [Here is the solution using a custom impl...]
+
+trial_4_1 (0.8117750250698945) [An implementation of the multi-stage SLS...]
+
+trial_3_4 (0.8094638475776761)
+
+trial_6_12 (0.8021227878660456)
+
+trial_1_13 (0.7951406524882572)
+
+trial_2_6 (0.7833332170022829)
+
+trial_7_3 (0.7788561744957863)
+
+trial_0_9 (0.7265380184808454)
+
+trial_1_6 (0.7194593549927581)
+
+trial_2_5 (0.7075429558660791)
+
+trial_0_1 (0.7047082783000368) [An implementation of the Heilbronn Trian...]
+
+trial_0_5 (0.6665048871621664)
+
+trial_4_2 (0.6598059931798603)
+
+trial_0_2 (0.6442715177520373)
+
+trial_0_10 (0.6382183432008108)
+
+trial_0_4 (0.6215487715229991)
+
+trial_2_3 (0.6066906921446228)
+
+trial_0_8 (0.5701489321218501)
+
+trial_3_8 (0.5266486025241006)
+
+trial_3_6 (0.4902795987165818)
+
+trial_7_1 (0.4790147115042079)
+
+trial_9_5 (0.4183087216383856)
+
+trial_1_9 (0.3849625456057953)
+
+trial_1_7 (0.3725970899033422)
+
+trial_10_3 (0.3204713978380386)
+
+trial_0_3 (0.2867836948840182)
+
+trial_3_7 (0.2709935068718448)
+
+trial_0_0 (0.2548015714858958)
+
+trial_6_3 (0.0737324796561654)
+
+trial_8_7 (0.0303222829584193)
+
+trial_8_5 (0.0010879067859519)
+
+trial_1_3 (INVALID)
+
+trial_1_4 (INVALID)
+
+trial_1_8 (INVALID)
+
+trial_1_10 (INVALID)
+
+trial_1_14 (INVALID)
+
+trial_1_15 (0.0000000000000000)
+
+trial_3_9 (INVALID)
+
+trial_3_11 (INVALID)
+
+trial_4_4 (INVALID) [To maximize the minimum area of triangle...]
+
+trial_5_2 (0.0000000000000000)
+
+trial_5_4 (INVALID)
+
+trial_6_4 (0.0000000000000000)
+
+trial_6_7 (INVALID)
+
+trial_6_10 (INVALID)
+
+trial_6_14 (INVALID)
+
+trial_8_2 (INVALID)
+
+trial_11_2 (INVALID)
+
+trial_12_3 (INVALID)
+
+trial_12_6 (INVALID)

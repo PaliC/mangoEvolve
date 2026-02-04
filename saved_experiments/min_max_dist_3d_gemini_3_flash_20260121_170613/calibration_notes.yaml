@@ -1,0 +1,71 @@
+# MangoEvolve Calibration Notes
+# The root LLM only sees the 'notes' section during evolution.
+# Metadata is stored for validation purposes.
+
+notes: '
+
+  ## Model Observations
+
+
+  ### flash (gemini-3-flash-preview)
+
+  - **Strengths**: Excellent at producing clean, idiomatic Python code. Demonstrates
+  strong understanding of standard optimization algorithms (Simulated Annealing) and
+  geometric transformations. Responses are well-structured and include helpful context
+  (e.g., explaining why a specific coordinate system might be chosen).
+
+  - **Code Style**: Uses NumPy effectively for vectorization. Provides clear comments
+  and alternative implementations (e.g., standard Python vs. NumPy).
+
+  - **Reasoning**: Good at explaining "how" and "why" for standard tasks. Reliable
+  for implementing defined logic.
+
+
+  ### pro (gemini-3-pro-preview)
+
+  - **Strengths**: High-level strategic thinking and expert-level optimization knowledge.
+  Identified the specific mathematical nature of the problem (packing points in a
+  container/Tammes problem variant).
+
+  - **Advanced Concepts**: Introduced "SoftMin" using `logsumexp` to solve the non-differentiability
+  of the `min()` function—a crucial insight for gradient-based optimization in this
+  task.
+
+  - **Strategy**: Recommended a hybrid approach: Global Exploration (Differential
+  Evolution) followed by Local Refinement (L-BFGS-B/SLSQP).
+
+  - **Code Style**: Professional and robust. Uses advanced SciPy functions for efficiency
+  and numerical stability.
+
+
+  ## Strategic Takeaways for Evolution
+
+  - **Objective Function**: Use a SoftMin approximation (LogSumExp) for gradient-based
+  refinement phases to provide a smoother landscape.
+
+  - **Optimization Pipeline**: Start with a population-based global search (like CMA-ES
+  or Differential Evolution) to find promising basins, then polish with a local optimizer.
+
+  - **Coordinates**: Cartesian is generally more stable for the optimizer''s Hessian,
+  but spherical coordinates could be useful for specific constraints or if the problem
+  is reformulated on a sphere.
+
+  - **Model Choice**: Use `pro` for designing the core optimization logic and handling
+  complex mathematical hurdles. Use `flash` for iterative refinements, code boilerplate,
+  and testing variations of the strategy.
+
+  '
+metadata:
+  child_llms:
+  - alias: flash
+    model: gemini-3-flash-preview
+    provider: google
+    cost_per_million_input_tokens: 0.5
+    cost_per_million_output_tokens: 3.0
+  - alias: pro
+    model: gemini-3-pro-preview
+    provider: google
+    cost_per_million_input_tokens: 2.0
+    cost_per_million_output_tokens: 12.0
+  created_at: '2026-01-21T22:07:02.386517+00:00'
+  experiment_name: circle_packing_gemini_3_flash

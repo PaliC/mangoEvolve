@@ -1,0 +1,33 @@
+{
+  "trial_id": "trial_13_5",
+  "generation": 13,
+  "parent_id": "trial_8_0",
+  "code": "import numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial.distance import pdist\nimport time\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Finds 14 points in 3D space to maximize the squared ratio (min pairwise distance / max pairwise distance)^2.\n    Uses a Basin-hopping strategy with multiple random restarts and a uniform box initialization.\n    \"\"\"\n    n_points = 14\n    dim = 3\n    \n    # Objective function to minimize: (max_dist / min_dist)^2\n    # This is equivalent to maximizing (min_dist / max_dist)^2\n    def objective(flat_pts):\n        pts = flat_pts.reshape((n_points, dim))\n        # Calculate all pairwise distances using pdist\n        dists = pdist(pts)\n        min_d = np.min(dists)\n        # Handle cases where points might overlap\n        if min_d < 1e-11:\n            return 1e12\n        max_d = np.max(dists)\n        # Return the squared ratio to be minimized\n        return (max_d / min_d)**2\n\n    best_pts = None\n    best_ratio = float('inf')\n    start_time = time.time()\n    \n    # Strategy: Basin-hopping with random restarts\n    # The uniform box initialization is implemented by sampling from [-1, 1]^3\n    while time.time() - start_time < 55:\n        # Strategy B: Initialization from a uniform distribution in a box\n        curr_x = np.random.uniform(-1, 1, n_points * dim)\n        \n        # Basin-hopping: Local optimization followed by random perturbation\n        for _ in range(8):\n            # Local minimization using L-BFGS-B with tight tolerance (1e-14)\n            res = minimize(objective, curr_x, method='L-BFGS-B', \n                           options={'gtol': 1e-14, 'ftol': 1e-14})\n            \n            # Keep track of the best configuration found across all restarts\n            if res.fun < best_ratio:\n                best_ratio = res.fun\n                best_pts = res.x.copy()\n            \n            # Hop to a new point in the search space by perturbing the current local minimum\n            # The perturbation magnitude (0.05) is chosen to explore nearby basins\n            curr_x = res.x + np.random.normal(0, 0.05, res.x.shape)\n            \n            # Ensure we stay within the time budget\n            if time.time() - start_time > 55:\n                break\n                \n    # If no optimization occurred, return a random set of points as a fallback\n    if best_pts is None:\n        return np.random.uniform(-1, 1, (n_points, dim))\n        \n    # Reshape the flattened array back to (14, 3)\n    return best_pts.reshape((n_points, dim))",
+  "metrics": {
+    "valid": true,
+    "score": 0.9508751101893833,
+    "min_max_ratio": 0.2282547771457797,
+    "min_distance": 1.0162143149616616,
+    "max_distance": 2.127038596375355,
+    "eval_time": 55.381377935409546,
+    "error": null
+  },
+  "prompt": "Re-implement the Basin-hopping strategy from trial_8_0 but increase the number of random restarts and use a tighter tolerance (1e-14). Focus on the 'Strategy B' (uniform box) which found the global optimum.",
+  "response": "```python\nimport numpy as np\nfrom scipy.optimize import minimize\nfrom scipy.spatial.distance import pdist\nimport time\n\ndef min_max_dist_dim3_14():\n    \"\"\"\n    Finds 14 points in 3D space to maximize the squared ratio (min pairwise distance / max pairwise distance)^2.\n    Uses a Basin-hopping strategy with multiple random restarts and a uniform box initialization.\n    \"\"\"\n    n_points = 14\n    dim = 3\n    \n    # Objective function to minimize: (max_dist / min_dist)^2\n    # This is equivalent to maximizing (min_dist / max_dist)^2\n    def objective(flat_pts):\n        pts = flat_pts.reshape((n_points, dim))\n        # Calculate all pairwise distances using pdist\n        dists = pdist(pts)\n        min_d = np.min(dists)\n        # Handle cases where points might overlap\n        if min_d < 1e-11:\n            return 1e12\n        max_d = np.max(dists)\n        # Return the squared ratio to be minimized\n        return (max_d / min_d)**2\n\n    best_pts = None\n    best_ratio = float('inf')\n    start_time = time.time()\n    \n    # Strategy: Basin-hopping with random restarts\n    # The uniform box initialization is implemented by sampling from [-1, 1]^3\n    while time.time() - start_time < 55:\n        # Strategy B: Initialization from a uniform distribution in a box\n        curr_x = np.random.uniform(-1, 1, n_points * dim)\n        \n        # Basin-hopping: Local optimization followed by random perturbation\n        for _ in range(8):\n            # Local minimization using L-BFGS-B with tight tolerance (1e-14)\n            res = minimize(objective, curr_x, method='L-BFGS-B', \n                           options={'gtol': 1e-14, 'ftol': 1e-14})\n            \n            # Keep track of the best configuration found across all restarts\n            if res.fun < best_ratio:\n                best_ratio = res.fun\n                best_pts = res.x.copy()\n            \n            # Hop to a new point in the search space by perturbing the current local minimum\n            # The perturbation magnitude (0.05) is chosen to explore nearby basins\n            curr_x = res.x + np.random.normal(0, 0.05, res.x.shape)\n            \n            # Ensure we stay within the time budget\n            if time.time() - start_time > 55:\n                break\n                \n    # If no optimization occurred, return a random set of points as a fallback\n    if best_pts is None:\n        return np.random.uniform(-1, 1, (n_points, dim))\n        \n    # Reshape the flattened array back to (14, 3)\n    return best_pts.reshape((n_points, dim))\n\n```",
+  "reasoning": "",
+  "timestamp": "2026-01-21T18:23:17.922695",
+  "cost_data": null,
+  "model_config": {
+    "model": "gemini-3-flash-preview",
+    "temperature": 0.7,
+    "provider_debug": {
+      "finish_reason": "STOP",
+      "usage_metadata": {
+        "prompt_token_count": 222,
+        "candidates_token_count": 709,
+        "thoughts_token_count": 14902
+      },
+      "response_text_len": 2528
+    }
+  }
+}

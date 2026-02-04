@@ -1,0 +1,39 @@
+experiment:
+  name: "min_max_dist_dim3_sonnet"
+  output_dir: "./problems/minimizing_max_min_dist/experiments"
+
+root_llm:
+  model: "claude-sonnet-4-5-20250929"
+  cost_per_million_input_tokens: 3.0
+  cost_per_million_output_tokens: 15.0
+  max_iterations: 30
+  reasoning:
+    enabled: true
+    reasoning_effort: "high"
+
+child_llms:
+  - alias: "sonnet"
+    model: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    cost_per_million_input_tokens: 3.0
+    cost_per_million_output_tokens: 15.0
+    calibration_calls: 2
+    reasoning:
+      enabled: true
+      reasoning_effort: "high"
+
+default_child_llm_alias: "sonnet"
+
+evaluation:
+  evaluator_fn: "problems.minimizing_max_min_dist.evaluator:MinimizingMaxMinDistanceEvaluator"
+  evaluator_kwargs:
+    dimension: 3
+    num_points: 14
+    timeout_seconds: 60
+
+evolution:
+  max_generations: 5
+  max_children_per_generation: 4
+
+budget:
+  max_total_cost: 20.0
