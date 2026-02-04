@@ -16,7 +16,7 @@ import os
 import pytest
 
 from mango_evolve import CostTracker, config_from_dict
-from mango_evolve.evaluation.circle_packing import CirclePackingEvaluator
+from problems.circle_packing.evaluator import CirclePackingEvaluator
 from mango_evolve.evolution_api import EvolutionAPI
 from mango_evolve.llm.client import LLMClient
 from mango_evolve.logger import ExperimentLogger
@@ -48,7 +48,7 @@ def e2e_config_dict(temp_dir):
             "cost_per_million_output_tokens": 15.0,
         },
         "evaluation": {
-            "evaluator_fn": "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+            "evaluator_fn": "problems.circle_packing.evaluator:CirclePackingEvaluator",
             "evaluator_kwargs": {
                 "n_circles": 26,
                 "timeout_seconds": 30,

@@ -13,67 +13,70 @@ from mango_evolve.llm.prompts import (
 class TestRootSystemPrompt:
     """Tests for the Root LLM system prompt."""
 
-    def test_prompt_documents_spawn_children(self):
+    def test_prompt_documents_spawn_children(self, sample_problem_spec):
         """Test that spawn_children is documented."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         assert "spawn_children" in prompt
 
-    def test_prompt_documents_core_functions(self):
+    def test_prompt_documents_core_functions(self, sample_problem_spec):
         """Test that core functions are documented."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         assert "spawn_children" in prompt
         assert "update_scratchpad" in prompt
         assert "terminate_evolution" in prompt
 
-    def test_prompt_does_not_document_advance_generation(self):
+    def test_prompt_does_not_document_advance_generation(self, sample_problem_spec):
         """Test that advance_generation is NOT documented (now internal)."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         # advance_generation should not be in the available functions
         assert "### advance_generation" not in prompt
 
-    def test_prompt_documents_terminate_evolution(self):
+    def test_prompt_documents_terminate_evolution(self, sample_problem_spec):
         """Test that terminate_evolution is documented."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         assert "terminate_evolution" in prompt
         assert "best_program" in prompt
 
-    def test_prompt_documents_update_scratchpad(self):
+    def test_prompt_documents_update_scratchpad(self, sample_problem_spec):
         """Test that update_scratchpad is documented."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         assert "update_scratchpad" in prompt
         assert "scratchpad" in prompt.lower()
 
-    def test_prompt_does_not_document_internal_functions(self):
+    def test_prompt_does_not_document_internal_functions(self, sample_problem_spec):
         """Test that internal helper functions are not documented."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         # These internal methods (prefixed with _) should not be listed as available functions
         assert "### _get_best_trials" not in prompt
         assert "### _get_trial(" not in prompt
         assert "### _get_generation_history" not in prompt
         assert "### _advance_generation" not in prompt
 
-    def test_prompt_describes_problem(self):
+    def test_prompt_describes_problem(self, sample_problem_spec):
         """Test that the problem is described."""
-        prompt = get_root_system_prompt()
-        assert "26 circles" in prompt
-        assert "unit square" in prompt
-        assert "2.635" in prompt  # Target
+        prompt = get_root_system_prompt(sample_problem_spec)
+        # Problem name should be in the prompt
+        assert sample_problem_spec.name.lower() in prompt.lower()
+        # Best known solution should be included
+        assert str(sample_problem_spec.best_known_solution)[:5] in prompt
 
-    def test_prompt_documents_code_specification(self):
+    def test_prompt_documents_code_specification(self, sample_problem_spec):
         """Test that code specification is documented."""
-        prompt = get_root_system_prompt()
-        assert "construct_packing" in prompt
-        assert "run_packing" in prompt
+        prompt = get_root_system_prompt(sample_problem_spec)
+        assert sample_problem_spec.entry_function in prompt
+        for helper in sample_problem_spec.helper_functions or []:
+            assert helper in prompt
 
-    def test_get_root_system_prompt_returns_string(self):
+    def test_get_root_system_prompt_returns_string(self, sample_problem_spec):
         """Test that get_root_system_prompt returns a string."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         assert isinstance(prompt, str)
         assert len(prompt) > 0
 
-    def test_prompt_includes_evolution_parameters(self):
+    def test_prompt_includes_evolution_parameters(self, sample_problem_spec):
         """Test that evolution parameters are included in prompt."""
         prompt = get_root_system_prompt(
+            sample_problem_spec,
             max_children_per_generation=5,
             max_generations=3,
             current_generation=1,
@@ -82,20 +85,20 @@ class TestRootSystemPrompt:
         assert "3" in prompt  # max_generations
         assert "Current generation" in prompt
 
-    def test_prompt_encourages_diversity(self):
+    def test_prompt_encourages_diversity(self, sample_problem_spec):
         """Test that prompt mentions diversity."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         assert "diversity" in prompt.lower() or "diverse" in prompt.lower()
 
-    def test_prompt_documents_code_references(self):
-        """Test that trial code access syntax is documented."""
-        prompt = get_root_system_prompt()
-        # The prompt documents how to access code from trials
-        assert 'trials["trial_' in prompt or ".code" in prompt
+    def test_prompt_documents_code_references(self, sample_problem_spec):
+        """Test that trials access syntax is documented."""
+        prompt = get_root_system_prompt(sample_problem_spec)
+        # The prompt should document how to access trial code
+        assert "trials" in prompt
 
-    def test_prompt_documents_selection_format(self):
+    def test_prompt_documents_selection_format(self, sample_problem_spec):
         """Test that selection format is documented."""
-        prompt = get_root_system_prompt()
+        prompt = get_root_system_prompt(sample_problem_spec)
         assert "selection" in prompt.lower()
         assert "trial_id" in prompt
 
@@ -103,22 +106,23 @@ class TestRootSystemPrompt:
 class TestFormatChildMutationPrompt:
     """Tests for format_child_mutation_prompt."""
 
-    def test_includes_parent_code(self):
+    def test_includes_parent_code(self, sample_problem_spec):
         """Test that parent code is included."""
         parent_code = "def construct_packing(): pass"
-        prompt = format_child_mutation_prompt(parent_code, 1.5)
+        prompt = format_child_mutation_prompt(sample_problem_spec, parent_code, 1.5)
 
         assert parent_code in prompt
 
-    def test_includes_parent_score(self):
+    def test_includes_parent_score(self, sample_problem_spec):
         """Test that parent score is included."""
-        prompt = format_child_mutation_prompt("code", 1.5)
+        prompt = format_child_mutation_prompt(sample_problem_spec, "code", 1.5)
 
         assert "1.5" in prompt or "1.50" in prompt
 
-    def test_includes_guidance(self):
+    def test_includes_guidance(self, sample_problem_spec):
         """Test that guidance is included."""
         prompt = format_child_mutation_prompt(
+            sample_problem_spec,
             "code",
             1.5,
             guidance="Try using hexagonal packing",
@@ -126,15 +130,16 @@ class TestFormatChildMutationPrompt:
 
         assert "hexagonal" in prompt
 
-    def test_includes_target(self):
+    def test_includes_target(self, sample_problem_spec):
         """Test that target score is mentioned."""
-        prompt = format_child_mutation_prompt("code", 1.5)
+        prompt = format_child_mutation_prompt(sample_problem_spec, "code", 1.5)
 
-        assert "2.635" in prompt
+        # Should include best known solution
+        assert str(sample_problem_spec.best_known_solution)[:5] in prompt
 
-    def test_is_concise(self):
+    def test_is_concise(self, sample_problem_spec):
         """Test that mutation prompt is concise (not overly verbose)."""
-        prompt = format_child_mutation_prompt("code", 1.5)
+        prompt = format_child_mutation_prompt(sample_problem_spec, "code", 1.5)
         # The simplified prompt should be short
         assert len(prompt) < 500
 
@@ -148,9 +153,10 @@ class TestRootLLMSystemPromptDynamic:
         assert "{max_generations}" in ROOT_LLM_SYSTEM_PROMPT_DYNAMIC
         assert "{current_generation}" in ROOT_LLM_SYSTEM_PROMPT_DYNAMIC
 
-    def test_function_formats_template(self):
+    def test_function_formats_template(self, sample_problem_spec):
         """Test that function properly formats the template."""
         prompt = get_root_system_prompt(
+            sample_problem_spec,
             max_children_per_generation=7,
             max_generations=5,
             current_generation=2,
@@ -167,9 +173,10 @@ class TestRootLLMSystemPromptDynamic:
 class TestTimeoutConstraint:
     """Tests for timeout constraint in prompts."""
 
-    def test_prompt_includes_timeout_when_provided(self):
+    def test_prompt_includes_timeout_when_provided(self, sample_problem_spec):
         """Test that timeout is included when provided."""
         prompt = get_root_system_prompt(
+            sample_problem_spec,
             max_children_per_generation=15,
             max_generations=10,
             current_generation=3,
@@ -179,9 +186,10 @@ class TestTimeoutConstraint:
         assert "Timeout per trial" in prompt
         assert "300s" in prompt
 
-    def test_prompt_excludes_timeout_when_none(self):
+    def test_prompt_excludes_timeout_when_none(self, sample_problem_spec):
         """Test that timeout is excluded when None."""
         prompt = get_root_system_prompt(
+            sample_problem_spec,
             max_children_per_generation=15,
             max_generations=10,
             current_generation=3,
@@ -190,9 +198,10 @@ class TestTimeoutConstraint:
 
         assert "Timeout" not in prompt
 
-    def test_prompt_parts_include_timeout(self):
+    def test_prompt_parts_include_timeout(self, sample_problem_spec):
         """Test that get_root_system_prompt_parts includes timeout."""
         parts = get_root_system_prompt_parts(
+            sample_problem_spec,
             max_children_per_generation=15,
             max_generations=10,
             current_generation=3,

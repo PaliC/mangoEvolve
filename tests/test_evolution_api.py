@@ -37,7 +37,7 @@ def child_llm_configs(sample_config):
 
 
 @pytest.fixture
-def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs):
+def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs, sample_problem_spec):
     """Create an EvolutionAPI instance for testing."""
     # Override output directory
     sample_config.experiment.output_dir = str(temp_dir)
@@ -54,6 +54,7 @@ def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs):
         max_generations=5,
         max_children_per_generation=3,
         default_child_llm_alias=sample_config.default_child_llm_alias,
+        problem_spec=sample_problem_spec,
     )
 
     # Inject mock LLM clients to avoid real API calls
@@ -154,7 +155,7 @@ class TestEvaluateProgram:
         assert "valid" in result
         assert "score" in result
 
-    def test_evaluate_handles_error(self, sample_config, temp_dir, child_llm_configs):
+    def test_evaluate_handles_error(self, sample_config, temp_dir, child_llm_configs, sample_problem_spec):
         """Test that evaluate_program handles errors gracefully."""
         sample_config.experiment.output_dir = str(temp_dir)
         cost_tracker = CostTracker(sample_config)
@@ -171,6 +172,7 @@ class TestEvaluateProgram:
             cost_tracker=cost_tracker,
             logger=logger,
             default_child_llm_alias=sample_config.default_child_llm_alias,
+            problem_spec=sample_problem_spec,
         )
         api.end_calibration_phase()
 

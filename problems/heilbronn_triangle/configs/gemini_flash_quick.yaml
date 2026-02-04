@@ -1,0 +1,36 @@
+experiment:
+  name: "heilbronn_triangle_gemini_flash_quick"
+  output_dir: "./problems/heilbronn_triangle/experiments"
+
+root_llm:
+  provider: "google"
+  model: "gemini-2.5-flash"
+  cost_per_million_input_tokens: 0.15
+  cost_per_million_output_tokens: 0.60
+  max_iterations: 3
+  reasoning:
+    enabled: false
+
+child_llms:
+  - alias: "flash"
+    provider: "google"
+    model: "gemini-2.5-flash"
+    cost_per_million_input_tokens: 0.15
+    cost_per_million_output_tokens: 0.60
+    calibration_calls: 0
+
+
+default_child_llm_alias: "flash"
+
+evaluation:
+  evaluator_fn: "problems.heilbronn_triangle.evaluator:HeilbronnTriangleEvaluator"
+  evaluator_kwargs:
+    num_points: 11
+    timeout_seconds: 30
+
+evolution:
+  max_generations: 1
+  max_children_per_generation: 2
+
+budget:
+  max_total_cost: 0.2

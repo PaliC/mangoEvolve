@@ -1,0 +1,53 @@
+# LLM-SRBench Physics Test
+# Minimal config to test the scientific benchmark
+#
+# Setup required:
+#   uv add datasets
+#   python -m problems.symbolic_regression.scripts.setup_llm_srbench
+
+experiment:
+  name: "llm_srbench_phys_test"
+  output_dir: "experiments"
+
+# Root LLM orchestrates the evolution
+root_llm:
+  provider: "google"
+  model: "gemini-2.5-flash"
+  cost_per_million_input_tokens: 0.15
+  cost_per_million_output_tokens: 0.60
+  reasoning:
+    enabled: true
+    effort: "medium"
+
+# Child LLMs generate candidate expressions
+child_llms:
+  - alias: "flash"
+    provider: "google"
+    model: "gemini-2.5-flash"
+    cost_per_million_input_tokens: 0.15
+    cost_per_million_output_tokens: 0.60
+
+default_child_llm_alias: "flash"
+
+# Minimal evolution for quick testing
+evolution:
+  max_generations: 1
+  max_children_per_generation: 2
+
+# Skip calibration
+calibration:
+  enabled: false
+
+# Budget limits
+budget:
+  max_cost_usd: 0.50
+
+# LLM-SRBench evaluator - physics domain, first problem
+evaluation:
+  evaluator_fn: "problems.symbolic_regression.evaluator:SymbolicRegressionEvaluator"
+  evaluator_kwargs:
+    benchmark: "llm_srbench"
+    domain: "phys"
+    problem_index: 0
+    n_params: 5
+    timeout_seconds: 30.0

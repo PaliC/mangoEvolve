@@ -1,11 +1,11 @@
 """
-Tests for mango_evolve.evaluation.circle_packing module.
+Tests for problems.circle_packing.evaluator module.
 """
 
 import numpy as np
 import pytest
 
-from mango_evolve.evaluation import (
+from problems.circle_packing.evaluator import (
     CirclePackingEvaluator,
     validate_packing,
 )

@@ -27,7 +27,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from .evaluation.circle_packing import CirclePackingEvaluator
+from .config import load_evaluator_from_string
 from .utils.code_extraction import extract_python_code, extract_reasoning
 
 
@@ -57,7 +57,9 @@ def _parse_worker_args(args: tuple) -> tuple:
     # 10 args: with system_prompt (no provider, no model_alias)
     # 11 args: with system_prompt and provider (no model_alias)
     # 12 args: with system_prompt, provider, and model_alias
+    # 13 args: with evaluator_fn, system_prompt, provider, and model_alias
     model_alias: str | None = None
+    evaluator_fn: str | None = None
 
     if len(args) == 9:
         (
@@ -101,11 +103,28 @@ def _parse_worker_args(args: tuple) -> tuple:
             system_prompt,
             provider,
         ) = args
-    else:
+    elif len(args) == 12:
         (
             prompt,
             parent_id,
             model,
+            evaluator_kwargs,
+            max_tokens,
+            temperature,
+            trial_id,
+            generation,
+            experiment_dir,
+            system_prompt,
+            provider,
+            model_alias,
+        ) = args
+    else:
+        # 13 args: includes evaluator_fn
+        (
+            prompt,
+            parent_id,
+            model,
+            evaluator_fn,
             evaluator_kwargs,
             max_tokens,
             temperature,
@@ -121,6 +140,7 @@ def _parse_worker_args(args: tuple) -> tuple:
         prompt,
         parent_id,
         model,
+        evaluator_fn,
         evaluator_kwargs,
         max_tokens,
         temperature,
@@ -143,6 +163,7 @@ def query_llm(args: tuple) -> dict[str, Any]:
         prompt,
         parent_id,
         model,
+        _evaluator_fn,
         _evaluator_kwargs,
         max_tokens,
         temperature,
@@ -510,7 +531,7 @@ def spawn_child(args: tuple) -> dict[str, Any]:
     6. Returns all results including cache statistics
 
     Args:
-        args: Tuple of (prompt, parent_id, model, evaluator_kwargs, max_tokens, temperature,
+        args: Tuple of (prompt, parent_id, model, evaluator_fn, evaluator_kwargs, max_tokens, temperature,
                         trial_id, generation, experiment_dir, system_prompt, provider, model_alias)
               system_prompt, provider, and model_alias are optional for backwards compatibility
 
@@ -521,6 +542,7 @@ def spawn_child(args: tuple) -> dict[str, Any]:
         prompt,
         parent_id,
         _model,
+        evaluator_fn,
         evaluator_kwargs,
         _max_tokens,
         _temperature,
@@ -578,7 +600,37 @@ def spawn_child(args: tuple) -> dict[str, Any]:
         )
         return result
 
-    evaluator = CirclePackingEvaluator(**evaluator_kwargs)
+    # Dynamically load the evaluator based on evaluator_fn from config
+    try:
+        evaluator = load_evaluator_from_string(evaluator_fn, evaluator_kwargs)
+    except Exception as e:
+        metrics = {
+            "valid": False,
+            "error": f"Failed to load evaluator '{evaluator_fn}': {str(e)}",
+        }
+        result.update(
+            {
+                "code": code,
+                "reasoning": reasoning,
+                "metrics": metrics,
+                "success": False,
+                "error": metrics["error"],
+            }
+        )
+        _write_trial_file(
+            trial_id=trial_id,
+            generation=generation,
+            experiment_dir=experiment_dir,
+            code=code,
+            metrics=metrics,
+            prompt=prompt,
+            response=response_text,
+            reasoning=reasoning,
+            parent_id=parent_id,
+            model_config=result.get("model_config"),
+        )
+        return result
+
     try:
         metrics = evaluator.evaluate(code)
     except Exception as e:

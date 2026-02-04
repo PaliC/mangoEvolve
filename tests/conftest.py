@@ -10,6 +10,24 @@ import pytest
 from mango_evolve import (
     config_from_dict,
 )
+from mango_evolve.problem import ProblemSpec
+
+
+@pytest.fixture
+def sample_problem_spec():
+    """Sample ProblemSpec for testing."""
+    return ProblemSpec(
+        name="Circle Packing",
+        description="Pack 26 circles into a unit square [0,1] x [0,1] to maximize the sum of their radii.",
+        objective="maximize",
+        metric_name="sum of radii",
+        entry_function="run_packing",
+        return_description="Tuple of (centers, radii, sum_radii)",
+        best_known_solution=2.6359850561146603,
+        helper_functions=["construct_packing"],
+        allowed_modules=["numpy", "scipy", "standard library"],
+        constraints=["Code must complete within 30 seconds"],
+    )
 
 
 @pytest.fixture
@@ -38,7 +56,7 @@ def sample_config_dict():
         ],
         "default_child_llm_alias": "default",
         "evaluation": {
-            "evaluator_fn": "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+            "evaluator_fn": "problems.circle_packing.evaluator:CirclePackingEvaluator",
             "evaluator_kwargs": {
                 "n_circles": 26,
                 "timeout_seconds": 30,

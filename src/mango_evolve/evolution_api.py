@@ -17,7 +17,8 @@ from tqdm import tqdm
 from .config import ChildLLMConfig
 from .cost_tracker import CostTracker
 from .exceptions import CalibrationBudgetError, ChildrenLimitError, GenerationLimitError
-from .llm.prompts import CHILD_LLM_SYSTEM_PROMPT
+from .llm.prompts import build_child_system_prompt
+from .problem import ProblemSpec
 from .logger import ExperimentLogger
 from .parallel_worker import query_llm as query_llm_worker, spawn_child
 
@@ -397,12 +398,14 @@ class EvolutionAPI:
     def __init__(
         self,
         evaluator: Evaluator,
+        problem_spec: ProblemSpec,
         child_llm_configs: dict[str, ChildLLMConfig],
         cost_tracker: CostTracker,
         logger: ExperimentLogger,
         max_generations: int = 10,
         max_children_per_generation: int = 10,
         default_child_llm_alias: str | None = None,
+        evaluator_fn: str | None = None,
         evaluator_kwargs: dict[str, Any] | None = None,
     ):
         """
@@ -410,21 +413,25 @@ class EvolutionAPI:
 
         Args:
             evaluator: Evaluator instance for scoring programs
+            problem_spec: Problem specification from evaluator
             child_llm_configs: Dict mapping effective_alias -> ChildLLMConfig
             cost_tracker: CostTracker for budget management
             logger: ExperimentLogger for logging
             max_generations: Maximum number of generations
             max_children_per_generation: Maximum children per generation
             default_child_llm_alias: Default model alias to use if none specified
+            evaluator_fn: Module path to evaluator class (e.g., "problems.circle_packing.evaluator:CirclePackingEvaluator")
             evaluator_kwargs: Kwargs for creating evaluator in worker processes
         """
         self.evaluator = evaluator
+        self.problem_spec = problem_spec
         self.child_llm_configs = child_llm_configs
         self.cost_tracker = cost_tracker
         self.logger = logger
         self._max_generations = max_generations  # Read-only after init
         self._max_children_per_generation = max_children_per_generation  # Read-only after init
         self.default_child_llm_alias = default_child_llm_alias
+        self.evaluator_fn = evaluator_fn
         self.evaluator_kwargs = evaluator_kwargs or {}
 
         # Child LLM clients - created lazily per model
@@ -590,7 +597,7 @@ class EvolutionAPI:
 
         # Determine trial generation and system prompt
         trial_generation = -1 if self.in_calibration_phase else self.current_generation
-        system_prompt = None if self.in_calibration_phase else CHILD_LLM_SYSTEM_PROMPT
+        system_prompt = None if self.in_calibration_phase else build_child_system_prompt(self.problem_spec)
 
         # Show progress
         phase_str = "calibration" if self.in_calibration_phase else f"gen {self.current_generation}"
@@ -613,7 +620,7 @@ class EvolutionAPI:
         experiment_dir = str(self.logger.base_dir)
 
         # Prepare worker arguments in sorted order (by parent_id) for cache optimization
-        # Each worker gets: (prompt, parent_id, model, evaluator_kwargs, max_tokens, temperature,
+        # Each worker gets: (prompt, parent_id, model, evaluator_fn, evaluator_kwargs, max_tokens, temperature,
         #                    trial_id, generation, experiment_dir, system_prompt, provider, model_alias)
         worker_args = []
         result_order = []  # Track original indices for result ordering
@@ -631,6 +638,7 @@ class EvolutionAPI:
                     child.get("prompt", ""),
                     parent_id,
                     config.model,  # Actual model name
+                    self.evaluator_fn,  # Evaluator class path for dynamic loading
                     self.evaluator_kwargs,
                     max_tokens,
                     temperature,
@@ -1145,6 +1153,7 @@ class EvolutionAPI:
                     query.get("prompt", ""),
                     None,  # parent_id
                     config.model,
+                    self.evaluator_fn,  # Not used during calibration but keeps args structure consistent
                     self.evaluator_kwargs,
                     max_tokens,
                     temperature,

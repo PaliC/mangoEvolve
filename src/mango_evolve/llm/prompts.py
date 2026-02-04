@@ -1,49 +1,20 @@
 """
 Prompt templates for mango_evolve.
 
-Contains the Root LLM system prompt that documents available functions
-and guides the evolution process. Structured for optimal prompt caching.
+Contains template functions that build prompts from ProblemSpec, documenting
+available functions and guiding the evolution process. Structured for optimal
+prompt caching.
 """
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..config import ChildLLMConfig
+    from ..problem import ProblemSpec
 
-# Root LLM System Prompt - Static Prefix (cacheable)
-# This contains all the stable content that doesn't change between calls.
-# Dynamic values (generation counts) are appended separately.
 
-ROOT_LLM_SYSTEM_PROMPT_STATIC = '''You are an expert algorithm designer. You are orchestrating an evolutionary process to develop algorithms for circle packing.
-
-## Problem
-
-Pack 26 circles into a unit square [0,1] x [0,1] to maximize the sum of their radii.
-- All circles must be entirely inside the unit square
-- No two circles may overlap
-- All radii must be non-negative
-
-The best known solution is 2.6359850561146603. Aim to achieve as high of a score as possible.
-
-## Code Format
-
-Child LLMs must produce code with:
-```python
-import numpy as np
-
-def construct_packing():
-    """Returns (centers, radii, sum_radii) where:
-    - centers: np.array shape (26, 2)
-    - radii: np.array shape (26,)
-    - sum_radii: float
-    """
-    pass
-
-def run_packing():
-    return construct_packing()
-```
-
-## Available Functions
+# Evolution API documentation - problem-agnostic, reused across all problems
+EVOLUTION_API_DOCS = '''## Available Functions
 
 ### spawn_children(children: list[dict]) -> list[TrialView]
 Spawn child LLMs in parallel. Each child dict has:
@@ -58,7 +29,7 @@ Example:
 # Improve the best trial from previous generation
 best = trials.filter(success=True, sort_by="-score", limit=1)[0]
 results = spawn_children([{
-    "prompt": f"Improve this circle packing (score={best.score}):\\n{best.code}\\nTry to increase the sum of radii.",
+    "prompt": f"Improve this solution (score={best.score}):\\n{best.code}\\nTry to increase the score.",
     "parent_id": best.trial_id
 }])
 
@@ -131,7 +102,7 @@ print(analysis[0]["response"])
 A mutable scratchpad for tracking insights across generations:
 - `scratchpad.content` - Read current content
 - `scratchpad.content = "New notes"` - Replace content (auto-persists)
-- `scratchpad.append("\n## New section")` - Append content
+- `scratchpad.append("\\n## New section")` - Append content
 - `scratchpad.clear()` - Clear all content
 - `print(scratchpad)` - Print current content
 - `"grid" in scratchpad` - Check if text exists
@@ -330,39 +301,173 @@ ROOT_LLM_TIMEOUT_CONSTRAINT = """
 - **Timeout per trial**: {timeout_seconds}s
 """
 
-# Child LLM System Prompt - Static (cacheable)
-# Minimal prompt to give child LLMs freedom to explore.
-CHILD_LLM_SYSTEM_PROMPT = """You are an expert algorithm designer.
 
-## Task
+def _build_problem_section(spec: "ProblemSpec") -> str:
+    """Build the problem definition section from ProblemSpec."""
+    lines = [
+        f"You are an expert algorithm designer. You are orchestrating an evolutionary process to develop algorithms for {spec.name.lower()}.",
+        "",
+        "## Problem",
+        "",
+        spec.description,
+        "",
+    ]
 
-Pack 26 circles into a unit square [0,1] x [0,1] to maximize the sum of their radii.
+    # Add best known solution if available
+    if spec.best_known_solution is not None:
+        lines.append(
+            f"The best known solution is {spec.best_known_solution}. "
+            f"Aim to achieve as {'high' if spec.objective == 'maximize' else 'low'} "
+            f"of a {spec.metric_name} as possible."
+        )
+        lines.append("")
 
-Constraints:
-- All circles entirely inside [0,1] x [0,1]
-- No overlaps (distance between centers ≥ sum of radii)
-- All radii ≥ 0
+    return "\n".join(lines)
 
-The best known solution is 2.6359850561146603. Aim to achieve as high of a score as possible.
 
-## Output
+def _build_code_format_section(spec: "ProblemSpec") -> str:
+    """Build the code format section from ProblemSpec."""
+    lines = ["## Code Format", ""]
 
-Provide a Python solution with:
-```python
-import numpy as np
+    # Entry function
+    lines.append(f"Child LLMs must produce code with an entry function `{spec.entry_function}()`.")
 
-def construct_packing():
-    # Return (centers, radii, sum_radii)
-    # centers: np.array shape (26, 2)
-    # radii: np.array shape (26,)
-    pass
+    # Helper functions
+    if spec.helper_functions:
+        helpers = ", ".join(f"`{f}()`" for f in spec.helper_functions)
+        lines.append(f"Optional helper functions: {helpers}")
 
-def run_packing():
-    return construct_packing()
-```
+    lines.append("")
 
-You may use numpy, scipy, or any standard library. No plotting or printing.
-"""
+    # Return format
+    lines.append("**Return format:**")
+    lines.append(spec.return_description)
+    lines.append("")
+
+    # Allowed modules
+    if spec.allowed_modules:
+        lines.append(f"**Allowed modules:** {', '.join(spec.allowed_modules)}")
+        lines.append("")
+
+    # Constraints
+    if spec.constraints:
+        lines.append("**Constraints:**")
+        for constraint in spec.constraints:
+            lines.append(f"- {constraint}")
+        lines.append("")
+
+    # Example code
+    if spec.example_code:
+        lines.append("**Example structure:**")
+        lines.append("```python")
+        lines.append(spec.example_code)
+        lines.append("```")
+        lines.append("")
+
+    # Reference code for optimization problems
+    if spec.reference_code:
+        lines.append("## Reference Implementation")
+        lines.append("")
+        lines.append("The following is the baseline implementation to optimize:")
+        lines.append("```python")
+        lines.append(spec.reference_code)
+        lines.append("```")
+        lines.append("")
+        if spec.reference_context:
+            lines.append(f"**Context:** {spec.reference_context}")
+            lines.append("")
+
+    # Secondary metrics
+    if spec.secondary_metrics:
+        lines.append(
+            f"**Additional metrics tracked:** {', '.join(spec.secondary_metrics)}"
+        )
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def build_root_system_prompt_static(spec: "ProblemSpec") -> str:
+    """
+    Build the static portion of the Root LLM system prompt from ProblemSpec.
+
+    This contains all the stable content that doesn't change between calls.
+    Dynamic values (generation counts) are appended separately.
+
+    Args:
+        spec: Problem specification from evaluator
+
+    Returns:
+        Static system prompt string
+    """
+    problem_section = _build_problem_section(spec)
+    code_format_section = _build_code_format_section(spec)
+
+    return problem_section + code_format_section + EVOLUTION_API_DOCS
+
+
+def build_child_system_prompt(spec: "ProblemSpec") -> str:
+    """
+    Build system prompt for child LLMs from ProblemSpec.
+
+    Minimal prompt to give child LLMs freedom to explore.
+
+    Args:
+        spec: Problem specification from evaluator
+
+    Returns:
+        Child LLM system prompt string
+    """
+    lines = [
+        f"You are an expert algorithm designer working on: {spec.name}",
+        "",
+        "## Task",
+        "",
+        spec.description,
+        "",
+    ]
+
+    # Best known solution
+    if spec.best_known_solution is not None:
+        lines.append(
+            f"The best known solution is {spec.best_known_solution}. "
+            f"Aim to achieve as {'high' if spec.objective == 'maximize' else 'low'} "
+            f"of a {spec.metric_name} as possible."
+        )
+        lines.append("")
+
+    # Reference code for optimization problems
+    if spec.reference_code:
+        lines.append("## Reference Implementation")
+        lines.append("")
+        lines.append("```python")
+        lines.append(spec.reference_code)
+        lines.append("```")
+        lines.append("")
+        if spec.reference_context:
+            lines.append(f"**Context:** {spec.reference_context}")
+            lines.append("")
+
+    # Output format
+    lines.append("## Output")
+    lines.append("")
+    lines.append(f"Provide a Python solution with entry function `{spec.entry_function}()`.")
+    lines.append("")
+    lines.append("**Return format:**")
+    lines.append(spec.return_description)
+    lines.append("")
+
+    # Allowed modules
+    if spec.allowed_modules:
+        lines.append(f"You may use: {', '.join(spec.allowed_modules)}.")
+
+    # Constraints
+    if spec.constraints:
+        lines.append("")
+        for constraint in spec.constraints:
+            lines.append(f"- {constraint}")
+
+    return "\n".join(lines)
 
 
 def _format_timeout_constraint(timeout_seconds: int | None) -> str:
@@ -382,6 +487,7 @@ def _format_timeout_constraint(timeout_seconds: int | None) -> str:
 
 
 def get_root_system_prompt(
+    spec: "ProblemSpec",
     max_children_per_generation: int = 10,
     max_generations: int = 10,
     current_generation: int = 0,
@@ -391,6 +497,7 @@ def get_root_system_prompt(
     Get the Root LLM system prompt with configuration values.
 
     Args:
+        spec: Problem specification from evaluator
         max_children_per_generation: Maximum children that can be spawned per generation
         max_generations: Maximum number of generations
         current_generation: Current generation number (0-indexed)
@@ -399,16 +506,18 @@ def get_root_system_prompt(
     Returns:
         Formatted system prompt string (static + dynamic parts combined)
     """
+    static_part = build_root_system_prompt_static(spec)
     dynamic_part = ROOT_LLM_SYSTEM_PROMPT_DYNAMIC.format(
         max_children_per_generation=max_children_per_generation,
         max_generations=max_generations,
         current_generation=current_generation,
     )
     timeout_part = _format_timeout_constraint(timeout_seconds)
-    return ROOT_LLM_SYSTEM_PROMPT_STATIC + dynamic_part + timeout_part
+    return static_part + dynamic_part + timeout_part
 
 
 def get_root_system_prompt_parts(
+    spec: "ProblemSpec",
     max_children_per_generation: int = 10,
     max_generations: int = 10,
     current_generation: int = 0,
@@ -421,6 +530,7 @@ def get_root_system_prompt_parts(
     The dynamic suffix contains run-specific parameters and timeout constraint.
 
     Args:
+        spec: Problem specification from evaluator
         max_children_per_generation: Maximum children that can be spawned per generation
         max_generations: Maximum number of generations
         current_generation: Current generation number (0-indexed)
@@ -430,6 +540,7 @@ def get_root_system_prompt_parts(
         List of content blocks suitable for Anthropic API system parameter.
         The first block (static) has cache_control set.
     """
+    static_part = build_root_system_prompt_static(spec)
     dynamic_part = ROOT_LLM_SYSTEM_PROMPT_DYNAMIC.format(
         max_children_per_generation=max_children_per_generation,
         max_generations=max_generations,
@@ -440,7 +551,7 @@ def get_root_system_prompt_parts(
     return [
         {
             "type": "text",
-            "text": ROOT_LLM_SYSTEM_PROMPT_STATIC,
+            "text": static_part,
             "cache_control": {"type": "ephemeral"},
         },
         {
@@ -451,6 +562,7 @@ def get_root_system_prompt_parts(
 
 
 def format_child_mutation_prompt(
+    spec: "ProblemSpec",
     parent_code: str,
     parent_score: float,
     guidance: str = "",
@@ -462,14 +574,19 @@ def format_child_mutation_prompt(
     Note: The Root LLM is encouraged to write its own shorter, more creative prompts.
 
     Args:
+        spec: Problem specification from evaluator
         parent_code: The parent program code
-        parent_score: The parent's score (sum of radii)
+        parent_score: The parent's score
         guidance: Optional high-level guidance for mutation
 
     Returns:
         Formatted prompt string
     """
-    prompt = f"""Improve this circle packing (current score: {parent_score:.16f}. It is possible to achieve a score of at least2.6359850561146603).
+    benchmark_hint = ""
+    if spec.best_known_solution is not None:
+        benchmark_hint = f" It is possible to achieve a {spec.metric_name} of at least {spec.best_known_solution}."
+
+    prompt = f"""Improve this {spec.name.lower()} solution (current {spec.metric_name}: {parent_score:.16f}).{benchmark_hint}
 
 ```python
 {parent_code}
@@ -493,6 +610,7 @@ def _format_child_llm_list(child_llm_configs: dict[str, "ChildLLMConfig"]) -> st
 
 
 def get_root_system_prompt_parts_with_models(
+    spec: "ProblemSpec",
     child_llm_configs: dict[str, "ChildLLMConfig"],
     default_child_llm_alias: str | None = None,
     max_children_per_generation: int = 10,
@@ -504,6 +622,7 @@ def get_root_system_prompt_parts_with_models(
     Get the Root LLM system prompt with child LLM info as structured content blocks.
 
     Args:
+        spec: Problem specification from evaluator
         child_llm_configs: Dict of alias -> ChildLLMConfig
         default_child_llm_alias: Default model alias
         max_children_per_generation: Maximum children that can be spawned per generation
@@ -514,6 +633,7 @@ def get_root_system_prompt_parts_with_models(
     Returns:
         List of content blocks suitable for Anthropic API system parameter.
     """
+    static_part = build_root_system_prompt_static(spec)
     dynamic_part = ROOT_LLM_SYSTEM_PROMPT_DYNAMIC.format(
         max_children_per_generation=max_children_per_generation,
         max_generations=max_generations,
@@ -534,7 +654,7 @@ def get_root_system_prompt_parts_with_models(
     return [
         {
             "type": "text",
-            "text": ROOT_LLM_SYSTEM_PROMPT_STATIC,
+            "text": static_part,
             "cache_control": {"type": "ephemeral"},
         },
         {
@@ -545,11 +665,28 @@ def get_root_system_prompt_parts_with_models(
 
 
 # Calibration system prompt - used during calibration phase
-CALIBRATION_SYSTEM_PROMPT_STATIC = """You are orchestrating a calibration phase for an evolutionary optimization process.
+def _build_calibration_problem_reference(spec: "ProblemSpec") -> str:
+    """Build problem reference for calibration prompt."""
+    lines = [
+        "## Problem (for reference)",
+        "",
+        f"The main task is {spec.name.lower()}:",
+        spec.description,
+    ]
+    if spec.best_known_solution is not None:
+        lines.append(
+            f"- The best known solution is {spec.best_known_solution}. "
+            f"Aim to achieve as {'high' if spec.objective == 'maximize' else 'low'} "
+            f"of a {spec.metric_name} as possible."
+        )
+    return "\n".join(lines)
+
+
+CALIBRATION_SYSTEM_PROMPT_TEMPLATE = """You are orchestrating a calibration phase for an evolutionary optimization process.
 
 ## Purpose
 
-Before evolution begins, you have the opportunity to test the available child LLMs to understand their capabilities. **You can send ANY prompt you want** - not just circle packing tasks. Use this to evaluate:
+Before evolution begins, you have the opportunity to test the available child LLMs to understand their capabilities. **You can send ANY prompt you want** - not just {problem_name} tasks. Use this to evaluate:
 
 - Reasoning depth and quality (ask them to explain their approach)
 - Code style and correctness (test with simple problems first)
@@ -560,10 +697,7 @@ Before evolution begins, you have the opportunity to test the available child LL
 
 The goal is to understand what each model is good at so you can use them strategically during evolution.
 
-## Problem (for reference)
-
-The main task is packing 26 circles into a unit square [0,1] x [0,1] to maximize the sum of radii.
-- The best known solution is 2.6359850561146603. Aim to achieve as high of a score as possible.
+{problem_reference}
 
 ## How to Call Functions
 
@@ -571,8 +705,8 @@ The main task is packing 26 circles into a unit square [0,1] x [0,1] to maximize
 
 ```python
 query_llm([
-    {"prompt": "Explain quicksort", "model": "sonnet", "temperature": 0.5},
-    {"prompt": "What is 2+2?", "model": "gpt41", "temperature": 0.3}
+    {{"prompt": "Explain quicksort", "model": "sonnet", "temperature": 0.5}},
+    {{"prompt": "What is 2+2?", "model": "gpt41", "temperature": 0.3}}
 ])
 ```
 
@@ -580,7 +714,7 @@ query_llm([
 
 ### query_llm(queries: list[dict]) -> list[dict]
 Query child LLMs with ANY prompts (no code evaluation - just get responses). Each dict has:
-- `prompt` (str, required) - Any question or task, not limited to circle packing!
+- `prompt` (str, required) - Any question or task, not limited to {problem_name}!
 - `model` (str, optional) - alias from available child LLMs
 - `temperature` (float, optional, default 0.7)
 
@@ -589,11 +723,11 @@ Returns list of dicts with: model, prompt, response, temperature, success, error
 Example:
 ```python
 results = query_llm([
-    {"prompt": "Explain gradient descent in 2 sentences", "model": "sonnet"},
-    {"prompt": "Write a Python function to compute factorial", "model": "gpt41"}
+    {{"prompt": "Explain gradient descent in 2 sentences", "model": "sonnet"}},
+    {{"prompt": "Write a Python function to compute factorial", "model": "gpt41"}}
 ])
 for r in results:
-    print(f"{r['model']}: {r['response'][:200]}")
+    print(f"{{r['model']}}: {{r['response'][:200]}}")
 ```
 
 ### get_calibration_status() -> dict
@@ -623,7 +757,7 @@ end_calibration_phase()
 
 ## Guidelines
 
-1. **Ask diverse questions**: Test reasoning, math, code quality - not just circle packing. Your notes should be generic and not specific to the circle packing task.
+1. **Ask diverse questions**: Test reasoning, math, code quality - not just {problem_name}. Your notes should be generic and not specific to the {problem_name} task.
 2. **Compare models**: Give the same prompt to different models to compare their responses
 3. **Experiment with temperatures**: Generally 0 is considered the most focused / reproducible, 1 is the most creative.
 4. **Record detailed observations**: Note strengths/weaknesses of each model
@@ -632,17 +766,25 @@ end_calibration_phase()
 
 
 def get_calibration_system_prompt_parts(
+    spec: "ProblemSpec",
     child_llm_configs: dict[str, "ChildLLMConfig"],
 ) -> list[dict]:
     """
     Get the calibration system prompt as structured content blocks.
 
     Args:
+        spec: Problem specification from evaluator
         child_llm_configs: Dict of alias -> ChildLLMConfig
 
     Returns:
         List of content blocks suitable for Anthropic API system parameter.
     """
+    problem_reference = _build_calibration_problem_reference(spec)
+    static_part = CALIBRATION_SYSTEM_PROMPT_TEMPLATE.format(
+        problem_name=spec.name.lower(),
+        problem_reference=problem_reference,
+    )
+
     # Build child LLM info with calibration budgets
     lines = ["## Available Child LLMs", ""]
     for alias, cfg in child_llm_configs.items():
@@ -663,7 +805,7 @@ def get_calibration_system_prompt_parts(
     return [
         {
             "type": "text",
-            "text": CALIBRATION_SYSTEM_PROMPT_STATIC,
+            "text": static_part,
             "cache_control": {"type": "ephemeral"},
         },
         {
@@ -671,3 +813,9 @@ def get_calibration_system_prompt_parts(
             "text": child_models_part,
         },
     ]
+
+
+# Legacy compatibility - keep old constants for backwards compatibility during migration
+# These will be removed after all callers are updated to use the new functions
+ROOT_LLM_SYSTEM_PROMPT_STATIC = """[DEPRECATED] Use build_root_system_prompt_static(spec) instead."""
+CHILD_LLM_SYSTEM_PROMPT = """[DEPRECATED] Use build_child_system_prompt(spec) instead."""

@@ -26,6 +26,7 @@ from .llm.prompts import (
     get_calibration_system_prompt_parts,
     get_root_system_prompt_parts_with_models,
 )
+from .problem import ProblemSpec
 from .logger import ExperimentLogger
 from .repl import REPLEnvironment
 from .utils.code_extraction import extract_python_blocks, extract_selection_block
@@ -129,18 +130,30 @@ class RootLLMOrchestrator:
         # Load evaluator
         self.evaluator = load_evaluator(config.evaluation)
 
-        # Get evaluator kwargs for parallel workers
+        # Get problem spec from evaluator
+        if hasattr(self.evaluator, "get_problem_spec"):
+            self.problem_spec: ProblemSpec = self.evaluator.get_problem_spec()
+        else:
+            raise ValueError(
+                "Evaluator must implement get_problem_spec(). "
+                "Extend BaseProblemEvaluator from mango_evolve.problem"
+            )
+
+        # Get evaluator info for parallel workers
+        evaluator_fn = config.evaluation.evaluator_fn
         evaluator_kwargs = config.evaluation.evaluator_kwargs or {}
 
         # Initialize Evolution API with multi-model support
         self.evolution_api = EvolutionAPI(
             evaluator=self.evaluator,
+            problem_spec=self.problem_spec,
             child_llm_configs=self.child_llm_configs,
             cost_tracker=self.cost_tracker,
             logger=self.logger,
             max_generations=config.evolution.max_generations,
             max_children_per_generation=config.evolution.max_children_per_generation,
             default_child_llm_alias=config.default_child_llm_alias,
+            evaluator_fn=evaluator_fn,
             evaluator_kwargs=evaluator_kwargs,
         )
 
@@ -208,6 +221,7 @@ class RootLLMOrchestrator:
     def _get_calibration_system_prompt(self) -> list[dict]:
         """Get the calibration system prompt as structured content blocks."""
         return get_calibration_system_prompt_parts(
+            spec=self.problem_spec,
             child_llm_configs=self.child_llm_configs,
         )
 
@@ -349,6 +363,7 @@ class RootLLMOrchestrator:
         timeout_seconds = self.evolution_api.evaluator_kwargs.get("timeout_seconds")
 
         return get_root_system_prompt_parts_with_models(
+            spec=self.problem_spec,
             child_llm_configs=self.child_llm_configs,
             default_child_llm_alias=self.config.default_child_llm_alias,
             max_children_per_generation=self.evolution_api.max_children_per_generation,
@@ -356,6 +371,121 @@ class RootLLMOrchestrator:
             current_generation=self.evolution_api.current_generation,
             timeout_seconds=timeout_seconds,
         )
+
+    def build_initial_messages(self) -> list[dict[str, str]]:
+        """
+        Build the initial messages for the conversation.
+
+        Returns:
+            List of message dicts to start the conversation
+        """
+        # Build evolution memory (empty for generation 0, but shows the structure)
+        evolution_memory = self._build_evolution_memory()
+
+        # Start with a user message prompting the LLM to begin
+        self.messages = [
+            {
+                "role": "user",
+                "content": (
+                    f"Begin generation 0. Spawn up to {self.evolution_api.max_children_per_generation} children "
+                    f"exploring different {self.problem_spec.name.lower()} strategies.\n\n"
+                    f"{evolution_memory}"
+                ),
+            }
+        ]
+        return self.messages
+
+    def _prepare_messages_with_caching(self, messages: list[dict[str, str]]) -> list[dict]:
+        """
+        Prepare messages with cache_control for optimal prompt caching.
+
+        Strategy: Cache at the END of a stable prefix that won't change.
+        We cache the first user message (stable "Begin generation 0..." prompt)
+        since it remains constant throughout the conversation.
+
+        Args:
+            messages: List of message dicts with "role" and "content"
+
+        Returns:
+            List of message dicts with cache_control added where appropriate.
+            Content may be converted to list format for messages with cache_control.
+        """
+        if len(messages) < 1:
+            return messages
+
+        result = []
+        for i, msg in enumerate(messages):
+            if i == 0:
+                # Cache the first user message (stable "Begin generation 0..." prompt)
+                result.append(
+                    {
+                        "role": msg["role"],
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": msg["content"],
+                                "cache_control": {"type": "ephemeral"},
+                            }
+                        ],
+                    }
+                )
+            else:
+                result.append(msg)
+
+        return result
+
+    def _get_context_size_estimate(self) -> dict:
+        """
+        Estimate current context size.
+
+        Returns:
+            Dictionary with context statistics and health indicators.
+        """
+        total_chars = sum(
+            len(m.get("content", ""))
+            if isinstance(m.get("content"), str)
+            else sum(len(c.get("text", "")) for c in m.get("content", []) if isinstance(c, dict))
+            for m in self.messages
+        )
+        estimated_tokens = total_chars // 4
+
+        return {
+            "total_chars": total_chars,
+            "estimated_tokens": estimated_tokens,
+            "message_count": len(self.messages),
+            "warning": estimated_tokens > 150_000,
+            "critical": estimated_tokens > 250_000,
+        }
+
+    def _check_context_health(self, max_context_tokens: int = 180_000) -> None:
+        """Check context size and stop if it exceeds safe limits.
+
+        Args:
+            max_context_tokens: Maximum allowed context size in tokens.
+                Defaults to 180,000 (safe for most models with 200K context).
+
+        Raises:
+            ContextOverflowError: If context exceeds max_context_tokens.
+        """
+        stats = self._get_context_size_estimate()
+
+        if stats["estimated_tokens"] > max_context_tokens:
+            raise ContextOverflowError(
+                f"Context size ({stats['estimated_tokens']:,} tokens) exceeds "
+                f"maximum allowed ({max_context_tokens:,} tokens). "
+                f"Messages: {stats['message_count']}. "
+                "The experiment must stop to prevent API failures."
+            )
+        elif stats["critical"]:
+            tqdm.write(
+                f"  ⚠️  CRITICAL: Context size ~{stats['estimated_tokens']:,} tokens. "
+                f"Limit: {max_context_tokens:,}. Risk of overflow soon."
+            )
+        elif stats["warning"]:
+            tqdm.write(
+                f"  ⚠️  WARNING: Context size ~{stats['estimated_tokens']:,} tokens. "
+                "Approaching limits."
+            )
 
     def extract_code_blocks(self, response: str) -> list[str]:
         """
@@ -482,7 +612,7 @@ class RootLLMOrchestrator:
             "## Your Task",
             "",
             f"Spawn up to {self.evolution_api.max_children_per_generation} children "
-            "exploring circle packing strategies.",
+            f"exploring {self.problem_spec.name.lower()} strategies.",
             "",
             "Remember: Your conversation resets each generation. Save important insights to your scratchpad!",
         ]

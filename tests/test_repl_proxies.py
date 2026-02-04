@@ -37,7 +37,7 @@ def child_llm_configs(sample_config):
 
 
 @pytest.fixture
-def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs):
+def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs, sample_problem_spec):
     """Create an EvolutionAPI instance for testing."""
     sample_config.experiment.output_dir = str(temp_dir)
 
@@ -53,6 +53,7 @@ def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs):
         max_generations=5,
         max_children_per_generation=10,
         default_child_llm_alias=sample_config.default_child_llm_alias,
+        problem_spec=sample_problem_spec,
     )
 
     # Inject mock LLM clients with plenty of responses
