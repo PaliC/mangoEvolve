@@ -24,10 +24,10 @@ def mock_config(sample_config_dict, temp_dir):
 @pytest.fixture
 def mock_root_llm(mock_config):
     """Mock root LLM client."""
-    cost_tracker = CostTracker(mock_config)
+    tracker = CostTracker(mock_config)
     return MockLLMClient(
         model=mock_config.root_llm.model,
-        cost_tracker=cost_tracker,
+        tracker=tracker,
         llm_type="root",
     )
 
@@ -46,7 +46,7 @@ class TestOrchestratorInitialization:
             orchestrator.evolution_api.max_children_per_generation
             == mock_config.evolution.max_children_per_generation
         )
-        assert orchestrator.cost_tracker is not None
+        assert orchestrator.tracker is not None
         assert orchestrator.logger is not None
         assert orchestrator.root_llm is not None
         assert len(orchestrator.child_llm_configs) > 0  # Has child LLM configs
@@ -206,10 +206,10 @@ class TestBudgetExceededStop:
         orchestrator = RootLLMOrchestrator(mock_config)
 
         # Set up mock root LLM
-        cost_tracker = orchestrator.cost_tracker
+        tracker = orchestrator.tracker
         mock_root = MockLLMClient(
             model=mock_config.root_llm.model,
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="root",
         )
         mock_root.set_responses(
@@ -220,7 +220,7 @@ class TestBudgetExceededStop:
         orchestrator.root_llm = mock_root
 
         # Pre-spend most of the budget
-        cost_tracker.record_usage(
+        tracker.record_usage(
             input_tokens=10000,
             output_tokens=10000,
             llm_type="root",
@@ -244,10 +244,10 @@ class TestConversationHistory:
         assert len(orchestrator.messages) == 0
 
         # Simulate one iteration with mock LLM that terminates immediately
-        cost_tracker = orchestrator.cost_tracker
+        tracker = orchestrator.tracker
         mock_root = MockLLMClient(
             model=mock_config.root_llm.model,
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="root",
         )
         mock_root.set_responses(

@@ -1,7 +1,7 @@
 """
 Parallel worker for child LLM calls.
 
-This module contains the worker function that runs in a separate process
+This module contains the worker function that runs in a thread
 to make LLM calls and evaluate the results.
 
 Supports multiple providers (Anthropic, OpenRouter, and Google).
@@ -9,11 +9,12 @@ Supports multiple providers (Anthropic, OpenRouter, and Google).
 
 import json
 import os
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 import anthropic
 from openai import APIConnectionError as OpenAIAPIConnectionError
@@ -29,6 +30,25 @@ from tenacity import (
 
 from .config import load_evaluator_from_string
 from .utils.code_extraction import extract_python_code, extract_reasoning
+
+
+@dataclass
+class WorkerInput:
+    """Input arguments for parallel worker functions."""
+
+    prompt: str
+    parent_id: str | None
+    model: str
+    evaluator_fn: str | None
+    evaluator_kwargs: dict[str, Any]
+    max_tokens: int
+    temperature: float
+    trial_id: str
+    generation: int
+    experiment_dir: str
+    system_prompt: str | None
+    provider: str
+    model_alias: str | None
 
 
 @dataclass
@@ -48,136 +68,21 @@ class WorkerResult:
     call_id: str
     cache_creation_input_tokens: int = 0
     cache_read_input_tokens: int = 0
-
-
-def _parse_worker_args(args: tuple) -> tuple:
-    """Normalize worker args to the latest signature."""
-    # Handle different arg formats for backwards compatibility
-    # 9 args: original format (no system_prompt, no provider, no model_alias)
-    # 10 args: with system_prompt (no provider, no model_alias)
-    # 11 args: with system_prompt and provider (no model_alias)
-    # 12 args: with system_prompt, provider, and model_alias
-    # 13 args: with evaluator_fn, system_prompt, provider, and model_alias
+    trial_id: str = ""
     model_alias: str | None = None
-    evaluator_fn: str | None = None
-
-    if len(args) == 9:
-        (
-            prompt,
-            parent_id,
-            model,
-            evaluator_kwargs,
-            max_tokens,
-            temperature,
-            trial_id,
-            generation,
-            experiment_dir,
-        ) = args
-        system_prompt = None
-        provider = "anthropic"
-    elif len(args) == 10:
-        (
-            prompt,
-            parent_id,
-            model,
-            evaluator_kwargs,
-            max_tokens,
-            temperature,
-            trial_id,
-            generation,
-            experiment_dir,
-            system_prompt,
-        ) = args
-        provider = "anthropic"
-    elif len(args) == 11:
-        (
-            prompt,
-            parent_id,
-            model,
-            evaluator_kwargs,
-            max_tokens,
-            temperature,
-            trial_id,
-            generation,
-            experiment_dir,
-            system_prompt,
-            provider,
-        ) = args
-    elif len(args) == 12:
-        (
-            prompt,
-            parent_id,
-            model,
-            evaluator_kwargs,
-            max_tokens,
-            temperature,
-            trial_id,
-            generation,
-            experiment_dir,
-            system_prompt,
-            provider,
-            model_alias,
-        ) = args
-    else:
-        # 13 args: includes evaluator_fn
-        (
-            prompt,
-            parent_id,
-            model,
-            evaluator_fn,
-            evaluator_kwargs,
-            max_tokens,
-            temperature,
-            trial_id,
-            generation,
-            experiment_dir,
-            system_prompt,
-            provider,
-            model_alias,
-        ) = args
-
-    return (
-        prompt,
-        parent_id,
-        model,
-        evaluator_fn,
-        evaluator_kwargs,
-        max_tokens,
-        temperature,
-        trial_id,
-        generation,
-        experiment_dir,
-        system_prompt,
-        provider,
-        model_alias,
-    )
+    model_config: dict[str, Any] | None = None
+    # Timing data
+    llm_call_duration_s: float = 0.0
+    eval_duration_s: float = 0.0
 
 
-def query_llm(args: tuple) -> dict[str, Any]:
+def query_llm(inp: WorkerInput) -> dict[str, Any]:
     """
     Submit an LLM query with no evaluation or file I/O.
-
-    Uses the same inputs/outputs as spawn_child.
     """
-    (
-        prompt,
-        parent_id,
-        model,
-        _evaluator_fn,
-        _evaluator_kwargs,
-        max_tokens,
-        temperature,
-        trial_id,
-        _generation,
-        _experiment_dir,
-        system_prompt,
-        provider,
-        model_alias,
-    ) = _parse_worker_args(args)
-
-    model_config = {
-        "model": model,
-        "temperature": temperature,
+    model_config: dict[str, Any] = {
+        "model": inp.model,
+        "temperature": inp.temperature,
     }
 
     call_id = str(uuid.uuid4())
@@ -188,9 +93,11 @@ def query_llm(args: tuple) -> dict[str, Any]:
     cache_read_input_tokens = 0
     error: str | None = None
     provider_debug: dict[str, Any] | None = None
+    llm_call_duration_s = 0.0
 
+    llm_start = time.monotonic()
     try:
-        if provider == "openrouter":
+        if inp.provider == "openrouter":
             api_key = os.environ.get("OPENROUTER_API_KEY")
             if not api_key:
                 raise ValueError("OPENROUTER_API_KEY environment variable not set")
@@ -202,17 +109,17 @@ def query_llm(args: tuple) -> dict[str, Any]:
 
             response = _make_openrouter_call_with_retry(
                 client=client,
-                model=model,
-                prompt=prompt,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                system_prompt=system_prompt,
+                model=inp.model,
+                prompt=inp.prompt,
+                max_tokens=inp.max_tokens,
+                temperature=inp.temperature,
+                system_prompt=inp.system_prompt,
             )
 
             response_text = response.choices[0].message.content or ""
             input_tokens = response.usage.prompt_tokens if response.usage else 0
             output_tokens = response.usage.completion_tokens if response.usage else 0
-        elif provider == "google":
+        elif inp.provider == "google":
             api_key = os.environ.get("GEMINI_API_KEY")
             if not api_key:
                 raise ValueError("GEMINI_API_KEY environment variable not set")
@@ -222,17 +129,17 @@ def query_llm(args: tuple) -> dict[str, Any]:
 
             client = genai.Client(api_key=api_key)
 
-            contents = [types.Content(role="user", parts=[types.Part(text=prompt)])]
+            contents = [types.Content(role="user", parts=[types.Part(text=inp.prompt)])]
             config_kwargs: dict[str, Any] = {
-                "max_output_tokens": max_tokens,
-                "temperature": temperature,
+                "max_output_tokens": inp.max_tokens,
+                "temperature": inp.temperature,
             }
-            if system_prompt:
-                config_kwargs["system_instruction"] = system_prompt
+            if inp.system_prompt:
+                config_kwargs["system_instruction"] = inp.system_prompt
 
             response = _make_google_call_with_retry(
                 client=client,
-                model=model,
+                model=inp.model,
                 contents=contents,
                 config=types.GenerateContentConfig(**config_kwargs),
             )
@@ -267,11 +174,11 @@ def query_llm(args: tuple) -> dict[str, Any]:
 
             response = _make_anthropic_call_with_retry(
                 client=anthropic_client,
-                model=model,
-                prompt=prompt,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                system_prompt=system_prompt,
+                model=inp.model,
+                prompt=inp.prompt,
+                max_tokens=inp.max_tokens,
+                temperature=inp.temperature,
+                system_prompt=inp.system_prompt,
             )
 
             if response.content:
@@ -284,6 +191,8 @@ def query_llm(args: tuple) -> dict[str, Any]:
             cache_read_input_tokens = getattr(response.usage, "cache_read_input_tokens", 0) or 0
     except Exception as e:
         error = f"LLM call failed: {str(e)}"
+    finally:
+        llm_call_duration_s = time.monotonic() - llm_start
 
     success = error is None
     reasoning = response_text if success else ""
@@ -291,9 +200,9 @@ def query_llm(args: tuple) -> dict[str, Any]:
         model_config["provider_debug"] = provider_debug
 
     return {
-        "trial_id": trial_id,
-        "prompt": prompt,
-        "parent_id": parent_id,
+        "trial_id": inp.trial_id,
+        "prompt": inp.prompt,
+        "parent_id": inp.parent_id,
         "response_text": response_text,
         "code": "",
         "reasoning": reasoning,
@@ -305,8 +214,10 @@ def query_llm(args: tuple) -> dict[str, Any]:
         "call_id": call_id,
         "cache_creation_input_tokens": cache_creation_input_tokens,
         "cache_read_input_tokens": cache_read_input_tokens,
-        "model_alias": model_alias,
+        "model_alias": inp.model_alias,
         "model_config": model_config,
+        "llm_call_duration_s": llm_call_duration_s,
+        "eval_duration_s": 0.0,
     }
 
 
@@ -321,6 +232,8 @@ def _write_trial_file(
     reasoning: str | None,
     parent_id: str | None,
     model_config: dict[str, Any] | None = None,
+    llm_call_duration_s: float = 0.0,
+    eval_duration_s: float = 0.0,
 ) -> None:
     """Write trial JSON file to disk for real-time progress tracking."""
     gen_dir = Path(experiment_dir) / "generations" / f"gen_{generation}"
@@ -338,6 +251,8 @@ def _write_trial_file(
         "timestamp": datetime.now().isoformat(),
         "cost_data": None,
         "model_config": model_config,
+        "llm_call_duration_s": llm_call_duration_s,
+        "eval_duration_s": eval_duration_s,
     }
 
     trial_path = gen_dir / f"{trial_id}.json"
@@ -354,20 +269,7 @@ def _make_anthropic_call_with_retry(
     system_prompt: str | None = None,
     max_retries: int = 3,
 ) -> anthropic.types.Message:
-    """Make an Anthropic API call with retry logic and optional caching.
-
-    Args:
-        client: Anthropic client instance
-        model: Model name
-        prompt: User prompt
-        max_tokens: Maximum tokens to generate
-        temperature: Sampling temperature
-        system_prompt: Optional system prompt (will be cached if provided)
-        max_retries: Number of retries for transient errors
-
-    Returns:
-        API response message
-    """
+    """Make an Anthropic API call with retry logic and optional caching."""
 
     @retry(
         stop=stop_after_attempt(max_retries + 1),
@@ -420,20 +322,7 @@ def _make_openrouter_call_with_retry(
     system_prompt: str | None = None,
     max_retries: int = 3,
 ):
-    """Make an OpenRouter API call with retry logic.
-
-    Args:
-        client: OpenAI client configured for OpenRouter
-        model: Model name (e.g., "google/gemini-2.0-flash-001")
-        prompt: User prompt
-        max_tokens: Maximum tokens to generate
-        temperature: Sampling temperature
-        system_prompt: Optional system prompt
-        max_retries: Number of retries for transient errors
-
-    Returns:
-        API response
-    """
+    """Make an OpenRouter API call with retry logic."""
 
     @retry(
         stop=stop_after_attempt(max_retries + 1),
@@ -485,6 +374,7 @@ def _make_google_call_with_retry(
     max_retries: int = 3,
 ):
     """Make a Google Gemini API call with retry logic."""
+    from typing import cast
 
     @retry(
         stop=stop_after_attempt(max_retries + 1),
@@ -518,57 +408,33 @@ def _extract_google_text(response: Any) -> str:
     return content
 
 
-def spawn_child(args: tuple) -> dict[str, Any]:
+def spawn_child(inp: WorkerInput) -> dict[str, Any]:
     """
     Worker function for parallel child LLM calls.
 
-    This function runs in a separate process and:
-    1. Creates an LLM client (Anthropic or OpenRouter based on provider)
-    2. Makes the LLM call with optional cached system prompt
-    3. Extracts code from the response
-    4. Evaluates the code
-    5. Writes trial JSON file for real-time progress tracking
-    6. Returns all results including cache statistics
-
-    Args:
-        args: Tuple of (prompt, parent_id, model, evaluator_fn, evaluator_kwargs, max_tokens, temperature,
-                        trial_id, generation, experiment_dir, system_prompt, provider, model_alias)
-              system_prompt, provider, and model_alias are optional for backwards compatibility
-
-    Returns:
-        Dictionary with all results needed to record the trial
+    This function runs in a thread and:
+    1. Makes the LLM call
+    2. Extracts code from the response
+    3. Evaluates the code
+    4. Writes trial JSON file for real-time progress tracking
+    5. Returns all results including timing data
     """
-    (
-        prompt,
-        parent_id,
-        _model,
-        evaluator_fn,
-        evaluator_kwargs,
-        _max_tokens,
-        _temperature,
-        trial_id,
-        generation,
-        experiment_dir,
-        _system_prompt,
-        _provider,
-        _model_alias,
-    ) = _parse_worker_args(args)
-
-    result = query_llm(args)
+    result = query_llm(inp)
 
     # If LLM call failed, write trial file and return as-is
     if result["error"]:
         _write_trial_file(
-            trial_id=trial_id,
-            generation=generation,
-            experiment_dir=experiment_dir,
+            trial_id=inp.trial_id,
+            generation=inp.generation,
+            experiment_dir=inp.experiment_dir,
             code="",
             metrics={},
-            prompt=prompt,
+            prompt=inp.prompt,
             response=result["response_text"],
             reasoning=result["reasoning"],
-            parent_id=parent_id,
+            parent_id=inp.parent_id,
             model_config=result.get("model_config"),
+            llm_call_duration_s=result.get("llm_call_duration_s", 0.0),
         )
         return result
 
@@ -587,26 +453,27 @@ def spawn_child(args: tuple) -> dict[str, Any]:
             }
         )
         _write_trial_file(
-            trial_id=trial_id,
-            generation=generation,
-            experiment_dir=experiment_dir,
+            trial_id=inp.trial_id,
+            generation=inp.generation,
+            experiment_dir=inp.experiment_dir,
             code="",
             metrics={},
-            prompt=prompt,
+            prompt=inp.prompt,
             response=response_text,
             reasoning=reasoning,
-            parent_id=parent_id,
+            parent_id=inp.parent_id,
             model_config=result.get("model_config"),
+            llm_call_duration_s=result.get("llm_call_duration_s", 0.0),
         )
         return result
 
     # Dynamically load the evaluator based on evaluator_fn from config
     try:
-        evaluator = load_evaluator_from_string(evaluator_fn, evaluator_kwargs)
+        evaluator = load_evaluator_from_string(inp.evaluator_fn, inp.evaluator_kwargs)
     except Exception as e:
         metrics = {
             "valid": False,
-            "error": f"Failed to load evaluator '{evaluator_fn}': {str(e)}",
+            "error": f"Failed to load evaluator '{inp.evaluator_fn}': {str(e)}",
         }
         result.update(
             {
@@ -618,19 +485,21 @@ def spawn_child(args: tuple) -> dict[str, Any]:
             }
         )
         _write_trial_file(
-            trial_id=trial_id,
-            generation=generation,
-            experiment_dir=experiment_dir,
+            trial_id=inp.trial_id,
+            generation=inp.generation,
+            experiment_dir=inp.experiment_dir,
             code=code,
             metrics=metrics,
-            prompt=prompt,
+            prompt=inp.prompt,
             response=response_text,
             reasoning=reasoning,
-            parent_id=parent_id,
+            parent_id=inp.parent_id,
             model_config=result.get("model_config"),
+            llm_call_duration_s=result.get("llm_call_duration_s", 0.0),
         )
         return result
 
+    eval_start = time.monotonic()
     try:
         metrics = evaluator.evaluate(code)
     except Exception as e:
@@ -638,6 +507,7 @@ def spawn_child(args: tuple) -> dict[str, Any]:
             "valid": False,
             "error": f"Evaluation error: {str(e)}",
         }
+    eval_duration_s = time.monotonic() - eval_start
 
     success = bool(metrics.get("valid", False))
     error_value = metrics.get("error") if not success else None
@@ -650,25 +520,28 @@ def spawn_child(args: tuple) -> dict[str, Any]:
             "metrics": metrics,
             "success": success,
             "error": error,
+            "eval_duration_s": eval_duration_s,
         }
     )
 
     _write_trial_file(
-        trial_id=trial_id,
-        generation=generation,
-        experiment_dir=experiment_dir,
+        trial_id=inp.trial_id,
+        generation=inp.generation,
+        experiment_dir=inp.experiment_dir,
         code=code,
         metrics=metrics,
-        prompt=prompt,
+        prompt=inp.prompt,
         response=response_text,
         reasoning=reasoning,
-        parent_id=parent_id,
+        parent_id=inp.parent_id,
         model_config=result.get("model_config"),
+        llm_call_duration_s=result.get("llm_call_duration_s", 0.0),
+        eval_duration_s=eval_duration_s,
     )
 
     return result
 
 
-def child_worker(args: tuple) -> dict[str, Any]:
+def child_worker(inp: WorkerInput) -> dict[str, Any]:
     """Backward compatible alias for spawn_child."""
-    return spawn_child(args)
+    return spawn_child(inp)

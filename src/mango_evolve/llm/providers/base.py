@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ...cost_tracker import CostTracker
+    from ...cost_tracker import ExperimentTracker
 
 
 @dataclass
@@ -34,7 +34,7 @@ class BaseLLMProvider(ABC):
     def __init__(
         self,
         model: str,
-        cost_tracker: "CostTracker",
+        tracker: "ExperimentTracker",
         llm_type: str,
         max_retries: int = 3,
     ):
@@ -43,12 +43,12 @@ class BaseLLMProvider(ABC):
 
         Args:
             model: Model identifier
-            cost_tracker: CostTracker instance for budget enforcement
+            tracker: ExperimentTracker instance for budget enforcement
             llm_type: Either "root" or "child" - used for cost tracking
             max_retries: Maximum number of retries on transient errors
         """
         self.model = model
-        self.cost_tracker = cost_tracker
+        self.tracker = tracker
         self.llm_type = llm_type
         self.max_retries = max_retries
 

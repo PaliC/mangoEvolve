@@ -4,8 +4,9 @@ Evolution API for mango_evolve.
 Provides the core API exposed to the Root LLM for controlling the evolution process.
 """
 
-import multiprocessing
+import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -15,12 +16,13 @@ if TYPE_CHECKING:
 from tqdm import tqdm
 
 from .config import ChildLLMConfig
-from .cost_tracker import CostTracker
+from .cost_tracker import ExperimentTracker
 from .exceptions import CalibrationBudgetError, ChildrenLimitError, GenerationLimitError
 from .llm.prompts import build_child_system_prompt
-from .problem import ProblemSpec
 from .logger import ExperimentLogger
-from .parallel_worker import query_llm as query_llm_worker, spawn_child
+from .parallel_worker import WorkerInput, spawn_child
+from .parallel_worker import query_llm as query_llm_worker
+from .problem import ProblemSpec
 
 
 class Evaluator(Protocol):
@@ -139,13 +141,13 @@ class TrialsProxy:
 
     def __iter__(self):
         for trial in self._api.all_trials.values():
-            yield TrialView.from_trial_result(trial)
+            yield self._api._make_trial_view(trial)
 
     def __getitem__(self, trial_id: str) -> TrialView:
         trial = self._api.all_trials.get(trial_id)
         if trial is None:
             raise KeyError(f"Trial {trial_id} not found")
-        return TrialView.from_trial_result(trial)
+        return self._api._make_trial_view(trial)
 
     def __contains__(self, trial_id: str) -> bool:
         return trial_id in self._api.all_trials
@@ -227,7 +229,7 @@ class TrialsProxy:
             if ancestor_ids is not None and trial.trial_id not in ancestor_ids:
                 continue
 
-            view = TrialView.from_trial_result(trial)
+            view = self._api._make_trial_view(trial)
 
             # Apply custom predicate
             if predicate is not None and not predicate(view):
@@ -349,6 +351,8 @@ class ScratchpadProxy:
     @property
     def content(self) -> str:
         """Get current scratchpad content."""
+        if self._api._hide_scratchpad:
+            return self._api._scratchpad_unavailable_msg
         return self._api.scratchpad
 
     @content.setter
@@ -358,17 +362,29 @@ class ScratchpadProxy:
 
     def append(self, text: str) -> None:
         """Append text to scratchpad."""
+        if self._api._hide_scratchpad:
+            self._api.update_scratchpad("")  # triggers warning
+            return
         self._api.update_scratchpad(self._api.scratchpad + text)
 
     def clear(self) -> None:
         """Clear the scratchpad."""
+        if self._api._hide_scratchpad:
+            self._api.update_scratchpad("")  # triggers warning
+            return
         self._api.update_scratchpad("")
 
     def __str__(self) -> str:
+        if self._api._hide_scratchpad:
+            return self._api._scratchpad_unavailable_msg
         return self._api.scratchpad
 
     def __repr__(self) -> str:
-        content = self._api.scratchpad
+        content = (
+            self._api._scratchpad_unavailable_msg
+            if self._api._hide_scratchpad
+            else self._api.scratchpad
+        )
         if len(content) == 0:
             return "<scratchpad: empty>"
         preview = content[:100].replace("\n", "\\n")
@@ -377,13 +393,19 @@ class ScratchpadProxy:
         return f"<scratchpad: {len(content)} chars>\n{content}"
 
     def __len__(self) -> int:
+        if self._api._hide_scratchpad:
+            return len(self._api._scratchpad_unavailable_msg)
         return len(self._api.scratchpad)
 
     def __contains__(self, item: str) -> bool:
+        if self._api._hide_scratchpad:
+            return item in self._api._scratchpad_unavailable_msg
         return item in self._api.scratchpad
 
     def __add__(self, other: str) -> str:
         """Allow scratchpad + "text" but don't auto-persist (returns new string)."""
+        if self._api._hide_scratchpad:
+            return self._api._scratchpad_unavailable_msg + other
         return self._api.scratchpad + other
 
 
@@ -400,13 +422,16 @@ class EvolutionAPI:
         evaluator: Evaluator,
         problem_spec: ProblemSpec,
         child_llm_configs: dict[str, ChildLLMConfig],
-        cost_tracker: CostTracker,
+        tracker: ExperimentTracker,
         logger: ExperimentLogger,
         max_generations: int = 10,
         max_children_per_generation: int = 10,
         default_child_llm_alias: str | None = None,
         evaluator_fn: str | None = None,
         evaluator_kwargs: dict[str, Any] | None = None,
+        hide_scratchpad: bool = False,
+        hide_trial_reasoning: bool = False,
+        disable_query_llm: bool = False,
     ):
         """
         Initialize the Evolution API.
@@ -415,18 +440,21 @@ class EvolutionAPI:
             evaluator: Evaluator instance for scoring programs
             problem_spec: Problem specification from evaluator
             child_llm_configs: Dict mapping effective_alias -> ChildLLMConfig
-            cost_tracker: CostTracker for budget management
+            tracker: ExperimentTracker for budget management
             logger: ExperimentLogger for logging
             max_generations: Maximum number of generations
             max_children_per_generation: Maximum children per generation
             default_child_llm_alias: Default model alias to use if none specified
             evaluator_fn: Module path to evaluator class (e.g., "problems.circle_packing.evaluator:CirclePackingEvaluator")
             evaluator_kwargs: Kwargs for creating evaluator in worker processes
+            hide_scratchpad: If True, scratchpad access is disabled
+            hide_trial_reasoning: If True, trial reasoning is hidden from Root LLM
+            disable_query_llm: If True, query_llm is removed from REPL
         """
         self.evaluator = evaluator
         self.problem_spec = problem_spec
         self.child_llm_configs = child_llm_configs
-        self.cost_tracker = cost_tracker
+        self.tracker = tracker
         self.logger = logger
         self._max_generations = max_generations  # Read-only after init
         self._max_children_per_generation = max_children_per_generation  # Read-only after init
@@ -436,6 +464,9 @@ class EvolutionAPI:
 
         # Child LLM clients - created lazily per model
         self.child_llm_clients: dict[str, LLMClientProtocol] = {}
+
+        # Persistent thread pool for parallel child operations
+        self._executor = ThreadPoolExecutor(max_workers=max_children_per_generation)
 
         # Calibration phase tracking
         self.in_calibration_phase: bool = True
@@ -451,6 +482,21 @@ class EvolutionAPI:
 
         # Scratchpad: persistent notes controlled by Root LLM
         self.scratchpad: str = ""
+        self._hide_scratchpad = hide_scratchpad
+        self._hide_trial_reasoning = hide_trial_reasoning
+        self._disable_query_llm = disable_query_llm
+        self._scratchpad_unavailable_msg = (
+            "(scratchpad unavailable for this experiment; use trials, metrics, errors, "
+            "REPL state, and any enabled tools)"
+        )
+        self._reasoning_unavailable_msg = (
+            "(trial reasoning unavailable for this experiment; use trial code, metrics, "
+            "errors, scratchpad if enabled, REPL state, and any enabled tools)"
+        )
+
+    def shutdown(self) -> None:
+        """Shut down the persistent thread pool executor."""
+        self._executor.shutdown(wait=False)
 
     @property
     def max_generations(self) -> int:
@@ -493,7 +539,7 @@ class EvolutionAPI:
             self.child_llm_clients[alias] = create_llm_client(
                 provider=config.provider,
                 model=config.model,
-                cost_tracker=self.cost_tracker,
+                tracker=self.tracker,
                 llm_type=f"child:{alias}",
             )
         return self.child_llm_clients[alias]
@@ -542,15 +588,23 @@ class EvolutionAPI:
                 model_config=trial.model_config,
             )
 
+    def _make_trial_view(self, trial: TrialResult) -> TrialView:
+        """Create a TrialView with ablations applied for Root LLM access."""
+        view = TrialView.from_trial_result(trial)
+        if self._hide_trial_reasoning:
+            view.reasoning = self._reasoning_unavailable_msg
+        return view
+
     def spawn_children(
         self,
         children: list[dict[str, Any]],
-        num_workers: int | None = None,
+        num_workers: int | None = None,  # noqa: ARG002 - kept for API compat
     ) -> list[TrialView]:
         """
-        Spawn child LLMs in parallel using multiprocessing.
+        Spawn child LLMs in parallel using a persistent thread pool.
 
-        Each child LLM call and its evaluation runs in a separate process.
+        Each child LLM call and its evaluation runs in a separate thread.
+        Evaluations use subprocesses for sandboxing.
 
         Args:
             children: List of dicts with keys:
@@ -558,17 +612,18 @@ class EvolutionAPI:
                 - 'parent_id': Optional trial ID of parent (for mutation tracking)
                 - 'model': Optional model alias (defaults to default_child_llm_alias)
                 - 'temperature': Optional temperature (defaults to 0.7)
-            num_workers: Number of parallel workers (defaults to number of children)
+            num_workers: Ignored (uses persistent thread pool sized to max_children_per_generation)
 
         Returns:
             List of TrialView objects with trial results.
-            Use .to_dict() on each for backward compatibility if dict format is needed.
 
         Raises:
             ChildrenLimitError: If spawning would exceed max_children_per_generation
         """
+        spawn_start = time.monotonic()
+
         # Check budget
-        self.cost_tracker.raise_if_over_budget()
+        self.tracker.raise_if_over_budget()
 
         # Check children limit (only during evolution, not calibration)
         if not self.in_calibration_phase:
@@ -619,70 +674,70 @@ class EvolutionAPI:
         # Get experiment directory for workers to write trial files
         experiment_dir = str(self.logger.base_dir)
 
-        # Prepare worker arguments in sorted order (by parent_id) for cache optimization
-        # Each worker gets: (prompt, parent_id, model, evaluator_fn, evaluator_kwargs, max_tokens, temperature,
-        #                    trial_id, generation, experiment_dir, system_prompt, provider, model_alias)
-        worker_args = []
-        result_order = []  # Track original indices for result ordering
+        # Build WorkerInput objects in sorted order (by parent_id) for cache optimization
+        worker_inputs: list[WorkerInput] = []
         for orig_idx, child in indexed_children:
             parent_id = child.get("parent_id")
             temperature = child.get("temperature", 0.7)
             model_alias, config = resolved_models[orig_idx]
-            max_tokens = 8192
-            if config.provider == "google":
-                # Gemini thinking tokens count against max_output_tokens; 8192 truncates code.
-                max_tokens = 65536
 
-            worker_args.append(
-                (
-                    child.get("prompt", ""),
-                    parent_id,
-                    config.model,  # Actual model name
-                    self.evaluator_fn,  # Evaluator class path for dynamic loading
-                    self.evaluator_kwargs,
-                    max_tokens,
-                    temperature,
-                    trial_ids[orig_idx],
-                    trial_generation,
-                    experiment_dir,
-                    system_prompt,  # None during calibration, else cacheable system prompt
-                    config.provider,  # Provider for child LLM
-                    model_alias,  # Model alias for tracking
+            worker_inputs.append(
+                WorkerInput(
+                    prompt=child.get("prompt", ""),
+                    parent_id=parent_id,
+                    model=config.model,
+                    evaluator_fn=self.evaluator_fn,
+                    evaluator_kwargs=self.evaluator_kwargs,
+                    max_tokens=65536,
+                    temperature=temperature,
+                    trial_id=trial_ids[orig_idx],
+                    generation=trial_generation,
+                    experiment_dir=experiment_dir,
+                    system_prompt=system_prompt,
+                    provider=config.provider,
+                    model_alias=model_alias,
                 )
             )
-            result_order.append(orig_idx)
 
-        # Determine number of workers
-        if num_workers is None:
-            # get num cores
-            num_cores = multiprocessing.cpu_count()
-            num_workers = min(len(children), num_cores)
-
-        # Run workers in parallel
+        # Run workers in parallel using persistent thread pool
         worker_fn = query_llm_worker if self.in_calibration_phase else spawn_child
         worker_wrote_files = not self.in_calibration_phase
-        with multiprocessing.Pool(processes=num_workers) as pool:
-            worker_results = pool.map(worker_fn, worker_args)
+        worker_results = list(self._executor.map(worker_fn, worker_inputs))
 
         # Process results and record trials
-        # Results come back in sorted order, we'll return them in original order
         results_by_trial_id: dict[str, dict[str, Any]] = {}
 
         for worker_result in worker_results:
-            # Use pre-assigned trial ID from worker
             trial_id = worker_result["trial_id"]
             model_alias = worker_result.get("model_alias")
 
-            # Record token usage in cost tracker (including cache stats)
+            # Record token usage (including cache stats)
             if worker_result["input_tokens"] > 0 or worker_result["output_tokens"] > 0:
                 llm_type = f"child:{model_alias}" if model_alias else "child"
-                self.cost_tracker.record_usage(
+                self.tracker.record_usage(
                     input_tokens=worker_result["input_tokens"],
                     output_tokens=worker_result["output_tokens"],
                     llm_type=llm_type,
                     call_id=worker_result["call_id"],
                     cache_creation_input_tokens=worker_result.get("cache_creation_input_tokens", 0),
                     cache_read_input_tokens=worker_result.get("cache_read_input_tokens", 0),
+                )
+
+            # Record per-child timing
+            if worker_result.get("llm_call_duration_s", 0) > 0:
+                self.tracker.record_timing(
+                    "child_llm_call",
+                    worker_result["llm_call_duration_s"],
+                    generation=trial_generation,
+                    trial_id=trial_id,
+                    model=model_alias,
+                )
+            if worker_result.get("eval_duration_s", 0) > 0:
+                self.tracker.record_timing(
+                    "evaluation",
+                    worker_result["eval_duration_s"],
+                    generation=trial_generation,
+                    trial_id=trial_id,
                 )
 
             # Create trial result
@@ -702,9 +757,18 @@ class EvolutionAPI:
             )
 
             self._record_trial(trial, skip_file_write=worker_wrote_files)
-            results_by_trial_id[trial_id] = TrialView.from_trial_result(trial)
+            results_by_trial_id[trial_id] = self._make_trial_view(trial)
 
-        # Return results in original order (by trial_id which preserves input order)
+        # Record total spawn_children timing
+        spawn_duration = time.monotonic() - spawn_start
+        self.tracker.record_timing(
+            "spawn_children",
+            spawn_duration,
+            generation=trial_generation,
+            num_children=len(children),
+        )
+
+        # Return results in original order
         results = [results_by_trial_id[trial_ids[i]] for i in range(len(children))]
         return results
 
@@ -810,6 +874,9 @@ class EvolutionAPI:
         gen.parents_used_counts = parents_used_counts
         gen.parents_not_selected_prev_gen = parents_not_selected_prev_gen
 
+        # Get timing data for this generation
+        gen_timing = self.tracker.get_generation_timing(self.current_generation)
+
         # Log generation
         self.logger.log_generation(
             generation=self.current_generation,
@@ -822,6 +889,7 @@ class EvolutionAPI:
             parents_used=parents_used,
             parents_used_counts=parents_used_counts,
             parents_not_selected_prev_gen=parents_not_selected_prev_gen,
+            timing=gen_timing if gen_timing else None,
         )
 
         # Show generation progress
@@ -905,6 +973,7 @@ class EvolutionAPI:
         """
         self._terminated = True
         self._termination_reason = reason
+        self.shutdown()
 
         # Compute statistics
         total_trials = len(self.all_trials)
@@ -925,12 +994,16 @@ class EvolutionAPI:
         tqdm.write(f"  Total trials: {total_trials} ({successful_trials} successful)")
         tqdm.write(f"  Generations: {self.current_generation + 1}")
         tqdm.write(f"  Best score: {best_score:.16f}")
-        cost_summary = self.cost_tracker.get_summary()
+        cost_summary = self.tracker.get_summary()
         tqdm.write(f"  Total cost: ${cost_summary.total_cost:.4f}")
+        tqdm.write(f"{'=' * 60}")
+        tqdm.write("  Experiment Timing Summary")
+        tqdm.write(f"{'=' * 60}")
+        tqdm.write(self.tracker.format_timing_summary())
         tqdm.write(f"{'=' * 60}\n")
 
         # Save experiment
-        self.logger.log_cost_tracking(self.cost_tracker.to_dict())
+        self.logger.log_cost_tracking(self.tracker.to_dict())
         self.logger.save_experiment(termination_reason=reason, scratchpad=self.scratchpad)
 
         return {
@@ -940,7 +1013,7 @@ class EvolutionAPI:
             "num_generations": self.current_generation + 1,
             "total_trials": total_trials,
             "successful_trials": successful_trials,
-            "cost_summary": self.cost_tracker.get_summary().__dict__,
+            "cost_summary": self.tracker.get_summary().__dict__,
         }
 
     def _get_best_trials(self, n: int = 5) -> list[dict[str, Any]]:
@@ -1011,6 +1084,13 @@ class EvolutionAPI:
         Returns:
             Dictionary with success status and content length.
         """
+        if self._hide_scratchpad:
+            tqdm.write("  Warning: scratchpad is disabled for this experiment.")
+            return {
+                "success": False,
+                "length": 0,
+                "message": self._scratchpad_unavailable_msg,
+            }
         self.scratchpad = content
 
         # Materialize scratchpad immediately to the current generation folder
@@ -1081,7 +1161,7 @@ class EvolutionAPI:
     def query_llm(
         self,
         queries: list[dict[str, Any]],
-        num_workers: int | None = None,
+        num_workers: int | None = None,  # noqa: ARG002 - kept for API compat
     ) -> list[dict[str, Any]]:
         """
         Query child LLMs without code evaluation or trial records.
@@ -1116,7 +1196,7 @@ class EvolutionAPI:
             CalibrationBudgetError: If calibration budget is exhausted (calibration phase only)
         """
         # Check budget
-        self.cost_tracker.raise_if_over_budget()
+        self.tracker.raise_if_over_budget()
 
         # Resolve model aliases and check calibration budget if in calibration phase
         resolved_models: dict[int, tuple[str, ChildLLMConfig]] = {}
@@ -1138,42 +1218,32 @@ class EvolutionAPI:
         phase = "calibration" if self.in_calibration_phase else "analysis"
         tqdm.write(f"  └─ Querying {len(queries)} LLMs in parallel: {phase}")
 
-        # Prepare worker arguments
-        worker_args = []
+        # Build WorkerInput objects
+        worker_inputs: list[WorkerInput] = []
         for i, query in enumerate(queries):
             model_alias, config = resolved_models[i]
             temperature = query.get("temperature", 0.7)
-            max_tokens = 8192
-            if config.provider == "google":
-                max_tokens = 65536
 
-            # Use query_llm worker (no evaluation, no file I/O)
-            worker_args.append(
-                (
-                    query.get("prompt", ""),
-                    None,  # parent_id
-                    config.model,
-                    self.evaluator_fn,  # Not used during calibration but keeps args structure consistent
-                    self.evaluator_kwargs,
-                    max_tokens,
-                    temperature,
-                    f"calibration_{i}",  # placeholder trial_id
-                    -1,  # generation
-                    str(self.logger.base_dir),
-                    None,  # no system prompt for calibration
-                    config.provider,
-                    model_alias,
+            worker_inputs.append(
+                WorkerInput(
+                    prompt=query.get("prompt", ""),
+                    parent_id=None,
+                    model=config.model,
+                    evaluator_fn=self.evaluator_fn,
+                    evaluator_kwargs=self.evaluator_kwargs,
+                    max_tokens=65536,
+                    temperature=temperature,
+                    trial_id=f"calibration_{i}",
+                    generation=-1,
+                    experiment_dir=str(self.logger.base_dir),
+                    system_prompt=None,
+                    provider=config.provider,
+                    model_alias=model_alias,
                 )
             )
 
-        # Determine number of workers
-        if num_workers is None:
-            num_cores = multiprocessing.cpu_count()
-            num_workers = min(len(queries), num_cores)
-
-        # Run workers in parallel using query_llm (no evaluation)
-        with multiprocessing.Pool(processes=num_workers) as pool:
-            worker_results = pool.map(query_llm_worker, worker_args)
+        # Run workers in parallel using persistent thread pool
+        worker_results = list(self._executor.map(query_llm_worker, worker_inputs))
 
         # Process results into simple response format
         results = []
@@ -1326,7 +1396,7 @@ class EvolutionAPI:
         - update_scratchpad: Update persistent notes across generations
         - end_calibration_phase: End calibration and start evolution
         - get_calibration_status: Check calibration phase status
-        - query_llm: Query LLMs for analysis (no evaluation, works during both phases)
+        - query_llm: Query LLMs for analysis (no evaluation, works during both phases; if enabled)
 
         Objects exposed:
         - scratchpad: ScratchpadProxy for direct scratchpad access
@@ -1336,16 +1406,18 @@ class EvolutionAPI:
         Returns:
             Dictionary mapping names to callables and objects
         """
-        return {
+        api = {
             "spawn_children": self.spawn_children,
             "evaluate_program": self.evaluate_program,
             "terminate_evolution": self.terminate_evolution,
             "update_scratchpad": self.update_scratchpad,
             "end_calibration_phase": self.end_calibration_phase,
             "get_calibration_status": self.get_calibration_status,
-            "query_llm": self.query_llm,
             "scratchpad": ScratchpadProxy(self),
         }
+        if not self._disable_query_llm:
+            api["query_llm"] = self.query_llm
+        return api
 
     def get_repl_namespace(self) -> dict[str, Any]:
         """

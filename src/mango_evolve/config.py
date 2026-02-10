@@ -123,6 +123,9 @@ class Config:
     budget: BudgetConfig = field(default_factory=BudgetConfig)
     default_child_llm_alias: str | None = None
     calibration_notes_file: str | None = None  # Path to pre-existing notes (skips calibration)
+    hide_scratchpad: bool = False  # If True, scratchpad/handoff is not accessible
+    hide_trial_reasoning: bool = False  # If True, trial reasoning is hidden from the Root LLM
+    disable_query_llm: bool = False  # If True, query_llm is removed from REPL/prompts
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize config to dictionary."""
@@ -476,6 +479,18 @@ def config_from_dict(data: dict[str, Any]) -> Config:
     if calibration_notes_file is not None and not isinstance(calibration_notes_file, str):
         raise ConfigValidationError("calibration_notes_file must be a string path")
 
+    hide_scratchpad = data.get("hide_scratchpad", False)
+    if not isinstance(hide_scratchpad, bool):
+        raise ConfigValidationError("hide_scratchpad must be a boolean")
+
+    hide_trial_reasoning = data.get("hide_trial_reasoning", False)
+    if not isinstance(hide_trial_reasoning, bool):
+        raise ConfigValidationError("hide_trial_reasoning must be a boolean")
+
+    disable_query_llm = data.get("disable_query_llm", False)
+    if not isinstance(disable_query_llm, bool):
+        raise ConfigValidationError("disable_query_llm must be a boolean")
+
     return Config(
         experiment=_parse_experiment_config(data["experiment"]),
         root_llm=_parse_llm_config(data["root_llm"], "root_llm"),
@@ -485,6 +500,9 @@ def config_from_dict(data: dict[str, Any]) -> Config:
         budget=_parse_budget_config(data.get("budget")),
         default_child_llm_alias=default_alias,
         calibration_notes_file=calibration_notes_file,
+        hide_scratchpad=hide_scratchpad,
+        hide_trial_reasoning=hide_trial_reasoning,
+        disable_query_llm=disable_query_llm,
     )
 
 

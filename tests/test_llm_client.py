@@ -18,10 +18,10 @@ class TestMockLLMClient:
 
     def test_generate_returns_response(self, sample_config):
         """Test that generate returns a response."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
             responses=["Hello, world!"],
         )
@@ -36,10 +36,10 @@ class TestMockLLMClient:
 
     def test_generate_multiple_responses(self, sample_config):
         """Test that multiple calls return responses in order."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
             responses=["First", "Second", "Third"],
         )
@@ -54,10 +54,10 @@ class TestMockLLMClient:
 
     def test_cost_recorded(self, sample_config):
         """Test that usage is recorded in cost tracker."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
             responses=["Response with some tokens"],
         )
@@ -66,22 +66,22 @@ class TestMockLLMClient:
             messages=[{"role": "user", "content": "Test message"}],
         )
 
-        assert len(cost_tracker.usage_log) == 1
-        assert cost_tracker.usage_log[0].llm_type == "child:default"
-        assert cost_tracker.total_cost > 0
+        assert len(tracker.usage_log) == 1
+        assert tracker.usage_log[0].llm_type == "child:default"
+        assert tracker.total_cost > 0
 
     def test_budget_exceeded_raises(self, sample_config):
         """Test that BudgetExceededError is raised when budget exceeded."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
             responses=["Response"],
         )
 
         # Artificially exceed budget
-        cost_tracker.total_cost = sample_config.budget.max_total_cost + 1
+        tracker.total_cost = sample_config.budget.max_total_cost + 1
 
         with pytest.raises(BudgetExceededError):
             client.generate(
@@ -90,10 +90,10 @@ class TestMockLLMClient:
 
     def test_add_response(self, sample_config):
         """Test adding responses dynamically."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
         )
 
@@ -106,10 +106,10 @@ class TestMockLLMClient:
 
     def test_set_responses(self, sample_config):
         """Test setting responses list."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
             responses=["Old response"],
         )
@@ -123,10 +123,10 @@ class TestMockLLMClient:
 
     def test_call_history_recorded(self, sample_config):
         """Test that call history is recorded."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
             responses=["Response"],
         )
@@ -147,10 +147,10 @@ class TestMockLLMClient:
 
     def test_no_more_responses_raises(self, sample_config):
         """Test that IndexError is raised when no more responses."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
             responses=["Only one"],
         )
@@ -162,18 +162,18 @@ class TestMockLLMClient:
 
     def test_different_llm_types(self, sample_config):
         """Test root vs child LLM types use different pricing."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
 
         root_client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="root",
             responses=["Root response"],
         )
 
         child_client = MockLLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
             responses=["Child response"],
         )
@@ -181,9 +181,9 @@ class TestMockLLMClient:
         root_client.generate(messages=[{"role": "user", "content": "Root"}])
         child_client.generate(messages=[{"role": "user", "content": "Child"}])
 
-        assert len(cost_tracker.usage_log) == 2
-        assert cost_tracker.usage_log[0].llm_type == "root"
-        assert cost_tracker.usage_log[1].llm_type == "child:default"
+        assert len(tracker.usage_log) == 2
+        assert tracker.usage_log[0].llm_type == "root"
+        assert tracker.usage_log[1].llm_type == "child:default"
 
 
 class TestLLMClient:
@@ -191,15 +191,15 @@ class TestLLMClient:
 
     def test_budget_check_before_call(self, sample_config):
         """Test that budget is checked before making API call."""
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = LLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
         )
 
         # Exceed budget
-        cost_tracker.total_cost = sample_config.budget.max_total_cost + 1
+        tracker.total_cost = sample_config.budget.max_total_cost + 1
 
         with pytest.raises(BudgetExceededError):
             client.generate(
@@ -223,10 +223,10 @@ class TestLLMClient:
 
         mock_client.messages.create.return_value = mock_response
 
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = LLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
         )
 
@@ -237,7 +237,7 @@ class TestLLMClient:
         assert response.content == "Test response"
         assert response.input_tokens == 10
         assert response.output_tokens == 5
-        assert len(cost_tracker.usage_log) == 1
+        assert len(tracker.usage_log) == 1
 
     @patch("mango_evolve.llm.providers.anthropic.anthropic.Anthropic")
     def test_cost_recorded_correctly(self, mock_anthropic_class, sample_config):
@@ -255,10 +255,10 @@ class TestLLMClient:
 
         mock_client.messages.create.return_value = mock_response
 
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         client = LLMClient(
             model="claude-test",
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child:default",
         )
 
@@ -270,4 +270,4 @@ class TestLLMClient:
             1000 * child_config.cost_per_million_input_tokens / 1_000_000
             + 500 * child_config.cost_per_million_output_tokens / 1_000_000
         )
-        assert abs(cost_tracker.total_cost - expected_cost) < 1e-10
+        assert abs(tracker.total_cost - expected_cost) < 1e-10

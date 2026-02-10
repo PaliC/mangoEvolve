@@ -16,7 +16,14 @@ from .config import (
     load_config,
     load_evaluator,
 )
-from .cost_tracker import CostSummary, CostTracker, TokenUsage
+from .cost_tracker import (
+    CostSummary,
+    CostTracker,
+    ExperimentSummary,
+    ExperimentTracker,
+    TimingRecord,
+    TokenUsage,
+)
 from .evolution_api import EvolutionAPI, GenerationSummary, TrialResult, TrialSelection
 from .exceptions import (
     BudgetExceededError,
@@ -27,8 +34,6 @@ from .exceptions import (
     MangoEvolveError,
 )
 from .llm import (
-    ROOT_LLM_SYSTEM_PROMPT_DYNAMIC,
-    ROOT_LLM_SYSTEM_PROMPT_STATIC,
     LLMClient,
     LLMResponse,
     MockLLMClient,
@@ -56,9 +61,13 @@ __all__ = [
     "load_config",
     "config_from_dict",
     "load_evaluator",
-    # Cost tracking
-    "CostTracker",
+    # Experiment tracking (cost + timing)
+    "ExperimentTracker",
+    "ExperimentSummary",
+    "TimingRecord",
     "TokenUsage",
+    # Backward-compat aliases
+    "CostTracker",
     "CostSummary",
     # Logging
     "ExperimentLogger",
@@ -74,8 +83,6 @@ __all__ = [
     "LLMClient",
     "LLMResponse",
     "MockLLMClient",
-    "ROOT_LLM_SYSTEM_PROMPT_STATIC",
-    "ROOT_LLM_SYSTEM_PROMPT_DYNAMIC",
     "get_root_system_prompt",
     # Root LLM Orchestrator
     "RootLLMOrchestrator",

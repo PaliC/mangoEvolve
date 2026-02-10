@@ -42,14 +42,14 @@ def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs, sa
     # Override output directory
     sample_config.experiment.output_dir = str(temp_dir)
 
-    cost_tracker = CostTracker(sample_config)
+    tracker = CostTracker(sample_config)
     logger = ExperimentLogger(sample_config)
     logger.create_experiment_directory()
 
     api = EvolutionAPI(
         evaluator=mock_evaluator,
         child_llm_configs=child_llm_configs,
-        cost_tracker=cost_tracker,
+        tracker=tracker,
         logger=logger,
         max_generations=5,
         max_children_per_generation=3,
@@ -61,7 +61,7 @@ def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs, sa
     for alias in child_llm_configs:
         mock_client = MockLLMClient(
             model=child_llm_configs[alias].model,
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type=f"child:{alias}",
             responses=["```python\ndef solve(): return 1.0\n```"],
         )
@@ -132,7 +132,7 @@ class TestSpawnChildren:
 
     def test_spawn_budget_exceeded(self, evolution_api):
         """Test that spawn raises on budget exceeded."""
-        evolution_api.cost_tracker.total_cost = 100.0  # Exceed budget
+        evolution_api.tracker.total_cost = 100.0  # Exceed budget
 
         with pytest.raises(BudgetExceededError):
             evolution_api.spawn_children([{"prompt": "Test"}])
@@ -158,7 +158,7 @@ class TestEvaluateProgram:
     def test_evaluate_handles_error(self, sample_config, temp_dir, child_llm_configs, sample_problem_spec):
         """Test that evaluate_program handles errors gracefully."""
         sample_config.experiment.output_dir = str(temp_dir)
-        cost_tracker = CostTracker(sample_config)
+        tracker = CostTracker(sample_config)
         logger = ExperimentLogger(sample_config)
         logger.create_experiment_directory()
 
@@ -169,7 +169,7 @@ class TestEvaluateProgram:
         api = EvolutionAPI(
             evaluator=evaluator,
             child_llm_configs=child_llm_configs,
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             logger=logger,
             default_child_llm_alias=sample_config.default_child_llm_alias,
             problem_spec=sample_problem_spec,

@@ -1,35 +1,58 @@
-# Shinka Evolve config: Claude Opus 4.5 as root, mixed OpenAI/Anthropic children
-# Uses models verified to work with OpenRouter
+# Shinka Evolve config: GPT-5 as root, mixed Google/OpenRouter children
+# Uses native Google API for Gemini models, OpenRouter for everything else
 #
-# Requires: OPENROUTER_API_KEY environment variable
+# Requires: OPENROUTER_API_KEY + GEMINI_API_KEY environment variables
 #
 # Models used:
-#   - Root: Claude Opus 4.5 with extended thinking
-#   - Children: Claude Sonnet 4, O4-mini, GPT-4.1, GPT-4.1-mini, GPT-4.1-nano
+#   - Root: GPT-5 with xhigh reasoning (OpenRouter)
+#   - Children: Gemini 2.5 Pro, Gemini 2.5 Flash (Google),
+#     Claude Sonnet 4 (OpenRouter), O4-mini, GPT-5, GPT-5-mini, GPT-5-nano (OpenRouter)
 
 experiment:
   name: "shinka_evolve_circle_packing"
   output_dir: "./experiments"
 
-# Root LLM: Claude Opus 4.5 with extended thinking for smart orchestration
+# Root LLM: GPT-5 with high reasoning for smart orchestration
 root_llm:
   provider: "openrouter"
-  model: "anthropic/claude-opus-4.5"
-  cost_per_million_input_tokens: 5.0
-  cost_per_million_output_tokens: 25.0
+  model: "openai/gpt-5"
+  cost_per_million_input_tokens: 1.25
+  cost_per_million_output_tokens: 10.00
   max_iterations: 500
   reasoning:
     enabled: true
-    effort: "xhigh"
+    effort: "high"
 
 # Multiple child LLMs - root can choose based on task
 child_llms:
-  # Claude Sonnet 4 - great quality, reliable
+  # Gemini 2.5 Pro - strong reasoning via native Google API
+  - alias: "gemini-pro"
+    model: "gemini-2.5-pro"
+    provider: "google"
+    cost_per_million_input_tokens: 1.25
+    cost_per_million_output_tokens: 10.00
+    calibration_calls: 5
+    reasoning:
+      enabled: true
+      effort: "high"
+
+  # Gemini 2.5 Flash - fast and cost-effective via native Google API
+  - alias: "gemini-flash"
+    model: "gemini-2.5-flash"
+    provider: "google"
+    cost_per_million_input_tokens: 0.30
+    cost_per_million_output_tokens: 2.50
+    calibration_calls: 5
+    reasoning:
+      enabled: true
+      effort: "high"
+
+  # Claude Sonnet 4 via OpenRouter (Bedrock-backed)
   - alias: "sonnet"
     model: "anthropic/claude-sonnet-4"
     provider: "openrouter"
-    cost_per_million_input_tokens: 3.0
-    cost_per_million_output_tokens: 15.0
+    cost_per_million_input_tokens: 3.00
+    cost_per_million_output_tokens: 15.00
     calibration_calls: 5
     reasoning:
       enabled: true
@@ -46,33 +69,34 @@ child_llms:
       enabled: true
       effort: "high"
 
-  # GPT-4.1 - high quality, versatile
-  - alias: "gpt41"
-    model: "openai/gpt-4.1"
+  # GPT-5 - high quality reasoning
+  - alias: "gpt5"
+    model: "openai/gpt-5"
     provider: "openrouter"
-    cost_per_million_input_tokens: 2.0
-    cost_per_million_output_tokens: 8.0
+    cost_per_million_input_tokens: 1.25
+    cost_per_million_output_tokens: 10.00
+    calibration_calls: 5
+    reasoning:
+      enabled: true
+      effort: "high"
+
+  # GPT-5-mini - good quality, cost-effective
+  - alias: "gpt5-mini"
+    model: "openai/gpt-5-mini"
+    provider: "openrouter"
+    cost_per_million_input_tokens: 0.25
+    cost_per_million_output_tokens: 2.00
     calibration_calls: 5
 
-  # GPT-4.1-mini - good quality, more cost-effective
-  - alias: "gpt41-mini"
-    model: "openai/gpt-4.1-mini"
+  # GPT-5-nano - fastest, most cost-effective
+  - alias: "gpt5-nano"
+    model: "openai/gpt-5-nano"
     provider: "openrouter"
-    cost_per_million_input_tokens: 0.40
-    cost_per_million_output_tokens: 1.60
-    calibration_calls: 5
-
-  # GPT-4.1-nano - fastest, most cost-effective
-  - alias: "gpt41-nano"
-    model: "openai/gpt-4.1-nano"
-    provider: "openrouter"
-    cost_per_million_input_tokens: 0.10
+    cost_per_million_input_tokens: 0.05
     cost_per_million_output_tokens: 0.40
     calibration_calls: 5
 
-default_child_llm_alias: "gpt41-mini"
-
-path_to_calibration_notes: "/Users/sahan/conductor/workspaces/tetris_evolve/perth/experiments/shinka_evolve_circle_packing_20260108_002218/calibration_notes.yaml"
+default_child_llm_alias: "gemini-flash"
 
 evaluation:
   evaluator_fn: "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator"

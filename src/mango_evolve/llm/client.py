@@ -14,7 +14,7 @@ from .providers.google import GoogleProvider
 from .providers.openrouter import OpenRouterProvider
 
 if TYPE_CHECKING:
-    from ..cost_tracker import CostTracker
+    from ..cost_tracker import ExperimentTracker
 
 # Re-export LLMResponse for backwards compatibility
 __all__ = ["LLMResponse", "LLMClient", "MockLLMClient", "create_llm_client", "BaseLLMProvider"]
@@ -23,7 +23,7 @@ __all__ = ["LLMResponse", "LLMClient", "MockLLMClient", "create_llm_client", "Ba
 def create_llm_client(
     provider: str,
     model: str,
-    cost_tracker: "CostTracker",
+    tracker: "ExperimentTracker",
     llm_type: str,
     max_retries: int = 3,
     reasoning_config: dict[str, Any] | None = None,
@@ -34,7 +34,7 @@ def create_llm_client(
     Args:
         provider: Provider name ("anthropic" or "openrouter")
         model: Model identifier
-        cost_tracker: CostTracker instance for budget enforcement
+        tracker: ExperimentTracker instance for budget enforcement
         llm_type: Either "root" or "child" - used for cost tracking
         max_retries: Maximum number of retries on transient errors
         reasoning_config: Optional reasoning configuration (OpenRouter and Google only)
@@ -60,7 +60,7 @@ def create_llm_client(
     if provider in ("openrouter", "google"):
         return providers[provider](
             model=model,
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type=llm_type,
             max_retries=max_retries,
             reasoning_config=reasoning_config,
@@ -68,7 +68,7 @@ def create_llm_client(
 
     return providers[provider](
         model=model,
-        cost_tracker=cost_tracker,
+        tracker=tracker,
         llm_type=llm_type,
         max_retries=max_retries,
     )
@@ -88,7 +88,7 @@ class MockLLMClient:
     def __init__(
         self,
         model: str,
-        cost_tracker: "CostTracker",
+        tracker: "ExperimentTracker",
         llm_type: str,
         responses: list[str] | None = None,
     ):
@@ -97,12 +97,12 @@ class MockLLMClient:
 
         Args:
             model: Model identifier
-            cost_tracker: CostTracker instance
+            tracker: ExperimentTracker instance
             llm_type: Either "root" or "child"
             responses: List of responses to return in order
         """
         self.model = model
-        self.cost_tracker = cost_tracker
+        self.tracker = tracker
         self.llm_type = llm_type
         self._responses = responses or []
         self._call_count = 0
@@ -143,7 +143,7 @@ class MockLLMClient:
             IndexError: If no more responses are available
         """
         # Check budget
-        self.cost_tracker.raise_if_over_budget()
+        self.tracker.raise_if_over_budget()
 
         # Record the call
         self.call_history.append(
@@ -180,7 +180,7 @@ class MockLLMClient:
         output_tokens = len(content) // 4
 
         # Record usage
-        self.cost_tracker.record_usage(
+        self.tracker.record_usage(
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             llm_type=self.llm_type,

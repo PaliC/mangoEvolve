@@ -209,6 +209,7 @@ class ExperimentLogger:
         parents_used: list[str] | None = None,
         parents_used_counts: dict[str, int] | None = None,
         parents_not_selected_prev_gen: list[str] | None = None,
+        timing: dict[str, Any] | None = None,
     ) -> Path:
         """
         Log generation summary.
@@ -224,6 +225,7 @@ class ExperimentLogger:
             parents_used: Unique parent IDs actually used to create this generation
             parents_used_counts: Count of children spawned from each parent
             parents_not_selected_prev_gen: Parents used that were not selected in prior generation
+            timing: Optional timing breakdown dict for this generation
 
         Returns:
             Path to the generation summary file
@@ -244,6 +246,7 @@ class ExperimentLogger:
             "parents_used": parents_used or [],
             "parents_used_counts": parents_used_counts or {},
             "parents_not_selected_prev_gen": parents_not_selected_prev_gen or [],
+            "timing": timing,
             "timestamp": datetime.now().isoformat(),
         }
 

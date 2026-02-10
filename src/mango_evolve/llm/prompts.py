@@ -287,6 +287,81 @@ ROOT_LLM_SYSTEM_PROMPT_DYNAMIC = """
 - **Current generation**: {current_generation}/{max_generations}
 """
 
+
+def _collapse_blank_lines(text: str) -> str:
+    """Collapse consecutive blank lines to keep prompts tidy."""
+    lines = text.splitlines()
+    result: list[str] = []
+    blank = False
+    for line in lines:
+        if line.strip() == "":
+            if blank:
+                continue
+            blank = True
+        else:
+            blank = False
+        result.append(line)
+    return "\n".join(result).strip()
+
+
+def _remove_section_by_header(text: str, header: str) -> str:
+    """Remove a markdown section starting at a specific header line."""
+    lines = text.splitlines()
+    result: list[str] = []
+    skipping = False
+    for line in lines:
+        if line.strip() == header:
+            skipping = True
+            continue
+        if skipping:
+            if line.startswith("### ") or line.startswith("## "):
+                skipping = False
+                result.append(line)
+            else:
+                continue
+        else:
+            result.append(line)
+    return "\n".join(result)
+
+
+def _remove_lines_with_substring(text: str, substring: str) -> str:
+    """Remove any lines that contain a substring."""
+    return "\n".join(line for line in text.splitlines() if substring not in line)
+
+
+def _replace_first_code_block_after(text: str, marker: str, replacement_block: str) -> str:
+    """Replace the first ```python``` block after a marker with replacement_block."""
+    marker_idx = text.find(marker)
+    if marker_idx == -1:
+        return text
+    start = text.find("```python", marker_idx)
+    if start == -1:
+        return text
+    end = text.find("```", start + len("```python"))
+    if end == -1:
+        return text
+    end += len("```")
+    return text[:start] + replacement_block + text[end:]
+
+
+def _strip_query_llm_from_docs(text: str) -> str:
+    """Remove query_llm documentation and references."""
+    text = _remove_section_by_header(text, "### query_llm(queries: list[dict]) -> list[dict]")
+    text = _remove_lines_with_substring(text, "query_llm")
+    return _collapse_blank_lines(text)
+
+
+def _strip_query_llm_from_calibration(text: str) -> str:
+    """Remove query_llm guidance from the calibration prompt."""
+    text = _replace_first_code_block_after(
+        text,
+        "## How to Call Functions",
+        "```python\nget_calibration_status()\n```\n",
+    )
+    text = _remove_section_by_header(text, "### query_llm(queries: list[dict]) -> list[dict]")
+    text = _remove_lines_with_substring(text, "query_llm")
+    return _collapse_blank_lines(text)
+
 # Available child LLMs template - inserted after dynamic parameters
 ROOT_LLM_CHILD_MODELS_TEMPLATE = """
 ## Available Child LLMs
@@ -387,7 +462,7 @@ def _build_code_format_section(spec: "ProblemSpec") -> str:
     return "\n".join(lines)
 
 
-def build_root_system_prompt_static(spec: "ProblemSpec") -> str:
+def build_root_system_prompt_static(spec: "ProblemSpec", disable_query_llm: bool = False) -> str:
     """
     Build the static portion of the Root LLM system prompt from ProblemSpec.
 
@@ -396,6 +471,7 @@ def build_root_system_prompt_static(spec: "ProblemSpec") -> str:
 
     Args:
         spec: Problem specification from evaluator
+        disable_query_llm: If True, remove query_llm guidance from the prompt
 
     Returns:
         Static system prompt string
@@ -403,7 +479,12 @@ def build_root_system_prompt_static(spec: "ProblemSpec") -> str:
     problem_section = _build_problem_section(spec)
     code_format_section = _build_code_format_section(spec)
 
-    return problem_section + code_format_section + EVOLUTION_API_DOCS
+    api_docs = (
+        _strip_query_llm_from_docs(EVOLUTION_API_DOCS)
+        if disable_query_llm
+        else EVOLUTION_API_DOCS
+    )
+    return problem_section + code_format_section + api_docs
 
 
 def build_child_system_prompt(spec: "ProblemSpec") -> str:
@@ -492,6 +573,7 @@ def get_root_system_prompt(
     max_generations: int = 10,
     current_generation: int = 0,
     timeout_seconds: int | None = None,
+    disable_query_llm: bool = False,
 ) -> str:
     """
     Get the Root LLM system prompt with configuration values.
@@ -502,11 +584,12 @@ def get_root_system_prompt(
         max_generations: Maximum number of generations
         current_generation: Current generation number (0-indexed)
         timeout_seconds: Optional timeout limit per trial in seconds
+        disable_query_llm: If True, remove query_llm guidance from the prompt
 
     Returns:
         Formatted system prompt string (static + dynamic parts combined)
     """
-    static_part = build_root_system_prompt_static(spec)
+    static_part = build_root_system_prompt_static(spec, disable_query_llm=disable_query_llm)
     dynamic_part = ROOT_LLM_SYSTEM_PROMPT_DYNAMIC.format(
         max_children_per_generation=max_children_per_generation,
         max_generations=max_generations,
@@ -522,6 +605,7 @@ def get_root_system_prompt_parts(
     max_generations: int = 10,
     current_generation: int = 0,
     timeout_seconds: int | None = None,
+    disable_query_llm: bool = False,
 ) -> list[dict]:
     """
     Get the Root LLM system prompt as structured content blocks for caching.
@@ -540,7 +624,7 @@ def get_root_system_prompt_parts(
         List of content blocks suitable for Anthropic API system parameter.
         The first block (static) has cache_control set.
     """
-    static_part = build_root_system_prompt_static(spec)
+    static_part = build_root_system_prompt_static(spec, disable_query_llm=disable_query_llm)
     dynamic_part = ROOT_LLM_SYSTEM_PROMPT_DYNAMIC.format(
         max_children_per_generation=max_children_per_generation,
         max_generations=max_generations,
@@ -617,6 +701,7 @@ def get_root_system_prompt_parts_with_models(
     max_generations: int = 10,
     current_generation: int = 0,
     timeout_seconds: int | None = None,
+    disable_query_llm: bool = False,
 ) -> list[dict]:
     """
     Get the Root LLM system prompt with child LLM info as structured content blocks.
@@ -624,6 +709,7 @@ def get_root_system_prompt_parts_with_models(
     Args:
         spec: Problem specification from evaluator
         child_llm_configs: Dict of alias -> ChildLLMConfig
+        disable_query_llm: If True, remove query_llm guidance from the prompt
         default_child_llm_alias: Default model alias
         max_children_per_generation: Maximum children that can be spawned per generation
         max_generations: Maximum number of generations
@@ -633,7 +719,7 @@ def get_root_system_prompt_parts_with_models(
     Returns:
         List of content blocks suitable for Anthropic API system parameter.
     """
-    static_part = build_root_system_prompt_static(spec)
+    static_part = build_root_system_prompt_static(spec, disable_query_llm=disable_query_llm)
     dynamic_part = ROOT_LLM_SYSTEM_PROMPT_DYNAMIC.format(
         max_children_per_generation=max_children_per_generation,
         max_generations=max_generations,
@@ -769,6 +855,7 @@ end_calibration_phase()
 def get_calibration_system_prompt_parts(
     spec: "ProblemSpec",
     child_llm_configs: dict[str, "ChildLLMConfig"],
+    disable_query_llm: bool = False,
 ) -> list[dict]:
     """
     Get the calibration system prompt as structured content blocks.
@@ -785,6 +872,8 @@ def get_calibration_system_prompt_parts(
         problem_name=spec.name.lower(),
         problem_reference=problem_reference,
     )
+    if disable_query_llm:
+        static_part = _strip_query_llm_from_calibration(static_part)
 
     # Build child LLM info with calibration budgets
     lines = ["## Available Child LLMs", ""]

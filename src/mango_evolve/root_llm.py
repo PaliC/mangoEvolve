@@ -5,6 +5,7 @@ Main orchestrator that runs the Root LLM evolution loop, executing REPL
 code blocks and managing the conversation with the Root LLM.
 """
 
+import time
 import traceback
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -18,7 +19,7 @@ from .config import (
     load_evaluator,
     save_calibration_notes,
 )
-from .cost_tracker import CostTracker
+from .cost_tracker import ExperimentTracker
 from .evolution_api import EvolutionAPI
 from .exceptions import BudgetExceededError, GenerationLimitError
 from .llm.client import LLMClient, MockLLMClient, create_llm_client
@@ -26,8 +27,8 @@ from .llm.prompts import (
     get_calibration_system_prompt_parts,
     get_root_system_prompt_parts_with_models,
 )
-from .problem import ProblemSpec
 from .logger import ExperimentLogger
+from .problem import ProblemSpec
 from .repl import REPLEnvironment
 from .utils.code_extraction import extract_python_blocks, extract_selection_block
 
@@ -99,7 +100,7 @@ class RootLLMOrchestrator:
         # self.evolution_api to ensure a single source of truth
 
         # Initialize cost tracker
-        self.cost_tracker = CostTracker(config)
+        self.tracker = ExperimentTracker(config)
 
         # Initialize logger
         self.logger = logger or ExperimentLogger(config)
@@ -112,7 +113,7 @@ class RootLLMOrchestrator:
             self.root_llm = create_llm_client(
                 provider=config.root_llm.provider,
                 model=config.root_llm.model,
-                cost_tracker=self.cost_tracker,
+                tracker=self.tracker,
                 llm_type="root",
                 reasoning_config=asdict(config.root_llm.reasoning)
                 if config.root_llm.reasoning
@@ -148,13 +149,16 @@ class RootLLMOrchestrator:
             evaluator=self.evaluator,
             problem_spec=self.problem_spec,
             child_llm_configs=self.child_llm_configs,
-            cost_tracker=self.cost_tracker,
+            tracker=self.tracker,
             logger=self.logger,
             max_generations=config.evolution.max_generations,
             max_children_per_generation=config.evolution.max_children_per_generation,
             default_child_llm_alias=config.default_child_llm_alias,
             evaluator_fn=evaluator_fn,
             evaluator_kwargs=evaluator_kwargs,
+            hide_scratchpad=config.hide_scratchpad,
+            hide_trial_reasoning=config.hide_trial_reasoning,
+            disable_query_llm=config.disable_query_llm,
         )
 
         # Initialize REPL with Evolution API namespace (functions + variables like `trials`)
@@ -197,6 +201,11 @@ class RootLLMOrchestrator:
                 ]
             )
 
+        scratchpad_line = (
+            "4. Update your scratchpad with observations about each model"
+            if not self.config.hide_scratchpad
+            else "4. Scratchpad is unavailable; use REPL state or other resources to track observations"
+        )
         lines.extend(
             [
                 "## Your Task",
@@ -205,11 +214,23 @@ class RootLLMOrchestrator:
                 "1. Test each model with simple prompts (reasoning, math, code)",
                 "2. Experiment with different temperature settings (0.0-1.0)",
                 "3. Observe output quality, code style, and reasoning depth",
-                "4. Update your scratchpad with observations about each model",
+                scratchpad_line,
                 "",
                 "Write Python code in ```python blocks to call functions:",
-                "- `query_llm([{prompt, model, temperature}])` - query models",
-                "- `update_scratchpad(content)` - record observations",
+            ]
+        )
+        if self.config.disable_query_llm:
+            lines.append(
+                "- `query_llm` is disabled for this experiment; use other resources or end calibration"
+            )
+        else:
+            lines.append("- `query_llm([{prompt, model, temperature}])` - query models")
+        if self.config.hide_scratchpad:
+            lines.append("- `update_scratchpad` is unavailable for this experiment")
+        else:
+            lines.append("- `update_scratchpad(content)` - record observations")
+        lines.extend(
+            [
                 "- `get_calibration_status()` - check remaining calls",
                 "- `end_calibration_phase()` - finish calibration",
                 "",
@@ -223,6 +244,7 @@ class RootLLMOrchestrator:
         return get_calibration_system_prompt_parts(
             spec=self.problem_spec,
             child_llm_configs=self.child_llm_configs,
+            disable_query_llm=self.config.disable_query_llm,
         )
 
     def _run_calibration_phase(self) -> None:
@@ -245,7 +267,7 @@ class RootLLMOrchestrator:
 
             # Check budget
             try:
-                self.cost_tracker.raise_if_over_budget()
+                self.tracker.raise_if_over_budget()
             except BudgetExceededError as e:
                 tqdm.write(f"⚠️ Budget exceeded during calibration: {e}")
                 break
@@ -305,11 +327,18 @@ class RootLLMOrchestrator:
                     + f"\n\nRemaining calibration calls: {remaining_str}"
                 )
             else:
-                user_content = (
-                    f"No code executed. Remaining calibration calls: {remaining_str}\n\n"
-                    "Write Python in ```python blocks. Use `query_llm([{{prompt, model, temperature}}])` "
-                    "to test models, or `end_calibration_phase()` when done."
-                )
+                if self.config.disable_query_llm:
+                    user_content = (
+                        f"No code executed. Remaining calibration calls: {remaining_str}\n\n"
+                        "Write Python in ```python blocks. `query_llm` is disabled for this experiment, "
+                        "so use other resources or call `end_calibration_phase()` when done."
+                    )
+                else:
+                    user_content = (
+                        f"No code executed. Remaining calibration calls: {remaining_str}\n\n"
+                        "Write Python in ```python blocks. Use `query_llm([{{prompt, model, temperature}}])` "
+                        "to test models, or `end_calibration_phase()` when done."
+                    )
 
             self._calibration_messages.append({"role": "user", "content": user_content})
 
@@ -370,6 +399,7 @@ class RootLLMOrchestrator:
             max_generations=self.evolution_api.max_generations,
             current_generation=self.evolution_api.current_generation,
             timeout_seconds=timeout_seconds,
+            disable_query_llm=self.config.disable_query_llm,
         )
 
     def build_initial_messages(self) -> list[dict[str, str]]:
@@ -587,7 +617,14 @@ class RootLLMOrchestrator:
             Formatted user message string.
         """
         gen = self.evolution_api.current_generation
-        scratchpad = self.evolution_api.scratchpad
+        if self.config.hide_scratchpad:
+            scratchpad = self.evolution_api._scratchpad_unavailable_msg
+            reminder_line = "Scratchpad is unavailable; use REPL state or other resources to track insights."
+        else:
+            scratchpad = self.evolution_api.scratchpad
+            reminder_line = (
+                "Remember: Your conversation resets each generation. Save important insights to your scratchpad!"
+            )
 
         # Get REPL state (user-defined functions/variables)
         repl_state = self.repl.get_user_defined_names()
@@ -614,7 +651,7 @@ class RootLLMOrchestrator:
             f"Spawn up to {self.evolution_api.max_children_per_generation} children "
             f"exploring {self.problem_spec.name.lower()} strategies.",
             "",
-            "Remember: Your conversation resets each generation. Save important insights to your scratchpad!",
+            reminder_line,
         ]
         return "\n".join(lines)
 
@@ -636,13 +673,26 @@ class RootLLMOrchestrator:
             "- `trials.filter(success=True, sort_by='-score', limit=5)` - top successful trials",
             "- `trials['trial_X_Y'].code` - get code for a specific trial",
             "",
-            "Use `query_llm(queries: list[dict])` to analyze trials and inform your strategy:",
-            "- Compare top solutions to understand what makes them work",
-            "- Identify patterns across successful vs failed trials",
-            "- Get suggestions for new approaches to try",
-            "",
-            f"Continue to generation {self.evolution_api.current_generation}.",
         ]
+        if self.config.disable_query_llm:
+            lines.extend(
+                [
+                    "Query analysis tools are disabled for this experiment.",
+                    "Use `trials`, metrics, errors, and REPL state to inform your strategy.",
+                    "",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    "Use `query_llm(queries: list[dict])` to analyze trials and inform your strategy:",
+                    "- Compare top solutions to understand what makes them work",
+                    "- Identify patterns across successful vs failed trials",
+                    "- Get suggestions for new approaches to try",
+                    "",
+                ]
+            )
+        lines.append(f"Continue to generation {self.evolution_api.current_generation}.")
 
         return "\n".join(lines)
 
@@ -677,17 +727,21 @@ class RootLLMOrchestrator:
         lines.append("")
         lines.append("## Inspect Trials")
         lines.append("")
-        lines.append(
-            "Use the `trials` variable to inspect code, reasoning, and errors:"
-        )
+        if self.config.hide_trial_reasoning:
+            lines.append("Use the `trials` variable to inspect code and errors:")
+        else:
+            lines.append("Use the `trials` variable to inspect code, reasoning, and errors:")
         lines.append("```python")
         if sorted_trials:
             example_trial = sorted_trials[0].trial_id
             lines.append(f"# Access specific trial's code")
             lines.append(f"trials['{example_trial}'].code")
             lines.append("")
-            lines.append("# Access reasoning for a trial")
-            lines.append(f"trials['{example_trial}'].reasoning")
+            if self.config.hide_trial_reasoning:
+                lines.append("# Trial reasoning is unavailable for this experiment")
+            else:
+                lines.append("# Access reasoning for a trial")
+                lines.append(f"trials['{example_trial}'].reasoning")
             lines.append("")
             lines.append("# Access why a trial failed")
             failed_trial = next((t for t in sorted_trials if not t.success), None)
@@ -703,10 +757,20 @@ class RootLLMOrchestrator:
         lines.append("for t in top: print(f'{t.trial_id}: {t.metrics[\"score\"]:.6f}')")
         lines.append("```")
         lines.append("")
-        lines.append(
-            "The contents of trials can be very very large (especially cumalitive accesses of trials[experiment_name].code). You are heavily encouraged to use `query_llm(dicts: list[dict])` to analyze trials and inform your strategy."
-        )
+        if self.config.disable_query_llm:
+            lines.append(
+                "The contents of trials can be very very large. Use `trials`, metrics, errors, and REPL state to analyze results."
+            )
+        else:
+            lines.append(
+                "The contents of trials can be very very large (especially cumalitive accesses of trials[experiment_name].code). You are heavily encouraged to use `query_llm(dicts: list[dict])` to analyze trials and inform your strategy."
+            )
         lines.append("")
+        if self.config.hide_trial_reasoning:
+            lines.append(
+                "Note: trial reasoning is unavailable for this experiment; use other resources (code, metrics, errors, scratchpad if enabled, REPL state)."
+            )
+            lines.append("")
 
         lines.extend(
             [
@@ -767,14 +831,21 @@ class RootLLMOrchestrator:
         skipped_spawn = False
 
         while True:
-            # Get selection response from Root LLM
+            # Get selection response from Root LLM (timed)
             tqdm.write("  └─ Requesting trial selection from Root LLM...")
+            sel_llm_start = time.monotonic()
             selection_response = self.root_llm.generate(
                 messages=self.messages,
                 system=system_prompt,
                 max_tokens=2048,
                 temperature=0.5,  # Lower temp for more deterministic selection
                 enable_caching=False,
+            )
+            sel_llm_duration = time.monotonic() - sel_llm_start
+            current_gen = self.evolution_api.current_generation
+            self.tracker.record_timing(
+                "root_llm_call", sel_llm_duration,
+                generation=current_gen, phase="selection",
             )
 
             selection_message = selection_response.content
@@ -982,6 +1053,7 @@ class RootLLMOrchestrator:
         Returns:
             GenerationResult indicating whether to break, why, and any errors
         """
+        generation_start = time.monotonic()
         current_gen = self.evolution_api.current_generation
 
         # Reset messages at generation boundary - each generation starts fresh
@@ -996,18 +1068,24 @@ class RootLLMOrchestrator:
         update_pbar_postfix()
 
         # Check budget before LLM call
-        self.cost_tracker.raise_if_over_budget()
+        self.tracker.raise_if_over_budget()
 
         # Get system prompt with current generation info
         system_prompt = self._get_system_prompt()
 
-        # Call Root LLM
+        # Call Root LLM (timed)
+        root_llm_start = time.monotonic()
         response = self.root_llm.generate(
             messages=self.messages,
             system=system_prompt,
             max_tokens=8192,
             temperature=0.7,
             enable_caching=False,
+        )
+        root_llm_duration = time.monotonic() - root_llm_start
+        self.tracker.record_timing(
+            "root_llm_call", root_llm_duration,
+            generation=current_gen, phase="spawn",
         )
 
         assistant_message = response.content
@@ -1029,7 +1107,24 @@ class RootLLMOrchestrator:
 
         # Automatically advance generation if children were spawned
         if self.evolution_api.has_children_in_current_generation():
+            selection_start = time.monotonic()
             selection_result = self._handle_trial_selection(system_prompt, gen_pbar, loop_iteration)
+            selection_duration = time.monotonic() - selection_start
+            self.tracker.record_timing(
+                "selection", selection_duration,
+                generation=current_gen,
+            )
+
+            # Record total generation time
+            generation_duration = time.monotonic() - generation_start
+            self.tracker.record_timing(
+                "generation", generation_duration,
+                generation=current_gen,
+            )
+
+            # Print per-generation timing summary
+            self._print_generation_timing(current_gen, generation_duration, root_llm_duration, selection_duration)
+
             if selection_result.should_break:
                 return GenerationResult(
                     should_break=True,
@@ -1047,6 +1142,29 @@ class RootLLMOrchestrator:
                 should_break=False,
                 errors=errors if errors else None,
             )
+
+    def _print_generation_timing(
+        self,
+        generation: int,
+        total_s: float,
+        root_llm_spawn_s: float,
+        selection_s: float,
+    ) -> None:
+        """Print a concise timing breakdown for a completed generation."""
+        gen_timing = self.tracker.get_generation_timing(generation)
+
+        spawn_info = gen_timing.get("spawn_children", {"total_s": 0, "count": 0})
+        child_llm_info = gen_timing.get("child_llm_call", {"total_s": 0, "count": 0})
+        eval_info = gen_timing.get("evaluation", {"total_s": 0, "count": 0})
+
+        tqdm.write(f"\n  ═══ Generation {generation} timing: {total_s:.1f}s total ═══")
+        tqdm.write(f"    Root LLM (spawn):      {root_llm_spawn_s:.1f}s")
+        tqdm.write(
+            f"    Children ({child_llm_info['count']} parallel): "
+            f"{spawn_info['total_s']:.1f}s "
+            f"(LLM: {child_llm_info['total_s']:.1f}s, eval: {eval_info['total_s']:.1f}s)"
+        )
+        tqdm.write(f"    Root LLM (selection):   {selection_s:.1f}s")
 
     def _build_result(
         self,
@@ -1076,8 +1194,18 @@ class RootLLMOrchestrator:
             error_summary = "; ".join(f"gen{g}: {e}" for g, e in generation_errors)
             termination_reason = f"{termination_reason} (with errors: {error_summary})"
 
+        # Shut down thread pool
+        self.evolution_api.shutdown()
+
+        # Print experiment timing summary
+        tqdm.write(f"\n{'=' * 60}")
+        tqdm.write("  Experiment Timing Summary")
+        tqdm.write(f"{'=' * 60}")
+        tqdm.write(self.tracker.format_timing_summary())
+        tqdm.write(f"{'=' * 60}\n")
+
         # Save experiment
-        self.logger.log_cost_tracking(self.cost_tracker.to_dict())
+        self.logger.log_cost_tracking(self.tracker.to_dict())
         self.logger.save_experiment(
             termination_reason=termination_reason,
             scratchpad=self.evolution_api.scratchpad,
@@ -1101,7 +1229,7 @@ class RootLLMOrchestrator:
             best_score=best_score,
             total_trials=total_trials,
             successful_trials=successful_trials,
-            cost_summary=self.cost_tracker.get_summary().__dict__,
+            cost_summary=self.tracker.get_summary().__dict__,
         )
 
     def _parse_selection_response(
@@ -1187,7 +1315,7 @@ class RootLLMOrchestrator:
 
         def update_pbar_postfix() -> None:
             """Update progress bars with current stats."""
-            cost_summary = self.cost_tracker.get_summary()
+            cost_summary = self.tracker.get_summary()
             trials = len(self.evolution_api.all_trials)
             successes = sum(1 for t in self.evolution_api.all_trials.values() if t.success)
             best_score = max(

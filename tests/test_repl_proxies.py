@@ -41,14 +41,14 @@ def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs, sa
     """Create an EvolutionAPI instance for testing."""
     sample_config.experiment.output_dir = str(temp_dir)
 
-    cost_tracker = CostTracker(sample_config)
+    tracker = CostTracker(sample_config)
     logger = ExperimentLogger(sample_config)
     logger.create_experiment_directory()
 
     api = EvolutionAPI(
         evaluator=mock_evaluator,
         child_llm_configs=child_llm_configs,
-        cost_tracker=cost_tracker,
+        tracker=tracker,
         logger=logger,
         max_generations=5,
         max_children_per_generation=10,
@@ -60,7 +60,7 @@ def evolution_api(sample_config, temp_dir, mock_evaluator, child_llm_configs, sa
     for alias in child_llm_configs:
         mock_client = MockLLMClient(
             model=child_llm_configs[alias].model,
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type=f"child:{alias}",
             responses=["```python\ndef solve(): return 1.0\n```"] * 100,  # Many responses
         )

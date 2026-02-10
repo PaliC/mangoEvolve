@@ -19,20 +19,20 @@ from .base import BaseLLMProvider, LLMResponse
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from ...cost_tracker import CostTracker
+    from ...cost_tracker import ExperimentTracker
 
 
 class AnthropicProvider(BaseLLMProvider):
     """
     Anthropic Claude API provider with prompt caching support.
 
-    Integrates with CostTracker for budget enforcement.
+    Integrates with ExperimentTracker for budget enforcement.
     """
 
     def __init__(
         self,
         model: str,
-        cost_tracker: "CostTracker",
+        tracker: "ExperimentTracker",
         llm_type: str,
         max_retries: int = 3,
     ):
@@ -41,11 +41,11 @@ class AnthropicProvider(BaseLLMProvider):
 
         Args:
             model: Model identifier (e.g., "claude-sonnet-4-20250514")
-            cost_tracker: CostTracker instance for budget enforcement
+            tracker: ExperimentTracker instance for budget enforcement
             llm_type: Either "root" or "child" - used for cost tracking
             max_retries: Maximum number of retries on transient errors
         """
-        super().__init__(model, cost_tracker, llm_type, max_retries)
+        super().__init__(model, tracker, llm_type, max_retries)
         self._client = anthropic.Anthropic()
 
     @property
@@ -83,7 +83,7 @@ class AnthropicProvider(BaseLLMProvider):
             anthropic.APIError: If the API call fails after retries
         """
         # Check budget before making the call
-        self.cost_tracker.raise_if_over_budget()
+        self.tracker.raise_if_over_budget()
 
         call_id = str(uuid.uuid4())
 
@@ -126,7 +126,7 @@ class AnthropicProvider(BaseLLMProvider):
         cache_creation_input_tokens = getattr(response.usage, "cache_creation_input_tokens", 0) or 0
         cache_read_input_tokens = getattr(response.usage, "cache_read_input_tokens", 0) or 0
 
-        self.cost_tracker.record_usage(
+        self.tracker.record_usage(
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             llm_type=self.llm_type,

@@ -84,7 +84,7 @@ class TestSingleTrialRealLLM:
         4. Cost tracking works correctly
         """
         # Set up components
-        cost_tracker = CostTracker(e2e_config)
+        tracker = CostTracker(e2e_config)
         logger = ExperimentLogger(e2e_config)
         logger.create_experiment_directory()
 
@@ -92,14 +92,14 @@ class TestSingleTrialRealLLM:
 
         child_llm = LLMClient(
             model=e2e_config.child_llm.model,
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child",
         )
 
         evolution_api = EvolutionAPI(  # type: ignore[call-arg]
             evaluator=evaluator,
             child_llm=child_llm,  # type: ignore[unknown-argument]
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             logger=logger,
         )
 
@@ -151,7 +151,7 @@ Return the complete code in a single Python code block."""
         assert "valid" in result.metrics, "Evaluation didn't produce 'valid' metric"
 
         # Cost should have been tracked
-        summary = cost_tracker.get_summary()
+        summary = tracker.get_summary()
         assert summary.total_cost > 0, "No cost was recorded"
         assert summary.total_input_tokens > 0
         assert summary.total_output_tokens > 0
@@ -221,11 +221,11 @@ class TestRealLLMConnection:
 
     def test_llm_connection(self, e2e_config):
         """Test that we can connect to the Anthropic API."""
-        cost_tracker = CostTracker(e2e_config)
+        tracker = CostTracker(e2e_config)
 
         client = LLMClient(
             model=e2e_config.child_llm.model,
-            cost_tracker=cost_tracker,
+            tracker=tracker,
             llm_type="child",
         )
 
@@ -242,5 +242,5 @@ class TestRealLLMConnection:
         assert "hello" in response.content.lower()
 
         # Cost should be recorded
-        summary = cost_tracker.get_summary()
+        summary = tracker.get_summary()
         assert summary.total_cost > 0

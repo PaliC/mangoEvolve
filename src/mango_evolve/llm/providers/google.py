@@ -21,7 +21,7 @@ from .base import BaseLLMProvider, LLMResponse
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from ...cost_tracker import CostTracker
+    from ...cost_tracker import ExperimentTracker
 
 
 class GoogleProvider(BaseLLMProvider):
@@ -35,7 +35,7 @@ class GoogleProvider(BaseLLMProvider):
     def __init__(
         self,
         model: str,
-        cost_tracker: "CostTracker",
+        tracker: "ExperimentTracker",
         llm_type: str,
         max_retries: int = 3,
         reasoning_config: dict[str, Any] | None = None,
@@ -45,7 +45,7 @@ class GoogleProvider(BaseLLMProvider):
 
         Args:
             model: Model identifier (e.g., "gemini-2.5-flash")
-            cost_tracker: CostTracker instance for budget enforcement
+            tracker: ExperimentTracker instance for budget enforcement
             llm_type: Either "root" or "child" - used for cost tracking
             max_retries: Maximum number of retries on transient errors
             reasoning_config: Optional reasoning configuration dict with keys:
@@ -56,7 +56,7 @@ class GoogleProvider(BaseLLMProvider):
         Raises:
             ValueError: If GEMINI_API_KEY is not set
         """
-        super().__init__(model, cost_tracker, llm_type, max_retries)
+        super().__init__(model, tracker, llm_type, max_retries)
 
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
@@ -98,7 +98,7 @@ class GoogleProvider(BaseLLMProvider):
             BudgetExceededError: If budget is exceeded before the call
         """
         # Check budget before making the call
-        self.cost_tracker.raise_if_over_budget()
+        self.tracker.raise_if_over_budget()
 
         call_id = str(uuid.uuid4())
 
@@ -130,7 +130,7 @@ class GoogleProvider(BaseLLMProvider):
             reasoning_tokens = getattr(response.usage_metadata, "thoughts_token_count", 0) or 0
 
         # Record usage
-        self.cost_tracker.record_usage(
+        self.tracker.record_usage(
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             llm_type=self.llm_type,

@@ -19,6 +19,8 @@ from typing import Any
 
 import numpy as np
 
+from mango_evolve.problem import BaseProblemEvaluator, ProblemSpec
+
 DEFAULT_N_CIRCLES = 26
 
 
@@ -297,7 +299,7 @@ def evaluate_code(
     }
 
 
-class CirclePackingEvaluator:
+class CirclePackingEvaluator(BaseProblemEvaluator):
     """
     Evaluator for circle packing programs.
 
@@ -330,6 +332,34 @@ class CirclePackingEvaluator:
         self.n_circles = n_circles
         self.timeout_seconds = timeout_seconds
         self.python_executable = python_executable
+
+    def get_problem_spec(self) -> ProblemSpec:
+        """Return the circle packing problem specification."""
+        return ProblemSpec(
+            name="Circle Packing",
+            description=(
+                f"Pack {self.n_circles} non-overlapping circles into a unit square [0,1]x[0,1] "
+                "to maximize the sum of their radii. Each circle must be entirely contained "
+                "within the unit square and must not overlap with any other circle."
+            ),
+            objective="maximize",
+            metric_name="sum_of_radii",
+            entry_function="construct_packing",
+            return_description=(
+                "Return a tuple (centers, radii, sum_radii) where centers is an np.array "
+                f"of shape ({self.n_circles}, 2), radii is an np.array of shape ({self.n_circles},), "
+                "and sum_radii is the float sum of all radii."
+            ),
+            best_known_solution=2.635,
+            helper_functions=["run_packing"],
+            allowed_modules=["numpy", "scipy"],
+            constraints=[
+                f"Exactly {self.n_circles} circles",
+                "All circles must be inside the unit square [0,1]x[0,1]",
+                "No two circles may overlap (tolerance: 1e-6)",
+                "All radii must be non-negative",
+            ],
+        )
 
     def evaluate(self, code: str) -> dict[str, Any]:
         """
