@@ -762,6 +762,7 @@ end_calibration_phase()
 3. **Experiment with temperatures**: Generally 0 is considered the most focused / reproducible, 1 is the most creative.
 4. **Record detailed observations**: Note strengths/weaknesses of each model
 5. **Be strategic**: Your notes will guide which model you choose for different tasks during evolution
+6. **One step at a time**: All ```python blocks in a single response are executed as a batch BEFORE you see any results. This means you MUST NOT call `query_llm()` and `update_scratchpad()` or `end_calibration_phase()` in the same response. First send your `query_llm()` calls, wait to see the results, THEN write your observations to the scratchpad in a follow-up response. If you write a scratchpad template with placeholders like `[fill after review]` in the same message as your queries, the placeholders will be saved as-is because the code runs before you can review the output.
 """
 
 
@@ -813,9 +814,3 @@ def get_calibration_system_prompt_parts(
             "text": child_models_part,
         },
     ]
-
-
-# Legacy compatibility - keep old constants for backwards compatibility during migration
-# These will be removed after all callers are updated to use the new functions
-ROOT_LLM_SYSTEM_PROMPT_STATIC = """[DEPRECATED] Use build_root_system_prompt_static(spec) instead."""
-CHILD_LLM_SYSTEM_PROMPT = """[DEPRECATED] Use build_child_system_prompt(spec) instead."""
