@@ -15,8 +15,11 @@ Usage:
     # Run a specific ablation at full scale
     python scripts/run_ablations.py --run configs/ablations/no_scratchpad.yaml
 
-    # Run all ablations at full scale (sequential)
+    # Run all ablations at full scale (parallel)
     python scripts/run_ablations.py --all
+
+    # Run all ablations with limited parallelism
+    python scripts/run_ablations.py --all --max-workers 2
 
     # Run all ablations at full scale with a specific output directory
     python scripts/run_ablations.py --all --output-dir ./experiments/ablation_study_1
@@ -26,6 +29,7 @@ import argparse
 import json
 import os
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
@@ -435,6 +439,21 @@ def print_study_summary(results: list[dict]) -> None:
     print("=" * 80)
 
 
+def _run_experiment_worker(
+    config_path: str, mode: str, output_dir: str
+) -> tuple[str, bool, str, dict | None]:
+    """
+    Worker function for parallel experiment execution.
+
+    Runs in a separate process. Returns (config_path, success, message, result_dict).
+    """
+    if mode == "quick_test":
+        success, msg, result = run_quick_test(config_path)
+    else:
+        success, msg, result = run_full_ablation(config_path, output_dir)
+    return config_path, success, msg, result
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Run ablation experiments for MangoEvolve",
@@ -444,7 +463,7 @@ Examples:
   %(prog)s --validate                    Validate configs only (no API calls)
   %(prog)s --quick-test                  Quick test all configs (1 gen, 2 children)
   %(prog)s --run configs/ablations/baseline.yaml   Run single config at full scale
-  %(prog)s --all                         Run all configs at full scale
+  %(prog)s --all                         Run all configs at full scale (parallel)
   %(prog)s --all --output-dir ./my_study Run all with custom output directory
         """,
     )
@@ -467,13 +486,19 @@ Examples:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Run all ablation experiments at full scale (sequential)",
+        help="Run all ablation experiments at full scale (parallel)",
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default="./experiments/ablations",
         help="Output directory for experiment results (default: ./experiments/ablations)",
+    )
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=None,
+        help="Max parallel experiments (default: number of configs)",
     )
 
     args = parser.parse_args()
@@ -493,19 +518,21 @@ Examples:
     print("=" * 60)
 
     if args.all:
-        print(f"\nRunning FULL ablation study ({len(configs)} configs)")
+        print(f"\nRunning FULL ablation study ({len(configs)} configs) in PARALLEL")
         print(f"Output directory: {args.output_dir}")
     elif args.run:
         print(f"\nRunning FULL ablation: {args.run}")
         print(f"Output directory: {args.output_dir}")
     elif args.quick_test:
-        print("\nRunning QUICK tests (1 generation, 2 children each)")
+        print(f"\nRunning QUICK tests ({len(configs)} configs) in PARALLEL")
     else:
         print("\nValidating configs only (no API calls)")
 
     all_passed = True
     study_results = []
 
+    # Phase 1: Validate all configs (fast, sequential)
+    validated_configs = []
     for config_path in configs:
         print(f"\n{'=' * 60}")
         print(f"Config: {config_path}")
@@ -533,23 +560,61 @@ Examples:
         if not success:
             all_passed = False
 
-        # Step 4: Run experiment (if requested)
-        if args.quick_test:
-            print("\n[4] Running quick integration test...")
-            success, msg, result = run_quick_test(config_path)
-            print(f"    {msg}")
-            if result:
-                study_results.append(result)
-            if not success and "GEMINI_API_KEY not set" not in msg:
-                all_passed = False
+        validated_configs.append(config_path)
 
-        elif args.run or args.all:
-            print("\n[4] Running full ablation experiment...")
-            success, msg, result = run_full_ablation(config_path, args.output_dir)
+    # Phase 2: Run experiments in parallel (if requested)
+    if (args.quick_test or args.run or args.all) and validated_configs:
+        mode = "quick_test" if args.quick_test else "full"
+        max_workers = args.max_workers or len(validated_configs)
+
+        if len(validated_configs) > 1:
+            print(f"\n{'=' * 60}")
+            print(
+                f"Launching {len(validated_configs)} experiments in parallel "
+                f"(max_workers={max_workers})"
+            )
+            print("=" * 60)
+
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                futures = {
+                    executor.submit(
+                        _run_experiment_worker,
+                        config_path,
+                        mode,
+                        args.output_dir,
+                    ): config_path
+                    for config_path in validated_configs
+                }
+
+                for future in as_completed(futures):
+                    config_path = futures[future]
+                    try:
+                        _, success, msg, result = future.result()
+                    except Exception as e:
+                        success, msg, result = False, f"Process failed: {e}", None
+
+                    print(f"\n[Result] {config_path}")
+                    print(f"    {msg}")
+                    if result:
+                        study_results.append(result)
+                    if not success and (
+                        mode != "quick_test" or "GEMINI_API_KEY not set" not in msg
+                    ):
+                        all_passed = False
+        else:
+            # Single config — no need for process pool overhead
+            config_path = validated_configs[0]
+            print(f"\n[4] Running {'quick test' if mode == 'quick_test' else 'full ablation'}...")
+            if mode == "quick_test":
+                success, msg, result = run_quick_test(config_path)
+            else:
+                success, msg, result = run_full_ablation(config_path, args.output_dir)
             print(f"    {msg}")
             if result:
                 study_results.append(result)
-            if not success:
+            if not success and (
+                mode != "quick_test" or "GEMINI_API_KEY not set" not in msg
+            ):
                 all_passed = False
 
     # Print summary if we ran experiments
