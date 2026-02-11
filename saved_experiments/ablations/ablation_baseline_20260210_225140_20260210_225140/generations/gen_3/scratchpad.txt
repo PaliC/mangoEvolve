@@ -1,0 +1,71 @@
+============================================================
+SCRATCHPAD FOR GENERATION 3
+============================================================
+
+
+## Generation 0 Summary
+- Best Score: 2.615866860608053 (trial_0_1) using Basin-hopping + SLSQP.
+- trial_0_4 (2.5457) used a two-stage approach (equal radii then relaxation).
+- Common failure: SLSQP constraint formatting and objective return types.
+- Insight: For fixed centers, the optimal radii can be found via Linear Programming (LP).
+
+## Strategy for Generation 1
+- **Refinement**: Improve the best-performing basin-hopping approach (trial_0_1).
+- **LP Integration**: Use LP to optimize radii for fixed centers, either as a final step or within the optimization loop.
+- **Diversity**: Explore Differential Evolution and Penalty-based optimization to avoid local minima.
+- **Initialization**: Use the best result from Gen 0 as a seed for further optimization.
+
+## Generation 1 Insights
+- Significant improvement: Best score jumped from 2.615 to 2.633 (trial_1_2).
+- trial_1_2 used a "Growth and Repulsion" strategy followed by SLSQP. This suggests that a good physical-inspired initialization is superior to pure random or grid starts.
+- trial_1_4 (score 2.624) used multiple grid initializations with SLSQP refinement.
+- trial_1_3 (Differential Evolution) failed, likely due to the high dimensionality (78 variables) and complex constraints making the search space too difficult for DE without a better constraint handling mechanism.
+- Bilevel optimization (LP for radii) in trial_1_1 was stable but didn't reach the top scores yet, possibly needing more iterations on the center positions.
+
+## Strategy for Generation 2
+- Combine the "Growth/Repulsion" initialization from trial_1_2 with the LP-based radii optimization.
+- Explore "Basin-hopping" where the local minimization step is a full SLSQP run starting from a "Growth" phase.
+- Investigate why trial_1_2 succeeded: was it the specific repulsion parameters or the simultaneous (x,y,r) optimization?
+
+## Technical Deep Dive (Gen 1)
+- **Jacobian Formulation**: trial_1_2 used squared distance constraints (xi-xj)^2 + (yi-yj)^2 >= (ri+rj)^2. This is more stable than sqrt(...) >= ri+rj.
+- **Vectorization**: trial_1_2's use of np.triu_indices for Jacobian calculation significantly increased the number of optimization runs possible within the 300s limit.
+- **Polishing**: trial_1_2's post-processing loop ensures that for fixed centers, radii are maximized to the point of contact. This is essentially a manual coordinate-descent version of the LP approach.
+- **Multi-start vs Basin-hopping**: trial_1_2's random multi-start explored more basins than trial_1_0's basin-hopping, likely because the basin-hopping 'jumps' weren't as effective at finding new high-quality regions as fresh random starts.
+
+## Plan for Gen 2
+1. **Hybrid Strategy**: Use trial_1_2's vectorized SLSQP and squared-distance formulation but replace random starts with a mix of "Growth/Repulsion" starts and perturbed versions of the best known configuration.
+2. **LP Radii**: Integrate a formal LP solver (scipy.optimize.linprog) for the final polishing step, as it is mathematically guaranteed to find the optimal radii for fixed centers.
+3. **Adaptive Time Management**: Use the 300s budget more effectively - spend 200s on broad multi-start and 100s on intense refinement of the top 3 candidates.
+
+## Generation 2 Analysis
+- Best Trial: trial_1_2 (Score: 2.6330352288703494)
+- Key Success Factor in 1_2: Vectorized Jacobian for SLSQP and a custom 'repulsion' initialization.
+- Observation: The gap to the best known (2.6359) is very small. We need high-precision refinement.
+- Strategy: Implement LP-based radii optimization for fixed centers to guarantee optimality of radii for any given center configuration.
+
+## Generation 2 Insights
+- HUGE SUCCESS: trial_2_4 achieved 2.635983, which is extremely close to the best known solution (2.635985).
+- The 'shaking' strategy (local perturbations + SLSQP refinement) is clearly the winning metaheuristic.
+- trial_2_0 and trial_2_5 also performed well (>2.63), confirming that high-quality initializations (perturbed bests or geometric patterns) are key.
+- Failures in 2_1 and 2_3 were likely due to implementation errors in the MD simulation or the basin-hopping wrapper (check errors).
+- Next Step: Focus on extreme refinement of trial_2_4. Try even smaller 'shaking' magnitudes and more iterations. Consider if the LP polishing from trial_2_0 can be integrated into the trial_2_4 loop.
+
+## Generation 2 Recap
+- trial_2_4 is the current state-of-the-art (2.635983).
+- The strategy of 'shaking' (local perturbations) followed by SLSQP is extremely effective.
+- The next frontier is high-precision refinement and potentially integrating Linear Programming (LP) for radii optimality within the loop.
+
+## Strategy for Generation 3
+1. **Precision Refinement**: Use trial_2_4 as the base. Decrease solver tolerances (ftol=1e-12) and increase max iterations.
+2. **LP Integration**: Incorporate `scipy.optimize.linprog` to find the globally optimal radii for any set of centers produced by the shaking/SLSQP process.
+3. **Adaptive Shaking**: Implement a cooling schedule or an adaptive step-size (like the 1/5th rule in Evolution Strategies) for the perturbations.
+4. **Targeted Perturbations**: Identify 'loose' circles (those with fewer than 3 contacts) and perturb them more than 'locked' circles.
+5. **Basin Hopping**: Use a formal Basin Hopping algorithm with the vectorized Jacobian from trial_2_4.
+
+## Generation 3 Insights
+- trial_3_4 matched the best score of trial_2_4 (2.635983). It seems we are hitting a precision limit or a very stable local optimum.
+- trial_3_5 (Sequential Linear Programming) showed decent performance (2.634) and represents a different optimization flavor that might be worth hybridizing.
+- trial_3_0 and trial_3_3 failed to improve, likely due to implementation complexities in the LP integration or the 'targeted' logic disrupting the SLSQP convergence.
+- The 'shaking' magnitude and the number of iterations in the final refinement stage are the most sensitive parameters.
+- Next: We need to focus on 'Micro-shaking'. If we are at 2.635983 and the goal is 2.635985, the perturbations should be in the range of 1e-6 to 1e-8.

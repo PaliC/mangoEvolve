@@ -1,0 +1,100 @@
+============================================================
+SCRATCHPAD FOR GENERATION 11
+============================================================
+
+
+## Calibration Observations (Round 2 — Gradient implementations)
+
+Summary:
+- All models complied with “single code block, no prose” and produced fully vectorized NumPy gradients with FD checks.
+- Everyone handled boundary subgradients via hinge indicators and overlap grads via masked pairwise ops; stabilization used either d+eps or sqrt(d^2+eps/eps^2).
+
+Per-model notes:
+- gpt5: Best reference. Uses d for penalty and d+eps only for division (no bias), symmetric active mask, clean typing, central FD checks. Ideal for gradient-sensitive code.
+- o4-mini: Compact, correct, neat masking; stabilization via sqrt(d^2+eps). Clear FD error summaries. Great for precise, format-strict utilities.
+- gemini-flash: Clear structure, thorough FD harness, sqrt(d^2+eps^2) stabilization; easy to read/maintain.
+- gemini-pro: Correct math; uses d+eps in both penalty and division (tiny bias). Strong docstring and central FD checks; production-friendly.
+- sonnet: Correct; computes overlaps on upper triangle then symmetrizes via row/col sums; stabilization sqrt(d^2+eps); slightly verbose but precise.
+- gpt5-mini: Mirrors gpt5’s pattern (no penalty bias), cost-effective, good FD harness; strong choice under budget.
+- gpt5-nano: Correct, minimal; uses d+eps in penalty (small bias), succinct FD outputs; fine for lightweight tasks.
+
+Takeaways:
+- Prefer gpt5 or o4-mini for critical gradient code; gpt5-mini for budget.
+- To avoid penalty bias, apply eps only to division (gpt5/gpt5-mini style).
+- All are suitable for vectorized constraint/penalty work; keep temperatures low for strict format/compliance with sonnet/gemini-*.
+
+## Generation 0 Plan
+Goal: Maximize sum of radii for 26 circles in unit square with strict feasibility.
+Strategies (8):
+1) gpt5 — Analytic-gradient penalized L-BFGS-B (centers+radii), annealed penalties, LP feasibilization.
+2) o4-mini — Force-directed centers (smooth repulsion + boundary) via L-BFGS-B, radii via LP; multi-start.
+3) gemini-flash — Basin-hopping on penalized objective with analytic gradient; LP feasibilization.
+4) sonnet — Alternating local coordinate search on centers with objective = LP(sum of radii); derivative-free; step annealing.
+5) gpt5-mini — Multi-stage penalty L-BFGS-B with robust vectorized gradients; multiple restarts; LP feasibilization.
+6) gpt5-nano — Hex/triangular-grid seeding; radii via LP; brief gradient polish; LP finalization.
+7) gemini-pro — SLSQP with explicit nonlinear constraints and Jacobians (pairwise and boundary); initialized from structured layout.
+8) gemini-flash — Unconstrained reparameterization (sigmoid/tanh) for (x,y,r); L-BFGS-B on unconstrained vars; LP cleanup.
+
+Key implementation details to emphasize across children:
+- Vectorized gradients; apply epsilon only in division (not in penalty) to avoid bias (per calibration).
+- LP feasibilization: Given centers and candidate radii, solve a linear program to maximize sum(r) subject to r_i >= 0, r_i <= current r_i, r_i <= x_i, r_i <= y_i, r_i <= 1-x_i, r_i <= 1-y_i, and r_i + r_j <= dist_ij - 1e-6.
+- Return strictly feasible solution with shapes: centers (26,2), radii (26,), sum_radii float.
+- No prints; runtime-conscious (<=300s).
+
+## Generation 2 Insights
+- Best score this gen: 2.614178549664672 (trial_2_0)
+- Tried 8 diverse strategies:
+  1) Annealed L-BFGS-B with analytic gradients + LP
+  2) Force-directed centers with softmin surrogate + LP
+  3) Basin-hopping with analytic gradients + LP
+  4) Alternating coordinate search on LP objective
+  5) Multi-stage penalty L-BFGS-B (budget-friendly)
+  6) Hex grid + LP + surrogate polish
+  7) SLSQP with full constraints and Jacobians
+  8) Unconstrained reparam with softmin clamp + LP
+- Keep: strongest penalty-annealed variants and any that exceed 2.63; maintain LP-first methods for stability.
+- Next: hybridize best penalty run's final centers with alt-coordinate LP local search; add deterministic refined grid initializations; try pairwise ADMM-style updates for centers; consider trust-constr for constrained formulation.
+
+## Generation 4 Insights
+- Best Gen4: trial_4_6 score=2.600058
+- Strategies used: penalty-annealed L-BFGS-B with softmin surrogate + LP, force-directed + LP, basin-hopping + LP, alternating LP + block trust-region, joint (x,r) penalty with L-BFGS-B + LP, hex+LP constructive with nudges, SLSQP w/ Jacobians + LP, unconstrained sigmoid/softplus penalized + LP.
+- Notes: Keep LP-first methods; softmin surrogate stable with tau in [0.005, 0.03]; use eps only in denominators.
+- Next: If plateau <2.63, try hybrid: LP + trust-constr with exact constraints; introduce pairwise projection (Dykstra-like) on centers; more edge-biased seeds; consider unequal penalties per pair by local density.
+
+## Generation 5 Insights
+- No successes
+- Approaches tried: penalty-annealed L-BFGS-B, force-directed centers, basin-hopping, alternating LP + center polish, multi-stage penalties, hex+LP+polish, trust-constr with Jacobians, unconstrained sigmoid reparam.
+- Continue prioritizing LP-first finalization; gradients stable using eps only in divisions.
+- Next: hybridize best centers with coordinate-block LP polishing; test Dykstra-like pairwise projections and denser edge-biased seeds. Increase basin-hopping hops if runtime allows.
+
+## Generation 5 Results
+- Tried 8 strategies: penalty-annealed L-BFGS-B (+LP), force-directed+LP, basin-hopping (+LP), hybrid A+B, trust-constr alternating with LP, Dykstra-like projections+LP, centers-only basin-hopping+LP, constructive hex/edge-biased+LP+polish.
+- Top previous references: [{'trial_id': 'trial_2_0', 'score': 2.614178549664672}, {'trial_id': 'trial_2_4', 'score': 2.6131787257269616}, {'trial_id': 'trial_1_0', 'score': 2.6127440487037714}, {'trial_id': 'trial_4_6', 'score': 2.600057777494662}, {'trial_id': 'trial_0_7', 'score': 2.5879586123410077}, {'trial_id': 'trial_1_2', 'score': 2.5770557773234612}]
+- Emphasized LP finalization and eps-only-in-division gradient stabilization.
+- Next: If plateau <2.63, increase multi-starts for best penalized approach, refine LP constraints margins adaptively, and test pairwise-weighted penalties by local density.
+
+## Generation 6 Insights
+- Best Gen6: trial_6_7 score=2.6206060146584313
+- Tried 8 strategies: penalty-annealed L-BFGS-B, force-directed+LP, basin-hopping+LP, alternating LP+center polish, multi-start penalty L-BFGS-B, constructive hex+LP, constrained SLSQP+LP, unconstrained reparam+LP.
+## Generation 7 Insights
+- Best Gen7: trial_7_7 score=2.6358676293444767
+- Tried 8 strategies spanning: penalty-annealed L-BFGS-B+LP (multi-start), force-directed centers+LP, basin-hopping+LP, alternating LP with block coordinate centers, trust-constr/SLSQP with Jacobians, constructive Dykstra-like projections+LP, unconstrained reparam+LP, and a basin-hopping+penalty hybrid.
+- Continue prioritizing LP finalization; maintain eps only in denominators to avoid penalty bias.
+- Next: allocate more starts to the top-scoring method and refine seeding near edges/corners; test adaptive pairwise weights by local density in penalty; consider caching LP matrices to speed inner loops.
+
+## Generation 8 Insights
+- Spawned 8 diverse strategies across penalized L-BFGS-B, force-directed, basin-hopping, alternating LP+Dykstra, SLSQP, unconstrained reparam, constructive Lloyd-like, and trust-constr alternation.
+- Emphasized LP finalization and stable gradients (eps only in divisions).
+- Best so far after Gen8: trial_7_7 score=2.6358676293444767
+- Next: allocate more starts to the best-scoring family; experiment with adaptive pairwise weights (local density) and edge/corner-biased seeds; consider caching LP matrices and warm-starting HiGHS across iterations.
+
+## Generation 9 Insights
+- Best Gen9: trial_9_4 score=2.6070437984759827
+- Strategies tried: annealed penalized L-BFGS-B (multi-start), basin-hopping+L-BFGS-B, trust-constr (explicit constraints), Dykstra-like projections+LP, unconstrained reparam, block-coordinate gradient with density weights, constructive greedy, LP-active-set subgradient ascent on centers.
+- Continued emphasis: LP finalization, eps only in denominators. Edge/corner-biased seeds helpful.
+- Next: Allocate more starts to the best-scoring penalized variants; if trust-constr yields feasible high sums, refine Jacobians and warmstarts; tune active-set subgradient step schedules; consider caching LP A_ub across iterations to speed loops.
+## Generation 11 Insights
+- Children spanned: annealed penalized L-BFGS-B + LP (multi-start, density-weighted), basin-hopping + centers-only locals + LP, alternating LP<->center gradient, trust-constr explicit constraints, Dykstra-like projections + LP, unconstrained reparam (sigmoid/softplus) + LP, force-directed + polish + LP, and an edge-biased density-weighted penalty variant.
+- Emphasis: final LP for strict feasibility, eps only in denominators, vectorized gradients.
+- Best Gen11: trial_11_7 score=2.630191836 model=gpt5-mini
+- Next: allocate more starts to the best-scoring family; refine density weights and edge-biased seeding. If trust-constr produced strong feasible results, warm-start with best LP radii and refine Jacobians. Consider elitist basin-hopping with LP-based acceptance and cached neighbor lists.

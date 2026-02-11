@@ -1,0 +1,764 @@
+{
+  "experiment_id": "ablation_all_disabled_20260210_225140_20260210_225140",
+  "config": {
+    "experiment": {
+      "name": "ablation_all_disabled_20260210_225140",
+      "output_dir": "./experiments/ablations",
+      "seed": null
+    },
+    "root_llm": {
+      "model": "gemini-3-flash-preview",
+      "cost_per_million_input_tokens": 0.5,
+      "cost_per_million_output_tokens": 3.0,
+      "provider": "google",
+      "max_iterations": 30,
+      "reasoning": {
+        "enabled": true,
+        "effort": "high",
+        "max_tokens": null,
+        "exclude": false
+      }
+    },
+    "child_llms": [
+      {
+        "model": "gemini-3-flash-preview",
+        "cost_per_million_input_tokens": 0.5,
+        "cost_per_million_output_tokens": 3.0,
+        "alias": "flash",
+        "provider": "google",
+        "calibration_calls": 0,
+        "reasoning": {
+          "enabled": true,
+          "effort": "high",
+          "max_tokens": null,
+          "exclude": false
+        }
+      }
+    ],
+    "evaluation": {
+      "evaluator_fn": "problems.circle_packing.evaluator:CirclePackingEvaluator",
+      "evaluator_kwargs": {
+        "n_circles": 26,
+        "timeout_seconds": 300
+      }
+    },
+    "evolution": {
+      "max_generations": 10,
+      "max_children_per_generation": 6
+    },
+    "budget": {
+      "max_total_cost": 50.0
+    },
+    "default_child_llm_alias": "flash",
+    "calibration_notes_file": null,
+    "hide_scratchpad": true,
+    "hide_trial_reasoning": true,
+    "disable_query_llm": true
+  },
+  "start_time": "2026-02-10T22:51:40.780434",
+  "end_time": "2026-02-11T00:05:46.157204",
+  "termination_reason": "max_generations_reached",
+  "num_generations": 10,
+  "total_trials": 0,
+  "best_trial": {
+    "trial_id": "trial_9_1",
+    "score": 2.635983084917586,
+    "generation": 9
+  },
+  "scratchpad": "",
+  "generations": [
+    {
+      "generation_num": 0,
+      "num_trials": 6,
+      "num_successful_trials": 3,
+      "best_trial_id": "trial_0_5",
+      "best_score": 2.630700304202615,
+      "selected_trial_ids": [
+        "trial_0_5",
+        "trial_0_1",
+        "trial_0_3"
+      ],
+      "selection_reasoning": "The top three successful trials represent three distinct and effective strategies: penalty-based optimization, two-stage refinement, and global basin-hopping. I will carry these forward to refine their implementations and combine their strengths in the next generation.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_0_5",
+          "reasoning": "Highest score (2.6307). The penalty-to-hard-constraint approach is very effective for finding dense packings.",
+          "category": "performance",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_1",
+          "reasoning": "Solid performance (2.6177). The two-stage approach (equal then variable) is a reliable strategy.",
+          "category": "performance",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_3",
+          "reasoning": "Good score (2.6140). Basin-hopping is a powerful global optimizer that can be further tuned.",
+          "category": "potential",
+          "source_generation": 0
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 28.705911520984955,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 725.3761275876313,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 649.7808768708492,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 409.9638506990159,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T22:58:59.746153"
+    },
+    {
+      "generation_num": 1,
+      "num_trials": 6,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_1_2",
+      "best_score": 2.6259671194648755,
+      "selected_trial_ids": [
+        "trial_1_2",
+        "trial_1_4",
+        "trial_1_0",
+        "trial_1_5"
+      ],
+      "selection_reasoning": "The selection includes the top 4 trials, covering a range of strategies: force-directed simulation (1_2), two-stage optimization (1_4), structured grid initialization (1_0), and global evolutionary search (1_5). Trial 1_2 is the current leader and will be a primary focus for refinement.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_1_2",
+          "reasoning": "Best score (2.6259). Uses a force-directed 'shove' simulation followed by SLSQP refinement. This hybrid approach is highly effective for finding dense packings.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_4",
+          "reasoning": "Second best (2.6179). Employs a two-stage optimization: first finding a common radius for a fixed layout, then allowing individual radii to vary. This helps establish a stable topology.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_0",
+          "reasoning": "Third best (2.6159). Uses a structured grid initialization. While simple, it provides a very solid starting point that can be improved with better local search or multi-start strategies.",
+          "category": "potential",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_5",
+          "reasoning": "Global search (2.6094). Uses Differential Evolution. While slower, it explores the configuration space differently than gradient-based methods and could find unique global optima.",
+          "category": "diversity",
+          "source_generation": 1
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 24.43173455412034,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 794.6917055689264,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 555.2575234960532,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 430.74640620395076,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T23:06:34.932763"
+    },
+    {
+      "generation_num": 2,
+      "num_trials": 6,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_2_1",
+      "best_score": 2.630700304208408,
+      "selected_trial_ids": [
+        "trial_2_1",
+        "trial_1_2",
+        "trial_2_0",
+        "trial_2_2",
+        "trial_2_3"
+      ],
+      "selection_reasoning": "The selection includes the new top performer (trial_2_1), which utilizes a force-directed initialization, alongside the previous best and diverse strategies like basin-hopping, Sobol sequences, and greedy placement to ensure a broad search space for the next generation.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_1",
+          "reasoning": "Highest score so far (2.6307). The force-directed approach combined with multiple attempts and SLSQP optimization is highly effective for finding dense packings.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_1_2",
+          "reasoning": "Previous best from Gen 1 (2.6260). It uses a different optimization strategy that might be combined with the force-directed initialization.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_2_0",
+          "reasoning": "Strong performance (2.6224) using basin-hopping. This global optimization technique is robust and provides a good alternative to the multi-start approach of 2_1.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_2_2",
+          "reasoning": "Uses Sobol sequences for initialization. While the score is lower (2.5968), the uniform distribution strategy provides good structural diversity.",
+          "category": "diversity",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_2_3",
+          "reasoning": "Greedy placement strategy. Although it scored 2.4996, the incremental construction method is fundamentally different and could be improved with better local search.",
+          "category": "potential",
+          "source_generation": 2
+        }
+      ],
+      "parents_used": [
+        "trial_0_5",
+        "trial_1_2"
+      ],
+      "parents_used_counts": {
+        "trial_0_5": 1,
+        "trial_1_2": 1
+      },
+      "parents_not_selected_prev_gen": [
+        "trial_0_5"
+      ],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 19.487156949122436,
+          "count": 3
+        },
+        "child_llm_call": {
+          "total_s": 815.2947523479816,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 533.3690317871515,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 408.3144594130572,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T23:13:42.744322"
+    },
+    {
+      "generation_num": 3,
+      "num_trials": 6,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_3_1",
+      "best_score": 2.63597739475434,
+      "selected_trial_ids": [
+        "trial_3_1",
+        "trial_3_2",
+        "trial_2_1",
+        "trial_3_4"
+      ],
+      "selection_reasoning": "The focus is on trial_3_1, which is near-optimal. We carry forward a mix of the top performer, the previous best baseline, and two diverse geometric/physical approaches (force-directed and hexagonal) to ensure we don't get trapped in a single local maximum.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_3_1",
+          "reasoning": "Highest score so far (2.635977), using an Iterated Local Search approach. It is extremely close to the best known solution (2.635985).",
+          "category": "performance",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_3_2",
+          "reasoning": "Solid performance (2.627) using a force-directed method, providing a distinct optimization trajectory compared to purely gradient-based methods.",
+          "category": "diversity",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_2_1",
+          "reasoning": "Previous best (2.6307) using a robust multi-start SLSQP approach. Good candidate for further refinement or hybridizing with the ILS strategy.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_3_4",
+          "reasoning": "Hexagonal packing approach (2.619). While slightly lower in score, the geometric structure is unique and may be a better starting point for certain local optima.",
+          "category": "diversity",
+          "source_generation": 3
+        }
+      ],
+      "parents_used": [
+        "trial_2_1"
+      ],
+      "parents_used_counts": {
+        "trial_2_1": 3
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 18.355633354978636,
+          "count": 3
+        },
+        "child_llm_call": {
+          "total_s": 792.2808669080259,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 876.3994917690288,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 424.2296651749639,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T23:21:05.342737"
+    },
+    {
+      "generation_num": 4,
+      "num_trials": 6,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_4_0",
+      "best_score": 2.6317301707535075,
+      "selected_trial_ids": [
+        "trial_3_1",
+        "trial_4_0",
+        "trial_4_1",
+        "trial_4_5",
+        "trial_4_2"
+      ],
+      "selection_reasoning": "The selection balances the current top performer (trial_3_1) with diverse strategies from Generation 4, including inflation (4_0), smart perturbations (4_1), Differential Evolution (4_5), and Voronoi-based initialization (4_2). This mix aims to exploit the best-known configuration while exploring alternative geometric layouts.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_3_1",
+          "reasoning": "Overall best score (2.635977). Its multi-start basin-hopping approach with SLSQP is the most effective strategy found so far.",
+          "category": "performance",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_4_0",
+          "reasoning": "Best of the current generation (2.6317). The inflation strategy is a strong alternative to the basin-hopping of 3_1 and might reach the global optimum with more iterations.",
+          "category": "performance",
+          "source_generation": 4
+        },
+        {
+          "trial_id": "trial_4_1",
+          "reasoning": "Good performance (2.6293) with a custom perturbation logic that intelligently moves 'crowded' circles.",
+          "category": "performance",
+          "source_generation": 4
+        },
+        {
+          "trial_id": "trial_4_5",
+          "reasoning": "Differential Evolution approach (2.6283). Provides global search diversity and is robust against the local optima that plague gradient-based methods.",
+          "category": "diversity",
+          "source_generation": 4
+        },
+        {
+          "trial_id": "trial_4_2",
+          "reasoning": "Voronoi/Lloyd's algorithm initialization (2.6167). Offers a fundamentally different geometric starting point compared to the grid-based initializations.",
+          "category": "diversity",
+          "source_generation": 4
+        }
+      ],
+      "parents_used": [
+        "trial_3_1"
+      ],
+      "parents_used_counts": {
+        "trial_3_1": 4
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 22.080708529916592,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 739.7776133021107,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 866.5080378579441,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 410.2979532669997,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T23:28:17.733798"
+    },
+    {
+      "generation_num": 5,
+      "num_trials": 6,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_5_0",
+      "best_score": 2.635983084897986,
+      "selected_trial_ids": [
+        "trial_5_0",
+        "trial_3_1",
+        "trial_5_2",
+        "trial_5_1",
+        "trial_5_5"
+      ],
+      "selection_reasoning": "We are in the 'polishing' phase of the evolution. The selections include the top-performing basin-hopping trials and the most successful alternative strategies (iterative expansion and force-directed) to ensure we don't get stuck in a sub-optimal basin as we approach the known limit of 2.635985.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_5_0",
+          "reasoning": "Current best (2.635983), extremely close to the target. The next generation should focus on refining this with higher precision (ftol=1e-15) and more basin-hopping steps.",
+          "category": "performance",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_3_1",
+          "reasoning": "Second best overall (2.635977). It has proven very stable and could potentially surpass trial_5_0 with a different 'shaking' or 'polishing' routine.",
+          "category": "performance",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_5_2",
+          "reasoning": "Strong performance (2.634) using an iterative expansion strategy. Provides a necessary alternative to pure basin-hopping.",
+          "category": "diversity",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_5_1",
+          "reasoning": "Force-directed/MD approach. While the score is lower, it explores the configuration space using physics-based repulsion, which can find unique packing structures.",
+          "category": "diversity",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_5_5",
+          "reasoning": "The 'Shaking and Polishing' logic is specifically useful for the final stages of optimization to bridge the gap to the known maximum.",
+          "category": "potential",
+          "source_generation": 5
+        }
+      ],
+      "parents_used": [
+        "trial_3_1",
+        "trial_4_0"
+      ],
+      "parents_used_counts": {
+        "trial_3_1": 1,
+        "trial_4_0": 1
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 25.05396621581167,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 798.3969889191212,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 1138.5031301600393,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 431.4198859379394,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T23:35:54.219399"
+    },
+    {
+      "generation_num": 6,
+      "num_trials": 6,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_6_0",
+      "best_score": 2.6359830849175854,
+      "selected_trial_ids": [
+        "trial_6_0",
+        "trial_3_1",
+        "trial_6_3",
+        "trial_6_4"
+      ],
+      "selection_reasoning": "The selection combines the current best-performing SLSQP-based optimization (trial_6_0) with the highly successful force-directed initialization from trial_3_1. It also retains the 'Growth' and 'Hybrid' strategies (6_3, 6_4) to maintain diversity and explore different regions of the search space, aiming to surpass the 2.635983 limit.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_0",
+          "reasoning": "Highest score (2.63598308). Uses a sophisticated multi-start SLSQP with vectorized constraints and a shaking procedure. It is the most advanced optimization framework currently available.",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_3_1",
+          "reasoning": "High score (2.63597739) using a force-directed initialization followed by SLSQP. The force-directed step is a powerful way to find better starting configurations than pure random or grid-based methods.",
+          "category": "performance",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_6_3",
+          "reasoning": "Uses a 'Growth' strategy. Although it has a lower score (2.626587), it provides a fundamentally different optimization trajectory that can escape local minima where SLSQP might get stuck.",
+          "category": "diversity",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_6_4",
+          "reasoning": "Hybrid approach (2.630713) that tests multiple initializations (grid, hex, random). This is a robust strategy for global search.",
+          "category": "diversity",
+          "source_generation": 6
+        }
+      ],
+      "parents_used": [
+        "trial_5_0"
+      ],
+      "parents_used_counts": {
+        "trial_5_0": 1
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 22.95477612200193,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 814.5601422882173,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 1064.0406835128088,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 436.54465609800536,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T23:43:33.736076"
+    },
+    {
+      "generation_num": 7,
+      "num_trials": 6,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_7_0",
+      "best_score": 2.63097226765298,
+      "selected_trial_ids": [
+        "trial_6_0",
+        "trial_7_0",
+        "trial_7_4",
+        "trial_7_2",
+        "trial_7_1"
+      ],
+      "selection_reasoning": "The selection prioritizes the current best-performing SLSQP frameworks (6_0, 7_0) while carrying forward diverse initialization strategies (QMC 7_4, Force-directed 7_2) and a global optimization metaheuristic (Basin-hopping 7_1) to break through the current score plateau.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_0",
+          "reasoning": "Current best overall (2.635983). It uses a robust multi-start SLSQP with vectorized Jacobian and shaking. It remains the strongest base for further refinement.",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_7_0",
+          "reasoning": "Best of the current generation (2.630972). It implements a refined multi-start SLSQP approach with jittering.",
+          "category": "performance",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_7_4",
+          "reasoning": "Strong performance (2.628315) using Quasi-Monte Carlo (Sobol/Halton style) initialization, which provides a more structured search of the configuration space than random starts.",
+          "category": "diversity",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_7_2",
+          "reasoning": "Uses a force-directed (repulsion) initialization. This geometric approach often finds different packing topologies that gradient descent might miss.",
+          "category": "diversity",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_7_1",
+          "reasoning": "Basin-hopping approach. While the score is lower (2.6135), the global search capability of basin-hopping is valuable for escaping the local optima that seem to be capping the SLSQP scores.",
+          "category": "potential",
+          "source_generation": 7
+        }
+      ],
+      "parents_used": [
+        "trial_6_0"
+      ],
+      "parents_used_counts": {
+        "trial_6_0": 3
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 18.61497859901283,
+          "count": 3
+        },
+        "child_llm_call": {
+          "total_s": 748.193733504042,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 325.1358595568454,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 405.4714640069287,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T23:50:37.833082"
+    },
+    {
+      "generation_num": 8,
+      "num_trials": 6,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_8_1",
+      "best_score": 2.6319368975093007,
+      "selected_trial_ids": [
+        "trial_6_0",
+        "trial_3_1",
+        "trial_8_1",
+        "trial_8_2",
+        "trial_8_3"
+      ],
+      "selection_reasoning": "The selection includes the top two historical performers (6_0 and 3_1) which are nearly identical in score, the top results from the current generation (8_1 and 8_2), and a diverse simulated annealing approach (8_3) to maintain exploration potential.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_0",
+          "reasoning": "Current best overall score (2.635983). Primary baseline for refinement.",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_3_1",
+          "reasoning": "Extremely high historical score (2.635977), very close to the best. Useful for alternative refinement.",
+          "category": "performance",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_8_1",
+          "reasoning": "Best performer from Gen 8 (2.631937). Demonstrates effective jitter/shaking logic.",
+          "category": "performance",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_2",
+          "reasoning": "Strong performance (2.629301) using Lloyd's algorithm/Voronoi initialization. Distinct approach from grid starts.",
+          "category": "diversity",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_3",
+          "reasoning": "Simulated annealing approach. Lower score (2.56) but methodology is fundamentally different and worth further tuning.",
+          "category": "diversity",
+          "source_generation": 8
+        }
+      ],
+      "parents_used": [
+        "trial_6_0"
+      ],
+      "parents_used_counts": {
+        "trial_6_0": 2
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 20.56381012883503,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 736.0533453079406,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 907.9514601801056,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 422.36652194405906,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-10T23:58:00.775904"
+    },
+    {
+      "generation_num": 9,
+      "num_trials": 6,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_9_1",
+      "best_score": 2.635983084917586,
+      "selected_trial_ids": [
+        "trial_9_1",
+        "trial_6_0",
+        "trial_3_1",
+        "trial_9_5",
+        "trial_9_4"
+      ],
+      "selection_reasoning": "We are entering the final generation with a cluster of trials at 2.635983. The selection includes these top performers plus high-potential and diverse candidates (2.634 and 2.629) to ensure we have multiple geometric starting points for a final, intensive high-precision optimization push.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_9_1",
+          "reasoning": "Currently tied for the best score (2.635983). It uses a 'Shake and Bake' strategy with multi-start SLSQP and cooling noise, which has proven robust across multiple generations.",
+          "category": "performance",
+          "source_generation": 9
+        },
+        {
+          "trial_id": "trial_6_0",
+          "reasoning": "Tied for the best score (2.635983). While the score is identical to 9_1, the implementation details in Gen 6 might offer a different optimization trajectory or precision handling to build upon.",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_3_1",
+          "reasoning": "Extremely close to the top score (2.635977). This earlier generation success suggests a very stable geometric configuration that might reach the global optimum with a more modern 'polishing' step.",
+          "category": "potential",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_9_5",
+          "reasoning": "High-performing (2.634292) hybrid approach. It provides a different layout than the top-tier group, which is essential for avoiding premature convergence in the final generation.",
+          "category": "diversity",
+          "source_generation": 9
+        },
+        {
+          "trial_id": "trial_9_4",
+          "reasoning": "Solid performance (2.629301) using symmetry-breaking. This approach explores a different part of the configuration space compared to the top 3 trials.",
+          "category": "diversity",
+          "source_generation": 9
+        }
+      ],
+      "parents_used": [
+        "trial_6_0"
+      ],
+      "parents_used_counts": {
+        "trial_6_0": 6
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 30.34056458401028,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 778.5671023018658,
+          "count": 6
+        },
+        "evaluation": {
+          "total_s": 1206.8606142372591,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 435.0160939099733,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T00:05:46.146304"
+    }
+  ]
+}

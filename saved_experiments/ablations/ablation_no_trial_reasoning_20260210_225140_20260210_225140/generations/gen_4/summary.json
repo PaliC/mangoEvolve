@@ -1,0 +1,61 @@
+{
+  "generation_num": 4,
+  "num_trials": 6,
+  "num_successful_trials": 6,
+  "best_trial_id": "trial_4_0",
+  "best_score": 2.627207267906388,
+  "selected_trial_ids": [
+    "trial_4_0",
+    "trial_4_3",
+    "trial_4_4"
+  ],
+  "selection_reasoning": "Auto-selected top performing trials",
+  "trial_selections": [
+    {
+      "trial_id": "trial_4_0",
+      "reasoning": "Auto-selected for high score",
+      "category": "performance",
+      "source_generation": 4
+    },
+    {
+      "trial_id": "trial_4_3",
+      "reasoning": "Auto-selected for high score",
+      "category": "performance",
+      "source_generation": 4
+    },
+    {
+      "trial_id": "trial_4_4",
+      "reasoning": "Auto-selected for high score",
+      "category": "performance",
+      "source_generation": 4
+    }
+  ],
+  "parents_used": [
+    "trial_1_3",
+    "trial_1_4"
+  ],
+  "parents_used_counts": {
+    "trial_1_3": 5,
+    "trial_1_4": 1
+  },
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 46.3277609529905,
+      "count": 4
+    },
+    "child_llm_call": {
+      "total_s": 695.4892151438398,
+      "count": 6
+    },
+    "evaluation": {
+      "total_s": 1292.27739751013,
+      "count": 6
+    },
+    "spawn_children": {
+      "total_s": 404.48171463701874,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-10T23:30:59.390404"
+}

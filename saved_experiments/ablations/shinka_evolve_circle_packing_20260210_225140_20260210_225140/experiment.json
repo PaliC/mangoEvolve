@@ -1,0 +1,1541 @@
+{
+  "experiment_id": "shinka_evolve_circle_packing_20260210_225140_20260210_225140",
+  "config": {
+    "experiment": {
+      "name": "shinka_evolve_circle_packing_20260210_225140",
+      "output_dir": "./experiments/ablations",
+      "seed": null
+    },
+    "root_llm": {
+      "model": "openai/gpt-5",
+      "cost_per_million_input_tokens": 1.25,
+      "cost_per_million_output_tokens": 10.0,
+      "provider": "openrouter",
+      "max_iterations": 500,
+      "reasoning": {
+        "enabled": true,
+        "effort": "high",
+        "max_tokens": null,
+        "exclude": false
+      }
+    },
+    "child_llms": [
+      {
+        "model": "gemini-2.5-pro",
+        "cost_per_million_input_tokens": 1.25,
+        "cost_per_million_output_tokens": 10.0,
+        "alias": "gemini-pro",
+        "provider": "google",
+        "calibration_calls": 5,
+        "reasoning": {
+          "enabled": true,
+          "effort": "high",
+          "max_tokens": null,
+          "exclude": false
+        }
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "cost_per_million_input_tokens": 0.3,
+        "cost_per_million_output_tokens": 2.5,
+        "alias": "gemini-flash",
+        "provider": "google",
+        "calibration_calls": 5,
+        "reasoning": {
+          "enabled": true,
+          "effort": "high",
+          "max_tokens": null,
+          "exclude": false
+        }
+      },
+      {
+        "model": "anthropic/claude-sonnet-4",
+        "cost_per_million_input_tokens": 3.0,
+        "cost_per_million_output_tokens": 15.0,
+        "alias": "sonnet",
+        "provider": "openrouter",
+        "calibration_calls": 5,
+        "reasoning": {
+          "enabled": true,
+          "effort": "high",
+          "max_tokens": null,
+          "exclude": false
+        }
+      },
+      {
+        "model": "openai/o4-mini",
+        "cost_per_million_input_tokens": 1.1,
+        "cost_per_million_output_tokens": 4.4,
+        "alias": "o4-mini",
+        "provider": "openrouter",
+        "calibration_calls": 5,
+        "reasoning": {
+          "enabled": true,
+          "effort": "high",
+          "max_tokens": null,
+          "exclude": false
+        }
+      },
+      {
+        "model": "openai/gpt-5",
+        "cost_per_million_input_tokens": 1.25,
+        "cost_per_million_output_tokens": 10.0,
+        "alias": "gpt5",
+        "provider": "openrouter",
+        "calibration_calls": 5,
+        "reasoning": {
+          "enabled": true,
+          "effort": "high",
+          "max_tokens": null,
+          "exclude": false
+        }
+      },
+      {
+        "model": "openai/gpt-5-mini",
+        "cost_per_million_input_tokens": 0.25,
+        "cost_per_million_output_tokens": 2.0,
+        "alias": "gpt5-mini",
+        "provider": "openrouter",
+        "calibration_calls": 5,
+        "reasoning": null
+      },
+      {
+        "model": "openai/gpt-5-nano",
+        "cost_per_million_input_tokens": 0.05,
+        "cost_per_million_output_tokens": 0.4,
+        "alias": "gpt5-nano",
+        "provider": "openrouter",
+        "calibration_calls": 5,
+        "reasoning": null
+      }
+    ],
+    "evaluation": {
+      "evaluator_fn": "mango_evolve.evaluation.circle_packing:CirclePackingEvaluator",
+      "evaluator_kwargs": {
+        "n_circles": 26,
+        "timeout_seconds": 300
+      }
+    },
+    "evolution": {
+      "max_generations": 20,
+      "max_children_per_generation": 8
+    },
+    "budget": {
+      "max_total_cost": 50.0
+    },
+    "default_child_llm_alias": "gemini-flash",
+    "calibration_notes_file": null,
+    "hide_scratchpad": false,
+    "hide_trial_reasoning": false,
+    "disable_query_llm": false
+  },
+  "start_time": "2026-02-10T22:51:40.776267",
+  "end_time": "2026-02-11T03:48:41.623241",
+  "termination_reason": "max_generations_reached (with errors: gen2: ```\n# Orchestrator: Generation 2 \u2014 Spawn 8 diverse children per strategy plan\n\n# Build common header and detailed prompts, then spawn children.\n# After spawning, record brief info to scratchpad for ne; gen2: ```\n# Inspect existing trials, then spawn 8 diverse children per the plan.\n\nfrom math import ceil\nfrom itertools import islice\nimport statistics\n\n# 1) Quick scan of current trials to learn what's work; gen2: ```\n# Analyze existing trials, spawn 8 diverse children, then select the best performers.\n# This orchestration follows the Generation 0 plan with gradient-calibrated penalties and LP-feasibilization.\n; gen2: ```\n# Generation 2 orchestration: spawn 8 diverse children, then select best\n\n# 1) Inspect existing trials for context (if any)\ntry:\n    total = len(trials)\n    top_prev = trials.filter(success=True, ; gen5: ```\n# Plan and spawn 8 diverse children with strict instructions\n\nprompts = []\n\ncommon_req = \"\"\"\nYou must output a single Python code block containing only code. No prose.\nImplement construct_packing(; gen5: ```\n# Analyze past trials, spawn 8 diverse children, and select the best ones.\n\n# 1) Inspect existing trials to inform prompts\ntop_now = trials.filter(success=True, sort_by=\"-score\", limit=5)\nsummary ; gen6: ```\n# Orchestrator: Generation 6\n# Strategy: Spawn 8 diverse children with strong LP-finalization and analytic gradients.\n# Notes:\n# - Children must output a single Python code block with an entry fun; gen7: ```\n# Analysis: inspect prior trials and prepare targeted child prompts\ntop = trials.filter(success=True, sort_by=\"-score\", limit=6)\ntop_summ = [(t.trial_id, t.score) for t in top]\nbest = top[0] if to; gen8: ```\n# Spawn 8 children with diverse strategies\n\nbest_prev = \"trial_7_7\"\nalt_prev = \"trial_6_7\"\nref_prev = \"trial_2_0\"\n\nchildren_specs = [\n    # 1) Exploit best: multi-start annealed L-BFGS-B with adap; gen8: ```\n# Analyze historical trials and spawn 8 children to push beyond 2.635\n\n# 1) Inspect top historical trials\ntop_all = trials.filter(success=True, sort_by=\"-score\", limit=8)\nbest = trials.filter(succ; gen8: ```\n# Generation 8 orchestration\n\n# 1) Inspect prior best trials to guide prompts\ntop5 = trials.filter(success=True, sort_by=\"-score\", limit=5)\nbest_overall = top5[0] if top5 else None\nbest_overall_id; gen8: ```\n# Generation 8 orchestration\n\n# Strategy: Build on the best-performing approaches (penalty-annealed L-BFGS-B + LP finalization, basin-hopping hybrids),\n# add diversity (Dykstra-like projections + ; gen8: ```\n# Generation 8 \u2014 Spawn 8 diverse children to improve 26-circle packing in [0,1]^2\n\n# Strategy notes for children (recap):\n# - Exactly 26 circles; strict feasibility; return (centers, radii, sum_ra; gen8: ```\n# Child prompts builder for consistent instructions\ncommon_header = \"\"\"\nYou are to write a single Python code block implementing circle packing of 26 circles in the unit square.\nRequirements:\n- Pr; gen8: ```\n# Orchestrator for Generation 8: spawn 8 diverse children and select best\n\n# Build common prompt header\nbest_known = 2.6358676293444767  # from trial_7_7\ntry:\n    ref_best_code = trials[\"trial_7_7; gen8: ```\n# Generation 8 orchestration: spawn 8 diverse yet focused children\n\nfrom textwrap import dedent\n\ncommon_intro = dedent(\"\"\"\nYou are to write a single Python module that constructs a packing of 26 n; gen8: ```\n# Gather references\nbest = trials[\"trial_7_7\"]  # Best so far: 2.6358676293444767\ngen6_best = trials[\"trial_6_7\"] if \"trial_6_7\" in trials else None\ngen2_best = trials[\"trial_2_0\"] if \"trial_2_0\" ; gen10: ```\n# Generation 10 \u2014 Orchestrator: spawn 8 children with diverse, high-quality strategies\n\n# Utilities to fetch reference codes and craft prompts\ndef get_best_codes():\n    # Try to pull known top tri; gen12: ```\n# Generation 12 orchestration: spawn 8 diverse children, analyze, and select\n\nfrom math import sqrt\nimport statistics\n\n# Helper: build a concise header to enforce format and feasibility guarantees; gen14: ```\n# Generation 14 orchestration\n\n# 1) Elite penalized L-BFGS-B + LP with adaptive density weights, multi-starts (build on best historical code)\nbest_refs = trials.filter(success=True, sort_by=\"-scor; gen16: ```\n# Generation 16 orchestration\n\n# Common imports available in this REPL context\nfrom textwrap import dedent\n\n# Helper to safely pull code from a prior trial (fallback if missing)\ndef get_code_or_em)",
+  "num_generations": 20,
+  "total_trials": 0,
+  "best_trial": {
+    "trial_id": "trial_10_2",
+    "score": 2.635919655314255,
+    "generation": 10
+  },
+  "scratchpad": "\n## Calibration Observations (Round 2 \u2014 Gradient implementations)\n\nSummary:\n- All models complied with \u201csingle code block, no prose\u201d and produced fully vectorized NumPy gradients with FD checks.\n- Everyone handled boundary subgradients via hinge indicators and overlap grads via masked pairwise ops; stabilization used either d+eps or sqrt(d^2+eps/eps^2).\n\nPer-model notes:\n- gpt5: Best reference. Uses d for penalty and d+eps only for division (no bias), symmetric active mask, clean typing, central FD checks. Ideal for gradient-sensitive code.\n- o4-mini: Compact, correct, neat masking; stabilization via sqrt(d^2+eps). Clear FD error summaries. Great for precise, format-strict utilities.\n- gemini-flash: Clear structure, thorough FD harness, sqrt(d^2+eps^2) stabilization; easy to read/maintain.\n- gemini-pro: Correct math; uses d+eps in both penalty and division (tiny bias). Strong docstring and central FD checks; production-friendly.\n- sonnet: Correct; computes overlaps on upper triangle then symmetrizes via row/col sums; stabilization sqrt(d^2+eps); slightly verbose but precise.\n- gpt5-mini: Mirrors gpt5\u2019s pattern (no penalty bias), cost-effective, good FD harness; strong choice under budget.\n- gpt5-nano: Correct, minimal; uses d+eps in penalty (small bias), succinct FD outputs; fine for lightweight tasks.\n\nTakeaways:\n- Prefer gpt5 or o4-mini for critical gradient code; gpt5-mini for budget.\n- To avoid penalty bias, apply eps only to division (gpt5/gpt5-mini style).\n- All are suitable for vectorized constraint/penalty work; keep temperatures low for strict format/compliance with sonnet/gemini-*.\n\n## Generation 0 Plan\nGoal: Maximize sum of radii for 26 circles in unit square with strict feasibility.\nStrategies (8):\n1) gpt5 \u2014 Analytic-gradient penalized L-BFGS-B (centers+radii), annealed penalties, LP feasibilization.\n2) o4-mini \u2014 Force-directed centers (smooth repulsion + boundary) via L-BFGS-B, radii via LP; multi-start.\n3) gemini-flash \u2014 Basin-hopping on penalized objective with analytic gradient; LP feasibilization.\n4) sonnet \u2014 Alternating local coordinate search on centers with objective = LP(sum of radii); derivative-free; step annealing.\n5) gpt5-mini \u2014 Multi-stage penalty L-BFGS-B with robust vectorized gradients; multiple restarts; LP feasibilization.\n6) gpt5-nano \u2014 Hex/triangular-grid seeding; radii via LP; brief gradient polish; LP finalization.\n7) gemini-pro \u2014 SLSQP with explicit nonlinear constraints and Jacobians (pairwise and boundary); initialized from structured layout.\n8) gemini-flash \u2014 Unconstrained reparameterization (sigmoid/tanh) for (x,y,r); L-BFGS-B on unconstrained vars; LP cleanup.\n\nKey implementation details to emphasize across children:\n- Vectorized gradients; apply epsilon only in division (not in penalty) to avoid bias (per calibration).\n- LP feasibilization: Given centers and candidate radii, solve a linear program to maximize sum(r) subject to r_i >= 0, r_i <= current r_i, r_i <= x_i, r_i <= y_i, r_i <= 1-x_i, r_i <= 1-y_i, and r_i + r_j <= dist_ij - 1e-6.\n- Return strictly feasible solution with shapes: centers (26,2), radii (26,), sum_radii float.\n- No prints; runtime-conscious (<=300s).\n\n## Generation 2 Insights\n- Best score this gen: 2.614178549664672 (trial_2_0)\n- Tried 8 diverse strategies:\n  1) Annealed L-BFGS-B with analytic gradients + LP\n  2) Force-directed centers with softmin surrogate + LP\n  3) Basin-hopping with analytic gradients + LP\n  4) Alternating coordinate search on LP objective\n  5) Multi-stage penalty L-BFGS-B (budget-friendly)\n  6) Hex grid + LP + surrogate polish\n  7) SLSQP with full constraints and Jacobians\n  8) Unconstrained reparam with softmin clamp + LP\n- Keep: strongest penalty-annealed variants and any that exceed 2.63; maintain LP-first methods for stability.\n- Next: hybridize best penalty run's final centers with alt-coordinate LP local search; add deterministic refined grid initializations; try pairwise ADMM-style updates for centers; consider trust-constr for constrained formulation.\n\n## Generation 4 Insights\n- Best Gen4: trial_4_6 score=2.600058\n- Strategies used: penalty-annealed L-BFGS-B with softmin surrogate + LP, force-directed + LP, basin-hopping + LP, alternating LP + block trust-region, joint (x,r) penalty with L-BFGS-B + LP, hex+LP constructive with nudges, SLSQP w/ Jacobians + LP, unconstrained sigmoid/softplus penalized + LP.\n- Notes: Keep LP-first methods; softmin surrogate stable with tau in [0.005, 0.03]; use eps only in denominators.\n- Next: If plateau <2.63, try hybrid: LP + trust-constr with exact constraints; introduce pairwise projection (Dykstra-like) on centers; more edge-biased seeds; consider unequal penalties per pair by local density.\n\n## Generation 5 Insights\n- No successes\n- Approaches tried: penalty-annealed L-BFGS-B, force-directed centers, basin-hopping, alternating LP + center polish, multi-stage penalties, hex+LP+polish, trust-constr with Jacobians, unconstrained sigmoid reparam.\n- Continue prioritizing LP-first finalization; gradients stable using eps only in divisions.\n- Next: hybridize best centers with coordinate-block LP polishing; test Dykstra-like pairwise projections and denser edge-biased seeds. Increase basin-hopping hops if runtime allows.\n\n## Generation 5 Results\n- Tried 8 strategies: penalty-annealed L-BFGS-B (+LP), force-directed+LP, basin-hopping (+LP), hybrid A+B, trust-constr alternating with LP, Dykstra-like projections+LP, centers-only basin-hopping+LP, constructive hex/edge-biased+LP+polish.\n- Top previous references: [{'trial_id': 'trial_2_0', 'score': 2.614178549664672}, {'trial_id': 'trial_2_4', 'score': 2.6131787257269616}, {'trial_id': 'trial_1_0', 'score': 2.6127440487037714}, {'trial_id': 'trial_4_6', 'score': 2.600057777494662}, {'trial_id': 'trial_0_7', 'score': 2.5879586123410077}, {'trial_id': 'trial_1_2', 'score': 2.5770557773234612}]\n- Emphasized LP finalization and eps-only-in-division gradient stabilization.\n- Next: If plateau <2.63, increase multi-starts for best penalized approach, refine LP constraints margins adaptively, and test pairwise-weighted penalties by local density.\n\n## Generation 6 Insights\n- Best Gen6: trial_6_7 score=2.6206060146584313\n- Tried 8 strategies: penalty-annealed L-BFGS-B, force-directed+LP, basin-hopping+LP, alternating LP+center polish, multi-start penalty L-BFGS-B, constructive hex+LP, constrained SLSQP+LP, unconstrained reparam+LP.\n## Generation 7 Insights\n- Best Gen7: trial_7_7 score=2.6358676293444767\n- Tried 8 strategies spanning: penalty-annealed L-BFGS-B+LP (multi-start), force-directed centers+LP, basin-hopping+LP, alternating LP with block coordinate centers, trust-constr/SLSQP with Jacobians, constructive Dykstra-like projections+LP, unconstrained reparam+LP, and a basin-hopping+penalty hybrid.\n- Continue prioritizing LP finalization; maintain eps only in denominators to avoid penalty bias.\n- Next: allocate more starts to the top-scoring method and refine seeding near edges/corners; test adaptive pairwise weights by local density in penalty; consider caching LP matrices to speed inner loops.\n\n## Generation 8 Insights\n- Spawned 8 diverse strategies across penalized L-BFGS-B, force-directed, basin-hopping, alternating LP+Dykstra, SLSQP, unconstrained reparam, constructive Lloyd-like, and trust-constr alternation.\n- Emphasized LP finalization and stable gradients (eps only in divisions).\n- Best so far after Gen8: trial_7_7 score=2.6358676293444767\n- Next: allocate more starts to the best-scoring family; experiment with adaptive pairwise weights (local density) and edge/corner-biased seeds; consider caching LP matrices and warm-starting HiGHS across iterations.\n\n## Generation 9 Insights\n- Best Gen9: trial_9_4 score=2.6070437984759827\n- Strategies tried: annealed penalized L-BFGS-B (multi-start), basin-hopping+L-BFGS-B, trust-constr (explicit constraints), Dykstra-like projections+LP, unconstrained reparam, block-coordinate gradient with density weights, constructive greedy, LP-active-set subgradient ascent on centers.\n- Continued emphasis: LP finalization, eps only in denominators. Edge/corner-biased seeds helpful.\n- Next: Allocate more starts to the best-scoring penalized variants; if trust-constr yields feasible high sums, refine Jacobians and warmstarts; tune active-set subgradient step schedules; consider caching LP A_ub across iterations to speed loops.\n## Generation 11 Insights\n- Children spanned: annealed penalized L-BFGS-B + LP (multi-start, density-weighted), basin-hopping + centers-only locals + LP, alternating LP<->center gradient, trust-constr explicit constraints, Dykstra-like projections + LP, unconstrained reparam (sigmoid/softplus) + LP, force-directed + polish + LP, and an edge-biased density-weighted penalty variant.\n- Emphasis: final LP for strict feasibility, eps only in denominators, vectorized gradients.\n- Best Gen11: trial_11_7 score=2.630191836 model=gpt5-mini\n- Next: allocate more starts to the best-scoring family; refine density weights and edge-biased seeding. If trust-constr produced strong feasible results, warm-start with best LP radii and refine Jacobians. Consider elitist basin-hopping with LP-based acceptance and cached neighbor lists.\n\n## Generation 12 Results\n- Historical best seen: 2.635919655314255 (trial_10_2)\n- Gen12 best: 2.6297110524321203\n- Top10 summary: [{'id': 'trial_10_2', 'score': 2.635919655314255, 'gen': 10, 'model': 'gemini-flash'}, {'id': 'trial_7_7', 'score': 2.6358676293444767, 'gen': 7, 'model': 'gemini-flash'}, {'id': 'trial_10_6', 'score': 2.6358676293444767, 'gen': 10, 'model': 'gemini-pro'}, {'id': 'trial_5_0', 'score': 2.6357967398504405, 'gen': 5, 'model': 'gpt5'}, {'id': 'trial_11_7', 'score': 2.6301918355665412, 'gen': 11, 'model': 'gpt5-mini'}, {'id': 'trial_7_0', 'score': 2.6296518556639965, 'gen': 7, 'model': 'gpt5'}, {'id': 'trial_7_2', 'score': 2.6264807921490343, 'gen': 7, 'model': 'gemini-flash'}, {'id': 'trial_11_0', 'score': 2.6240029894951005, 'gen': 11, 'model': 'gpt5'}, {'id': 'trial_6_7', 'score': 2.6206060146584313, 'gen': 6, 'model': 'gemini-flash'}, {'id': 'trial_5_1', 'score': 2.6196158131359644, 'gen': 5, 'model': 'o4-mini'}]\n- Strategies attempted: \n  1) gpt5: enhanced multi-start penalized L-BFGS-B + LP with density weights\n  2) o4-mini: trust-constr centers with LP-in-the-loop\n  3) gpt5-mini: basin-hopping outer, L-BFGS-B inner + LP acceptance\n  4) sonnet: Dykstra-like projections + LP + local polish\n  5) gemini-flash: unconstrained reparam softplus/sigmoid + LP\n  6) gemini-pro: LP-first alternating with surrogate center gradients\n  7) gpt5-nano: SLSQP explicit constraints + Jacobians + LP\n  8) gpt5: elite refinement with adaptive density weights + LP caching\n- Continue: Focus on elite penalized + LP with adaptive weights and edge/corner-biased seeds; keep one basin-hopping\n  and one constrained (trust-constr or SLSQP) line for diversity. Ensure eps only in divisions.\n\n## Generation 13 Insights\n- Spawned 8 strategies centered on elite penalized L-BFGS-B + LP, trust-constr/SLSQP, basin-hopping + LP, Dykstra-like + LP, unconstrained reparam + LP, and constructive seeding + polish.\n- Emphasized: final LP for strict feasibility, eps only in denominators, edge/corner-biased and hex seeds, adaptive/density weights, and moderate multi-starts.\n- Gen13 top results:\n- trial_13_6 model=gpt5 score=2.635715500533\n- trial_13_7 model=gpt5-nano score=2.630590360088\n- trial_13_2 model=gemini-flash score=2.626419731601\n- trial_13_1 model=o4-mini score=2.614892312864\n- trial_13_5 model=gemini-pro score=2.611629029108\n- trial_13_4 model=gpt5-mini score=2.190117494513\n- trial_13_3 model=sonnet score=2.031977692914\n- Next: allocate more starts to the highest-scoring family and refine neighbor masking and penalty annealing. Keep at least one constrained and one stochastic (basin-hopping) line for diversity. Consider slight LP margin tuning (-5e-7 vs -1e-6) if evaluator allows, but default to -1e-6.\n\n## Generation 14 Insights\n- Spawned 8 children focusing on elite penalized L-BFGS-B + LP with adaptive density weights, basin-hopping + LP, constrained (trust-constr/SLSQP) + LP, unconstrained reparam + LP, alternating LP-center methods, and Dykstra-like projections.\n- Eps used only in divisions; LP finalization enforces strict feasibility (1e-6).\n- Best Gen14: None\n- Next: allocate more starts to the top penalized method with neighbor masks and LP caching; keep one constrained and one basin-hopping line. If plateauing near 2.635, try tightening density weighting and slightly different edge-biased seeds; also try adaptive LP margin -0.8e-6 if evaluator allows, else keep -1e-6.\n\n## Generation 14 Results\n- Best Gen14: trial_14_3 score=2.1666731131572625 model=gpt5-mini\n- Top picks: [{'trial_id': 'trial_14_3', 'model': 'gpt5-mini', 'score': 2.1666731131572625}, {'trial_id': 'trial_14_2', 'model': 'gemini-flash', 'score': 1.9892756962408629}, {'trial_id': 'trial_14_5', 'model': 'sonnet', 'score': 1.8850779792539196}, {'trial_id': 'trial_14_0', 'model': 'gpt5', 'score': 1.8394550210679634}, {'trial_id': 'trial_14_4', 'model': 'gemini-pro', 'score': 0.1620436197608221}]\n- Notes: Continue elite penalized + LP with neighbor masking and staged annealing; keep one constrained and one basin-hopping line.\n\n## Generation 15 Insights\n- Best Gen15: trial_15_7 score=2.635867629344\n- Strategies spawned: elite penalized L-BFGS-B + LP (annealed; density/neighbor-weighted), trust-constr centers + LP-in-loop, basin-hopping + L-BFGS-B + LP, unconstrained reparam + LP, Dykstra-like projections + LP, constructive hex/edge + LP + polish, SLSQP constraints + Jacobians + LP.\n- Emphasis: eps only in divisions; LP strict margin 1e-6; multi-start seeds including triangular [5,4,5,4,4,4] and edge-biased.\n- Selections: trial_15_7(performance); trial_15_2(diversity); trial_15_3(diversity); trial_15_1(performance)\n- Next: allocate more starts to the top penalized variant; refine density weights and neighbor masking; keep one constrained (trust-constr or SLSQP) and one basin-hopping line. Consider minor LP margin sweep (-0.8e-6 vs -1e-6) only if evaluator allows; else stay at -1e-6. Cache A_ub structure and reuse distances across local moves to speed loops.\n\n## Generation 16 Insights\n- Spawned 8 children across penalized L-BFGS-B+LP (adaptive neighbors), trust-constr centers+LP, basin-hopping+LP, Dykstra-like+LP,\n  unconstrained reparam+LP, constructive hex+LP, and SLSQP constraints+LP.\n- Eps used only in divisions; strict LP margin 1e-6; final LP without radius caps.\n- Best Gen16: 2.6358676293444767\n- Next: allocate more starts to the top penalized variants; keep one constrained (trust-constr/SLSQP) and one stochastic (basin-hopping) line.\n\n## Generation 17 Insights\n- Best score Gen17: 2.6218278438591467 (trial trial_17_0)\n- Approaches tried: elite penalized L-BFGS-B + LP with kNN/density weights; trust-constr centers+LP; basin-hopping+inner polish+LP; unconstrained reparam+LP; Dykstra-like projections+LP; LP-driven smooth surrogate on centers; SLSQP constraints+LP; constructive multi-restart shake+LP.\n- Continued: eps only in divisions; strict LP margin 1e-6; final LP guarantees feasibility.\n- Next: Allocate more starts to the top-scoring penalized variant; refine kNN neighbor updates and density weights. Keep one constrained and one stochastic line. Consider minor LP margin sweep only if evaluator allows, else keep 1e-6.\n\n## Generation 18 Insights\n- Best Gen18: trial_18_2 score=2.628938792552358\n- Methods tried: elite penalized L-BFGS-B + LP (annealed, neighbor-weighted), force-directed centers + LP,\n  basin-hopping + locals + LP, Dykstra-like projections + LP, budget multi-start penalized + LP,\n  trust-constr with explicit Jacobians + LP, unconstrained reparam + LP, and elite shake-and-polish + LP.\n- Continued practices: LP finalization without radius caps, eps only in denominators, strict LP margin 1e-6, vectorized gradients.\n- Next (Gen19): allocate more starts to the best-scoring penalized variant; keep one constrained and one stochastic line.\n\n## Generation 19 Insights\n- Spawned 8 children across elite penalized L-BFGS-B + LP (neighbor-weighted), basin-hopping + LP, constrained SLSQP/trust-constr + LP, constructive Dykstra + LP, and unconstrained reparam + LP.\n- Eps used only in divisions; strict LP margin 1e-6; reused LP A_ub where applicable.\n- Best Gen19: {best_now.trial_id} score={best_now.score if best_now else None}\n- Next (Gen20 plan): Focus on the top 2 penalized variants; add more starts and small perturbation restarts around the best centers; keep one basin-hopping line for diversity. Maintain strict LP and neighbor masks (k~10) with density weights.\n",
+  "generations": [
+    {
+      "generation_num": 0,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_0_7",
+      "best_score": 2.5879586123410077,
+      "selected_trial_ids": [
+        "trial_0_7",
+        "trial_0_3",
+        "trial_0_4",
+        "trial_0_1",
+        "trial_0_2"
+      ],
+      "selection_reasoning": "Carry forward the top performer (trial_0_7) and second-best (trial_0_3) for exploitation, plus three diverse/potential approaches (penalty L-BFGS-B in trial_0_4, force-directed centers in trial_0_1, and basin-hopping in trial_0_2) to maintain methodological diversity and headroom for improvement.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_0_7",
+          "reasoning": "Best score (2.587959). Unconstrained reparameterization with L-BFGS-B + LP cleanup reached the top performance; strong base to refine via restarts/annealing.",
+          "category": "performance",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_3",
+          "reasoning": "Second-best (2.418531). Derivative-free alternating center search + LP is a complementary paradigm to gradient methods; promising with step/selection tuning.",
+          "category": "performance",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_4",
+          "reasoning": "Solid mid-high score (2.086355). Multi-stage penalty L-BFGS-B with barriers; likely to improve with better annealing and initialization diversity.",
+          "category": "potential",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_1",
+          "reasoning": "Center-only force-directed spreading + LP. Different objective geometry; good candidate for hyperparameter refinement and better seeding.",
+          "category": "diversity",
+          "source_generation": 0
+        },
+        {
+          "trial_id": "trial_0_2",
+          "reasoning": "Basin-hopping global search is conceptually valuable despite low initial score; worth revisiting with corrected hop moves and stronger local solver.",
+          "category": "potential",
+          "source_generation": 0
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 3970.846880928846,
+          "count": 14
+        },
+        "child_llm_call": {
+          "total_s": 770.360634506098,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 4.784704560181126,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 238.58640509401448,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T00:20:13.343239"
+    },
+    {
+      "generation_num": 1,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_1_0",
+      "best_score": 2.6127440487037714,
+      "selected_trial_ids": [
+        "trial_1_0",
+        "trial_1_2",
+        "trial_1_3",
+        "trial_1_7",
+        "trial_1_6"
+      ],
+      "selection_reasoning": "We carry forward the top L-BFGS-B penalty method (trial_1_0) and the basin-hopping variant (trial_1_2) for performance, plus three diverse approaches\u2014coordinate search (trial_1_3), unconstrained reparameterization (trial_1_7), and a fast constructive hex/force method (trial_1_6)\u2014to balance exploitation and exploration. These cover gradient-based, global, derivative-free, reparameterized, and constructive paradigms.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_1_0",
+          "reasoning": "Top score (2.6127). Penalized L-BFGS-B with analytic gradients and LP cleanup appears robust; best baseline to refine.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_2",
+          "reasoning": "Second-best (2.5771). Basin-hopping + analytic-gradient local search with LP finalization offers a different global exploration path.",
+          "category": "performance",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_3",
+          "reasoning": "Alternating coordinate search on centers with LP objective; derivative-free and structurally different, useful for escaping local minima patterns.",
+          "category": "diversity",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_7",
+          "reasoning": "Unconstrained reparameterization (sigmoid + smooth-min) for radii; distinct parameterization that may converge differently, followed by LP cleanup.",
+          "category": "diversity",
+          "source_generation": 1
+        },
+        {
+          "trial_id": "trial_1_6",
+          "reasoning": "Hex/tri-grid seeding with light force-directed polish and LP; fast constructive pipeline that can seed stronger optimizers or be tuned for better layouts.",
+          "category": "potential",
+          "source_generation": 1
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 131.4841631690506,
+          "count": 2
+        },
+        "child_llm_call": {
+          "total_s": 712.0077580398647,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 7.775035769795068,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 246.67909237497952,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T00:26:31.514785"
+    },
+    {
+      "generation_num": 2,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_2_0",
+      "best_score": 2.614178549664672,
+      "selected_trial_ids": [
+        "trial_2_0",
+        "trial_2_4",
+        "trial_2_1",
+        "trial_2_7",
+        "trial_2_3"
+      ],
+      "selection_reasoning": "Carry forward the two best penalty-based performers (trial_2_0, trial_2_4) and three diverse approaches (force-directed LP, unconstrained reparam, and coordinate search) to balance exploitation and exploration.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_0",
+          "reasoning": "Top score this generation (2.614179); strong penalty-annealed L-BFGS-B baseline to refine and hybridize.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_2_4",
+          "reasoning": "Second-best score (2.613179); complementary multi-stage penalty variant worth exploiting.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_2_1",
+          "reasoning": "Force-directed centers + LP approach; different optimization pathway with solid score (2.528010).",
+          "category": "diversity",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_2_7",
+          "reasoning": "Unconstrained reparameterization strategy; distinct methodology with decent result (2.461951).",
+          "category": "diversity",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_2_3",
+          "reasoning": "Alternating coordinate search on LP objective; derivative-free path with room to tune (2.320650).",
+          "category": "potential",
+          "source_generation": 2
+        }
+      ],
+      "parents_used": [
+        "trial_1_0"
+      ],
+      "parents_used_counts": {
+        "trial_1_0": 8
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 2321.2155133720953,
+          "count": 13
+        },
+        "child_llm_call": {
+          "total_s": 742.6667447851505,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 17.1371433067834,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 166.6928226139862,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T01:07:59.489650"
+    },
+    {
+      "generation_num": 3,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_3_4",
+      "best_score": 2.5671627808848183,
+      "selected_trial_ids": [
+        "trial_2_0",
+        "trial_3_4",
+        "trial_3_3",
+        "trial_3_0"
+      ],
+      "selection_reasoning": "Carrying forward the overall best from Gen 2 for performance, plus the top three valid Gen 3 trials to preserve method diversity and potential for refinement.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_0",
+          "reasoning": "Highest known score so far (2.614178549664672) from previous generation; strong baseline to refine further.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_3_4",
+          "reasoning": "Best of Generation 3 (2.567163); likely a different methodology this gen and worth exploiting.",
+          "category": "performance",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_3_3",
+          "reasoning": "Second-best in Gen 3 (2.440706); maintains diversity relative to the top Gen 3 performer.",
+          "category": "diversity",
+          "source_generation": 3
+        },
+        {
+          "trial_id": "trial_3_0",
+          "reasoning": "Third-best in Gen 3 (2.360222); potential for improvement and alternative approach coverage.",
+          "category": "potential",
+          "source_generation": 3
+        }
+      ],
+      "parents_used": [
+        "trial_2_0"
+      ],
+      "parents_used_counts": {
+        "trial_2_0": 2
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 93.33635923301335,
+          "count": 2
+        },
+        "child_llm_call": {
+          "total_s": 942.6413953651208,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 173.2886005730834,
+          "count": 7
+        },
+        "spawn_children": {
+          "total_s": 200.74131066910923,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T01:12:53.584522"
+    },
+    {
+      "generation_num": 4,
+      "num_trials": 8,
+      "num_successful_trials": 8,
+      "best_trial_id": "trial_4_6",
+      "best_score": 2.600057777494662,
+      "selected_trial_ids": [
+        "trial_2_0",
+        "trial_4_6",
+        "trial_4_0",
+        "trial_4_2",
+        "trial_4_1"
+      ],
+      "selection_reasoning": "Carrying forward the best historical performer (trial_2_0) and Gen 4 leader (trial_4_6) for performance, plus three diverse strategies (softmin center optimization, basin-hopping, and force-directed) for exploration and potential gains toward 2.63+.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_2_0",
+          "reasoning": "Best historical score (~2.614). Strong penalty-annealed L-BFGS-B + LP baseline to refine further.",
+          "category": "performance",
+          "source_generation": 2
+        },
+        {
+          "trial_id": "trial_4_6",
+          "reasoning": "Top of Gen 4 (2.6001). Uses explicit SLSQP with Jacobians + LP; promising constrained approach to push higher.",
+          "category": "performance",
+          "source_generation": 4
+        },
+        {
+          "trial_id": "trial_4_0",
+          "reasoning": "Mid-high score (2.5341). Softmin surrogate over centers + LP differs from SLSQP; good gradient-based variant to improve.",
+          "category": "potential",
+          "source_generation": 4
+        },
+        {
+          "trial_id": "trial_4_2",
+          "reasoning": "Basin-hopping + L-BFGS-B local steps with LP; diverse global search that may escape local minima.",
+          "category": "diversity",
+          "source_generation": 4
+        },
+        {
+          "trial_id": "trial_4_1",
+          "reasoning": "Force-directed smooth energy + LP; complementary dynamics to gradient/LBFGS and may yield better edge utilization.",
+          "category": "diversity",
+          "source_generation": 4
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 144.52212653390598,
+          "count": 2
+        },
+        "child_llm_call": {
+          "total_s": 722.1037143068388,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 26.026668672217056,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 167.77727171289735,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T01:18:05.892735"
+    },
+    {
+      "generation_num": 5,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_5_0",
+      "best_score": 2.6357967398504405,
+      "selected_trial_ids": [
+        "trial_5_0",
+        "trial_5_1",
+        "trial_5_3",
+        "trial_5_4",
+        "trial_5_7"
+      ],
+      "selection_reasoning": "Carry forward the new best (trial_5_0) for exploitation and four diverse pipelines (force-directed, hybrid, trust-constr, constructive) to balance performance with exploration and unlock further gains.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_5_0",
+          "reasoning": "New best score (2.635797); penalized L-BFGS-B with LP finalization is clearly strongest and worth exploiting further.",
+          "category": "performance",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_5_1",
+          "reasoning": "High-performing alternative (2.619616) using force-directed centers + LP; maintains methodological diversity.",
+          "category": "diversity",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_5_3",
+          "reasoning": "Hybrid approach achieving 2.612632; promising for refinement via better annealing/restarts.",
+          "category": "potential",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_5_4",
+          "reasoning": "Trust-constr with explicit constraints + LP is a distinct optimization route; could improve with tighter Jacobians and schedule.",
+          "category": "diversity",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_5_7",
+          "reasoning": "Constructive hex/edge-biased + greedy + LP scored 2.363663; offers different seeding dynamics with room for polish.",
+          "category": "potential",
+          "source_generation": 5
+        }
+      ],
+      "parents_used": [
+        "trial_1_0",
+        "trial_2_0",
+        "trial_2_4"
+      ],
+      "parents_used_counts": {
+        "trial_1_0": 1,
+        "trial_2_0": 2,
+        "trial_2_4": 1
+      },
+      "parents_not_selected_prev_gen": [
+        "trial_1_0",
+        "trial_2_4"
+      ],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 283.8134873510571,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 594.1308820410632,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 8.554160312982276,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 132.245159784914,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T01:25:01.974995"
+    },
+    {
+      "generation_num": 6,
+      "num_trials": 8,
+      "num_successful_trials": 3,
+      "best_trial_id": "trial_6_7",
+      "best_score": 2.6206060146584313,
+      "selected_trial_ids": [
+        "trial_6_7",
+        "trial_6_2",
+        "trial_6_6"
+      ],
+      "selection_reasoning": "Auto-selected top performing trials",
+      "trial_selections": [
+        {
+          "trial_id": "trial_6_7",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_6_2",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_6_6",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 6
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 670.870647829026,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 609.4025200210745,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 6.255488611990586,
+          "count": 5
+        },
+        "spawn_children": {
+          "total_s": 119.11299253290053,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T01:38:11.978213"
+    },
+    {
+      "generation_num": 7,
+      "num_trials": 8,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_7_7",
+      "best_score": 2.6358676293444767,
+      "selected_trial_ids": [
+        "trial_7_7",
+        "trial_7_0",
+        "trial_7_2"
+      ],
+      "selection_reasoning": "Auto-selected top performing trials",
+      "trial_selections": [
+        {
+          "trial_id": "trial_7_7",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_7_0",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_7_2",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 7
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 417.94947337708436,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 737.6591991459718,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 60.90528957173228,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 152.20251981308684,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T01:47:42.150570"
+    },
+    {
+      "generation_num": 8,
+      "num_trials": 8,
+      "num_successful_trials": 8,
+      "best_trial_id": "trial_8_0",
+      "best_score": 2.609447993928547,
+      "selected_trial_ids": [
+        "trial_7_7",
+        "trial_5_0",
+        "trial_8_0",
+        "trial_8_4",
+        "trial_8_5"
+      ],
+      "selection_reasoning": "Carrying forward two top historical performers to exploit (trial_7_7, trial_5_0), the best Gen8 density-weighted penalized method for potential (trial_8_0), and two diverse approaches\u2014projection-based alternating (trial_8_4) and constrained trust-constr (trial_8_5)\u2014to maintain methodological breadth.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_7_7",
+          "reasoning": "Best overall performer (score=2.635868). Strong annealed penalized L-BFGS-B + LP finalization baseline to exploit further with more starts and refined seeding.",
+          "category": "performance",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_5_0",
+          "reasoning": "Second-best historical (score=2.635797). Independent high-quality variant likely differing in schedule/initialization, offering a strong alternative baseline.",
+          "category": "performance",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_8_0",
+          "reasoning": "Best of Gen8 (score=2.609448) using annealing + local-density weights + LP. Promising direction with potential gains via more starts and weight tuning.",
+          "category": "potential",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_4",
+          "reasoning": "Projection-based alternating (Dykstra-like) with LP (score=2.379378). Valuable methodological diversity; can improve with better sweep ordering and relaxation.",
+          "category": "diversity",
+          "source_generation": 8
+        },
+        {
+          "trial_id": "trial_8_5",
+          "reasoning": "Constrained trust-constr with analytic Jacobians (score=0.575631). Though low-scoring now, it adds an explicit constraint approach that can benefit from improved seeding and tolerances.",
+          "category": "diversity",
+          "source_generation": 8
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 1493.712819143664,
+          "count": 16
+        },
+        "child_llm_call": {
+          "total_s": 609.0918195191771,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 43.18350281496532,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 100.69823577394709,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T02:14:16.851697"
+    },
+    {
+      "generation_num": 9,
+      "num_trials": 8,
+      "num_successful_trials": 8,
+      "best_trial_id": "trial_9_4",
+      "best_score": 2.6070437984759827,
+      "selected_trial_ids": [
+        "trial_7_7",
+        "trial_6_7",
+        "trial_9_4",
+        "trial_9_2",
+        "trial_9_7"
+      ],
+      "selection_reasoning": "Carry forward the strongest historical baselines (trial_7_7, trial_6_7) for exploitation and the top Gen9 performer (trial_9_4) for potential gains, plus two diverse methods (trust-constr and active-set subgradient) to preserve methodological diversity.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_7_7",
+          "reasoning": "Best overall score (2.6359); strong baseline to further refine and hybridize.",
+          "category": "performance",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_6_7",
+          "reasoning": "High historical performer (2.6206) offering a reliable alternative baseline.",
+          "category": "performance",
+          "source_generation": 6
+        },
+        {
+          "trial_id": "trial_9_4",
+          "reasoning": "Best of Gen9 (2.6070); unconstrained reparam (sigmoid/softplus) + LP shows headroom with tuning.",
+          "category": "potential",
+          "source_generation": 9
+        },
+        {
+          "trial_id": "trial_9_2",
+          "reasoning": "Trust-constr with explicit constraints/Jacobians; different solver family worth advancing.",
+          "category": "diversity",
+          "source_generation": 9
+        },
+        {
+          "trial_id": "trial_9_7",
+          "reasoning": "Active-set LP-driven subgradient on centers; conceptually distinct path with improvement potential.",
+          "category": "diversity",
+          "source_generation": 9
+        }
+      ],
+      "parents_used": [
+        "trial_7_7"
+      ],
+      "parents_used_counts": {
+        "trial_7_7": 5
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 137.2863360280171,
+          "count": 2
+        },
+        "child_llm_call": {
+          "total_s": 616.5461935758358,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 9.57649463287089,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 182.00716129108332,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T02:19:36.157253"
+    },
+    {
+      "generation_num": 10,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_10_2",
+      "best_score": 2.635919655314255,
+      "selected_trial_ids": [
+        "trial_10_2",
+        "trial_10_6",
+        "trial_10_4",
+        "trial_10_1",
+        "trial_7_7"
+      ],
+      "selection_reasoning": "Advance with the two top performers from Gen10 for exploitation, retain a strong alternating/basin-hopping style for diversity, include an explicit-constraint variant for methodological breadth, and keep the historical best (Gen7) as a robust baseline for hybrid seeding.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_10_2",
+          "reasoning": "Best score this generation (2.635920); strong penalized optimization with LP finalization; prime candidate to exploit.",
+          "category": "performance",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_10_6",
+          "reasoning": "Second-best (2.635868), essentially tied; likely different seeds/weights worth merging with the top method.",
+          "category": "performance",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_10_4",
+          "reasoning": "Good score (2.617922) and likely a different workflow (alternating LP + center updates or basin-hopping); valuable for diversity.",
+          "category": "diversity",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_10_1",
+          "reasoning": "Moderate score (2.600514) but likely explicit constraint/Jacobian approach (trust-constr/SLSQP); keep for constrained-method diversity and refinement potential.",
+          "category": "diversity",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_7_7",
+          "reasoning": "Historical near-best (2.635868) and proven baseline; useful for cross-seeding and hybridization with Gen10 improvements.",
+          "category": "potential",
+          "source_generation": 7
+        }
+      ],
+      "parents_used": [
+        "trial_7_7"
+      ],
+      "parents_used_counts": {
+        "trial_7_7": 8
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 766.2219799828017,
+          "count": 8
+        },
+        "child_llm_call": {
+          "total_s": 939.8206062532263,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 96.76017992489506,
+          "count": 7
+        },
+        "spawn_children": {
+          "total_s": 275.8709892850602,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T02:36:58.286279"
+    },
+    {
+      "generation_num": 11,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_11_7",
+      "best_score": 2.6301918355665412,
+      "selected_trial_ids": [
+        "trial_7_7",
+        "trial_11_7",
+        "trial_11_0",
+        "trial_11_2",
+        "trial_11_3"
+      ],
+      "selection_reasoning": "Selected the historical best (trial_7_7) and top two Gen11 performers (11_7, 11_0) for performance-focused exploitation, plus two diverse approaches (11_2 alternating LP/gradient and 11_3 constrained trust-constr) to preserve methodological breadth and hybridization potential.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_7_7",
+          "reasoning": "Best overall performer (~2.635868) and a proven penalized L-BFGS-B + LP baseline; strong anchor for further refinement and seeding.",
+          "category": "performance",
+          "source_generation": 7
+        },
+        {
+          "trial_id": "trial_11_7",
+          "reasoning": "Top of Generation 11 (2.630192); likely incorporates recent enhancements (multi-starts, density/edge tweaks); prime candidate for exploitation.",
+          "category": "performance",
+          "source_generation": 11
+        },
+        {
+          "trial_id": "trial_11_0",
+          "reasoning": "Second-best in Gen11 (2.624003); similar family with potentially different annealing/initialization; good for elite restarts and hybridization.",
+          "category": "performance",
+          "source_generation": 11
+        },
+        {
+          "trial_id": "trial_11_2",
+          "reasoning": "Alternating LP <-> center-gradient scheme (2.614179); methodologically distinct and stable; promising to combine with density-weighted penalties and elite LP finalization.",
+          "category": "diversity",
+          "source_generation": 11
+        },
+        {
+          "trial_id": "trial_11_3",
+          "reasoning": "Explicit constrained (trust-constr/SLSQP) formulation (~2.599346); valuable diversity with potential gains via warm-starts from best LP radii and refined Jacobians.",
+          "category": "diversity",
+          "source_generation": 11
+        }
+      ],
+      "parents_used": [
+        "trial_7_7"
+      ],
+      "parents_used_counts": {
+        "trial_7_7": 2
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 206.54250257799868,
+          "count": 3
+        },
+        "child_llm_call": {
+          "total_s": 631.1400180591736,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 15.964357956079766,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 175.07705295004416,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T02:43:19.924040"
+    },
+    {
+      "generation_num": 12,
+      "num_trials": 8,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_12_4",
+      "best_score": 2.6297110524321203,
+      "selected_trial_ids": [
+        "trial_12_4",
+        "trial_12_3",
+        "trial_12_2"
+      ],
+      "selection_reasoning": "Auto-selected top performing trials",
+      "trial_selections": [
+        {
+          "trial_id": "trial_12_4",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 12
+        },
+        {
+          "trial_id": "trial_12_3",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 12
+        },
+        {
+          "trial_id": "trial_12_2",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 12
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 351.52905259199906,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 640.4285864561098,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 4.112442560959607,
+          "count": 5
+        },
+        "spawn_children": {
+          "total_s": 143.94987396604847,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T02:51:35.426937"
+    },
+    {
+      "generation_num": 13,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_13_6",
+      "best_score": 2.6357155005325295,
+      "selected_trial_ids": [
+        "trial_13_6",
+        "trial_10_2",
+        "trial_13_7",
+        "trial_13_2",
+        "trial_13_1"
+      ],
+      "selection_reasoning": "Carry forward the Gen13 top performer (trial_13_6) and the historical best (trial_10_2) for exploitation, plus diverse constrained (trial_13_7), stochastic basin-hopping (trial_13_2), and trust-constr (trial_13_1) approaches to preserve methodological diversity and improvement potential.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_13_6",
+          "reasoning": "Best of Gen13 (2.635716); density-weighted penalized L-BFGS-B + LP, closest to historical best and strong base for exploitation.",
+          "category": "performance",
+          "source_generation": 13
+        },
+        {
+          "trial_id": "trial_10_2",
+          "reasoning": "Historical best overall (2.635920); strong template to refine and hybridize with Gen13 improvements.",
+          "category": "performance",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_13_7",
+          "reasoning": "Constrained SLSQP + LP finalize (2.630590); complementary methodology to penalty methods.",
+          "category": "diversity",
+          "source_generation": 13
+        },
+        {
+          "trial_id": "trial_13_2",
+          "reasoning": "Basin-hopping outer + L-BFGS-B inner + LP (2.626420); stochastic approach offers different basin exploration.",
+          "category": "diversity",
+          "source_generation": 13
+        },
+        {
+          "trial_id": "trial_13_1",
+          "reasoning": "trust-constr with Jacobians + LP (2.614892); slightly lower score but promising constrained line for improvement.",
+          "category": "potential",
+          "source_generation": 13
+        }
+      ],
+      "parents_used": [
+        "trial_10_2",
+        "trial_10_6",
+        "trial_5_0",
+        "trial_7_7"
+      ],
+      "parents_used_counts": {
+        "trial_10_2": 2,
+        "trial_10_6": 2,
+        "trial_5_0": 2,
+        "trial_7_7": 2
+      },
+      "parents_not_selected_prev_gen": [
+        "trial_10_2",
+        "trial_10_6",
+        "trial_5_0",
+        "trial_7_7"
+      ],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 152.83711813704576,
+          "count": 3
+        },
+        "child_llm_call": {
+          "total_s": 706.8355666281423,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 28.681263596052304,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 168.43017885508016,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T02:56:56.711687"
+    },
+    {
+      "generation_num": 14,
+      "num_trials": 8,
+      "num_successful_trials": 5,
+      "best_trial_id": "trial_14_3",
+      "best_score": 2.1666731131572625,
+      "selected_trial_ids": [
+        "trial_10_2",
+        "trial_10_6",
+        "trial_5_0",
+        "trial_11_7",
+        "trial_14_3"
+      ],
+      "selection_reasoning": "Carry forward elite historical performers for exploitation and two diverse formulations for exploration, plus the best of Gen14 for potential improvements. Focus on penalized center optimization with LP finalization, complemented by constrained/stochastic variants.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_10_2",
+          "reasoning": "Best overall score (2.63592); strong penalized + LP approach to exploit.",
+          "category": "performance",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_10_6",
+          "reasoning": "Near-best (2.63587) with a different constrained formulation; complements penalized methods.",
+          "category": "diversity",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_5_0",
+          "reasoning": "Elite annealed-penalty L-BFGS-B + LP with excellent gradients; strong base to refine.",
+          "category": "performance",
+          "source_generation": 5
+        },
+        {
+          "trial_id": "trial_11_7",
+          "reasoning": "High-performing (2.63019) budget-friendly variant; different implementation details useful for hybridization.",
+          "category": "diversity",
+          "source_generation": 11
+        },
+        {
+          "trial_id": "trial_14_3",
+          "reasoning": "Best of current generation; despite lower score, offers fresh dynamics worth refining.",
+          "category": "potential",
+          "source_generation": 14
+        }
+      ],
+      "parents_used": [
+        "trial_5_0"
+      ],
+      "parents_used_counts": {
+        "trial_5_0": 1
+      },
+      "parents_not_selected_prev_gen": [
+        "trial_5_0"
+      ],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 435.4890160589712,
+          "count": 5
+        },
+        "child_llm_call": {
+          "total_s": 746.7222010062542,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 8.196445880108513,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 210.97502967901528,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T03:07:43.199718"
+    },
+    {
+      "generation_num": 15,
+      "num_trials": 8,
+      "num_successful_trials": 7,
+      "best_trial_id": "trial_15_7",
+      "best_score": 2.6358676293444767,
+      "selected_trial_ids": [
+        "trial_15_7",
+        "trial_15_3",
+        "trial_15_1"
+      ],
+      "selection_reasoning": "Auto-selected top performing trials",
+      "trial_selections": [
+        {
+          "trial_id": "trial_15_7",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 15
+        },
+        {
+          "trial_id": "trial_15_3",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 15
+        },
+        {
+          "trial_id": "trial_15_1",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 15
+        }
+      ],
+      "parents_used": [
+        "trial_10_2"
+      ],
+      "parents_used_counts": {
+        "trial_10_2": 2
+      },
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 259.4130877640564,
+          "count": 2
+        },
+        "child_llm_call": {
+          "total_s": 951.075551332091,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 25.392999327159487,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 229.21593727299478,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T03:15:51.844008"
+    },
+    {
+      "generation_num": 16,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_16_2",
+      "best_score": 2.6358676293444767,
+      "selected_trial_ids": [
+        "trial_16_2",
+        "trial_10_2",
+        "trial_15_7",
+        "trial_16_6",
+        "trial_16_4"
+      ],
+      "selection_reasoning": "Carry forward the top Gen16 performer (trial_16_2) and two historical elites (trial_10_2, trial_15_7) for exploitation, plus two methodologically diverse lines\u2014SLSQP constraints (trial_16_6) and unconstrained reparam (trial_16_4)\u2014to preserve diversity and potential for gains.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_16_2",
+          "reasoning": "Best of this generation (2.635868) with basin-hopping + LP acceptance; strong exploitable baseline.",
+          "category": "performance",
+          "source_generation": 16
+        },
+        {
+          "trial_id": "trial_10_2",
+          "reasoning": "Historical best overall (\u22482.635920); proven elite configuration to refine further.",
+          "category": "performance",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_15_7",
+          "reasoning": "Recent elite penalized + LP variant (\u22482.635868); complementary to basin-hopping line.",
+          "category": "performance",
+          "source_generation": 15
+        },
+        {
+          "trial_id": "trial_16_6",
+          "reasoning": "SLSQP with explicit constraints + LP; lower score now but valuable constrained-method diversity to improve.",
+          "category": "diversity",
+          "source_generation": 16
+        },
+        {
+          "trial_id": "trial_16_4",
+          "reasoning": "Unconstrained reparameterization + LP; distinct search space with room for tuning and better seeding.",
+          "category": "diversity",
+          "source_generation": 16
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 327.16948247503024,
+          "count": 3
+        },
+        "child_llm_call": {
+          "total_s": 851.6736951458734,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 22.664314919849858,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 226.9497711060103,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T03:25:05.985538"
+    },
+    {
+      "generation_num": 17,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_17_0",
+      "best_score": 2.6218278438591467,
+      "selected_trial_ids": [
+        "trial_10_2",
+        "trial_15_7",
+        "trial_17_0",
+        "trial_17_3",
+        "trial_17_4"
+      ],
+      "selection_reasoning": "Carry forward two elite historical performers for exploitation (trial_10_2, trial_15_7) and the best from Gen17 (trial_17_0). Add two diverse approaches from Gen17 (unconstrained reparam and Dykstra-like) to preserve methodological diversity.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_10_2",
+          "reasoning": "Best historical performer (2.6359); strong penalized + LP baseline to exploit.",
+          "category": "performance",
+          "source_generation": 10
+        },
+        {
+          "trial_id": "trial_15_7",
+          "reasoning": "Recent top performer at 2.6359; maintains elite family with updated seeding/annealing.",
+          "category": "performance",
+          "source_generation": 15
+        },
+        {
+          "trial_id": "trial_17_0",
+          "reasoning": "Best of Gen17 (2.6218); penalized L-BFGS-B + LP with kNN/density weighting shows room for improvement via restarts/masks.",
+          "category": "performance",
+          "source_generation": 17
+        },
+        {
+          "trial_id": "trial_17_3",
+          "reasoning": "Unconstrained reparameterization (sigmoid/softplus) + LP; different landscape and promising at 2.6059.",
+          "category": "diversity",
+          "source_generation": 17
+        },
+        {
+          "trial_id": "trial_17_4",
+          "reasoning": "Dykstra-like projection + LP hybrid; distinct local search dynamics worth refining despite moderate score (2.4755).",
+          "category": "diversity",
+          "source_generation": 17
+        }
+      ],
+      "parents_used": [],
+      "parents_used_counts": {},
+      "parents_not_selected_prev_gen": [],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 167.63971722801216,
+          "count": 2
+        },
+        "child_llm_call": {
+          "total_s": 830.2272916709771,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 51.85341857094318,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 272.7367763010552,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T03:32:26.373553"
+    },
+    {
+      "generation_num": 18,
+      "num_trials": 8,
+      "num_successful_trials": 6,
+      "best_trial_id": "trial_18_2",
+      "best_score": 2.628938792552358,
+      "selected_trial_ids": [
+        "trial_18_2",
+        "trial_18_4",
+        "trial_18_0",
+        "trial_18_7",
+        "trial_10_2"
+      ],
+      "selection_reasoning": "Carry forward Gen18\u2019s top three performers for exploitation, include a distinct shake-and-polish method for diversity, and keep the historical best as an anchor for refinement and seeding.",
+      "trial_selections": [
+        {
+          "trial_id": "trial_18_2",
+          "reasoning": "Best of Gen18 (2.628939); basin-hopping + local L-BFGS-B + LP shows strong performance and stochastic diversity.",
+          "category": "performance",
+          "source_generation": 18
+        },
+        {
+          "trial_id": "trial_18_4",
+          "reasoning": "Second-best Gen18 (2.625284); budget multi-start penalized L-BFGS-B + LP is robust and scalable for further exploitation.",
+          "category": "performance",
+          "source_generation": 18
+        },
+        {
+          "trial_id": "trial_18_0",
+          "reasoning": "Third-best Gen18 (2.606733); annealed neighbor-weighted penalty variant with clear headroom via weight tuning and more starts.",
+          "category": "potential",
+          "source_generation": 18
+        },
+        {
+          "trial_id": "trial_18_7",
+          "reasoning": "Distinct shake-and-polish cycle with LP finalization; adds methodological diversity while remaining competitive (2.574547).",
+          "category": "diversity",
+          "source_generation": 18
+        },
+        {
+          "trial_id": "trial_10_2",
+          "reasoning": "Historical best (2.635919); strong anchor to refine and to seed/benchmark future hybrids.",
+          "category": "performance",
+          "source_generation": 10
+        }
+      ],
+      "parents_used": [
+        "trial_10_2",
+        "trial_10_6",
+        "trial_7_7"
+      ],
+      "parents_used_counts": {
+        "trial_10_2": 5,
+        "trial_10_6": 1,
+        "trial_7_7": 2
+      },
+      "parents_not_selected_prev_gen": [
+        "trial_10_6",
+        "trial_7_7"
+      ],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 165.8681804459775,
+          "count": 2
+        },
+        "child_llm_call": {
+          "total_s": 786.7905615469208,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 12.649862112943083,
+          "count": 8
+        },
+        "spawn_children": {
+          "total_s": 167.9804077630397,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T03:38:00.236854"
+    },
+    {
+      "generation_num": 19,
+      "num_trials": 8,
+      "num_successful_trials": 4,
+      "best_trial_id": "trial_19_3",
+      "best_score": 2.6358676293444767,
+      "selected_trial_ids": [
+        "trial_19_3",
+        "trial_19_6",
+        "trial_19_5"
+      ],
+      "selection_reasoning": "Auto-selected top performing trials",
+      "trial_selections": [
+        {
+          "trial_id": "trial_19_3",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 19
+        },
+        {
+          "trial_id": "trial_19_6",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 19
+        },
+        {
+          "trial_id": "trial_19_5",
+          "reasoning": "Auto-selected for high score",
+          "category": "performance",
+          "source_generation": 19
+        }
+      ],
+      "parents_used": [
+        "trial_10_2",
+        "trial_10_6",
+        "trial_11_7",
+        "trial_13_6",
+        "trial_15_7",
+        "trial_5_0",
+        "trial_6_7",
+        "trial_7_7"
+      ],
+      "parents_used_counts": {
+        "trial_10_2": 1,
+        "trial_10_6": 1,
+        "trial_11_7": 1,
+        "trial_13_6": 1,
+        "trial_15_7": 1,
+        "trial_5_0": 1,
+        "trial_6_7": 1,
+        "trial_7_7": 1
+      },
+      "parents_not_selected_prev_gen": [
+        "trial_10_6",
+        "trial_11_7",
+        "trial_13_6",
+        "trial_15_7",
+        "trial_5_0",
+        "trial_6_7",
+        "trial_7_7"
+      ],
+      "timing": {
+        "root_llm_call": {
+          "total_s": 474.7804705549497,
+          "count": 4
+        },
+        "child_llm_call": {
+          "total_s": 797.788824702031,
+          "count": 8
+        },
+        "evaluation": {
+          "total_s": 16.826180075877346,
+          "count": 6
+        },
+        "spawn_children": {
+          "total_s": 166.55960816401057,
+          "count": 1
+        }
+      },
+      "timestamp": "2026-02-11T03:48:41.599924"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+============================================================
+SCRATCHPAD FOR GENERATION 0
+============================================================
+
+
+## Initial Strategy - Generation 0
+- The goal is to maximize the sum of 26 radii in a [0, 1] x [0, 1] square.
+- This is a non-convex optimization problem with overlap constraints.
+- We will explore several initial approaches:
+    1. Multi-start SLSQP with random initializations.
+    2. Basin-hopping for global optimization.
+    3. Grid-based initialization (hexagonal and square) followed by local refinement.
+    4. A 'growth' strategy: start with 26 points and expand radii until they hit boundaries or each other.
+    5. Two-stage optimization: first maximize the minimum radius (standard packing), then maximize the sum.
+    6. Force-directed/repulsion model to spread circles before refining.
+
+## Generation 0 Analysis
+- Best Score: 2.615866860608053 (trial_0_1)
+- trial_0_1 used Basin-hopping with SLSQP.
+- trial_0_4 used a two-stage approach: first packing equal circles, then relaxing radii.
+- Failures (0_0, 0_2, 0_5) were largely due to:
+    - trial_0_0: 'Objective function must return a scalar' (likely returning an array of radii).
+    - trial_0_2: 'Inequality constraints must be a list of dictionaries' or similar structural issues in SLSQP setup.
+    - trial_0_5: Likely a dimensionality mismatch in the repulsion logic.
+- Insight: SLSQP is sensitive to the exact format of constraints. Basin-hopping is robust but needs a well-defined inner minimization.

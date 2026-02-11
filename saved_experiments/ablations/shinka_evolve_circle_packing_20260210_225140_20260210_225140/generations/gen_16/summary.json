@@ -1,0 +1,69 @@
+{
+  "generation_num": 16,
+  "num_trials": 8,
+  "num_successful_trials": 6,
+  "best_trial_id": "trial_16_2",
+  "best_score": 2.6358676293444767,
+  "selected_trial_ids": [
+    "trial_16_2",
+    "trial_10_2",
+    "trial_15_7",
+    "trial_16_6",
+    "trial_16_4"
+  ],
+  "selection_reasoning": "Carry forward the top Gen16 performer (trial_16_2) and two historical elites (trial_10_2, trial_15_7) for exploitation, plus two methodologically diverse lines\u2014SLSQP constraints (trial_16_6) and unconstrained reparam (trial_16_4)\u2014to preserve diversity and potential for gains.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_16_2",
+      "reasoning": "Best of this generation (2.635868) with basin-hopping + LP acceptance; strong exploitable baseline.",
+      "category": "performance",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_10_2",
+      "reasoning": "Historical best overall (\u22482.635920); proven elite configuration to refine further.",
+      "category": "performance",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_15_7",
+      "reasoning": "Recent elite penalized + LP variant (\u22482.635868); complementary to basin-hopping line.",
+      "category": "performance",
+      "source_generation": 15
+    },
+    {
+      "trial_id": "trial_16_6",
+      "reasoning": "SLSQP with explicit constraints + LP; lower score now but valuable constrained-method diversity to improve.",
+      "category": "diversity",
+      "source_generation": 16
+    },
+    {
+      "trial_id": "trial_16_4",
+      "reasoning": "Unconstrained reparameterization + LP; distinct search space with room for tuning and better seeding.",
+      "category": "diversity",
+      "source_generation": 16
+    }
+  ],
+  "parents_used": [],
+  "parents_used_counts": {},
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 327.16948247503024,
+      "count": 3
+    },
+    "child_llm_call": {
+      "total_s": 851.6736951458734,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 22.664314919849858,
+      "count": 8
+    },
+    "spawn_children": {
+      "total_s": 226.9497711060103,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T03:25:05.985538"
+}

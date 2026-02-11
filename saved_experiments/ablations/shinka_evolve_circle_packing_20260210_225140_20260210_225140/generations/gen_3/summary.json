@@ -1,0 +1,66 @@
+{
+  "generation_num": 3,
+  "num_trials": 8,
+  "num_successful_trials": 7,
+  "best_trial_id": "trial_3_4",
+  "best_score": 2.5671627808848183,
+  "selected_trial_ids": [
+    "trial_2_0",
+    "trial_3_4",
+    "trial_3_3",
+    "trial_3_0"
+  ],
+  "selection_reasoning": "Carrying forward the overall best from Gen 2 for performance, plus the top three valid Gen 3 trials to preserve method diversity and potential for refinement.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_2_0",
+      "reasoning": "Highest known score so far (2.614178549664672) from previous generation; strong baseline to refine further.",
+      "category": "performance",
+      "source_generation": 2
+    },
+    {
+      "trial_id": "trial_3_4",
+      "reasoning": "Best of Generation 3 (2.567163); likely a different methodology this gen and worth exploiting.",
+      "category": "performance",
+      "source_generation": 3
+    },
+    {
+      "trial_id": "trial_3_3",
+      "reasoning": "Second-best in Gen 3 (2.440706); maintains diversity relative to the top Gen 3 performer.",
+      "category": "diversity",
+      "source_generation": 3
+    },
+    {
+      "trial_id": "trial_3_0",
+      "reasoning": "Third-best in Gen 3 (2.360222); potential for improvement and alternative approach coverage.",
+      "category": "potential",
+      "source_generation": 3
+    }
+  ],
+  "parents_used": [
+    "trial_2_0"
+  ],
+  "parents_used_counts": {
+    "trial_2_0": 2
+  },
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 93.33635923301335,
+      "count": 2
+    },
+    "child_llm_call": {
+      "total_s": 942.6413953651208,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 173.2886005730834,
+      "count": 7
+    },
+    "spawn_children": {
+      "total_s": 200.74131066910923,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T01:12:53.584522"
+}

@@ -60,10 +60,11 @@ from mango_evolve.llm.prompts import (
 
 
 ABLATION_CONFIGS = [
-    # "configs/ablations/baseline.yaml",
-    # "configs/ablations/no_scratchpad.yaml",
-    # "configs/ablations/no_trial_reasoning.yaml",
-    # "configs/ablations/no_query_llm.yaml",
+    "configs/shinka_evolve_circle_packing.yaml",
+    "configs/ablations/baseline.yaml",
+    "configs/ablations/no_scratchpad.yaml",
+    "configs/ablations/no_trial_reasoning.yaml",
+    "configs/ablations/no_query_llm.yaml",
     "configs/ablations/all_ablations.yaml",
 ]
 
@@ -497,7 +498,7 @@ Examples:
     parser.add_argument(
         "--max-workers",
         type=int,
-        default=None,
+        default=6,
         help="Max parallel experiments (default: number of configs)",
     )
 

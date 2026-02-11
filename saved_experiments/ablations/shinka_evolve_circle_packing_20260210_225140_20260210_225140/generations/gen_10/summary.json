@@ -1,0 +1,73 @@
+{
+  "generation_num": 10,
+  "num_trials": 8,
+  "num_successful_trials": 6,
+  "best_trial_id": "trial_10_2",
+  "best_score": 2.635919655314255,
+  "selected_trial_ids": [
+    "trial_10_2",
+    "trial_10_6",
+    "trial_10_4",
+    "trial_10_1",
+    "trial_7_7"
+  ],
+  "selection_reasoning": "Advance with the two top performers from Gen10 for exploitation, retain a strong alternating/basin-hopping style for diversity, include an explicit-constraint variant for methodological breadth, and keep the historical best (Gen7) as a robust baseline for hybrid seeding.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_10_2",
+      "reasoning": "Best score this generation (2.635920); strong penalized optimization with LP finalization; prime candidate to exploit.",
+      "category": "performance",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_10_6",
+      "reasoning": "Second-best (2.635868), essentially tied; likely different seeds/weights worth merging with the top method.",
+      "category": "performance",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_10_4",
+      "reasoning": "Good score (2.617922) and likely a different workflow (alternating LP + center updates or basin-hopping); valuable for diversity.",
+      "category": "diversity",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_10_1",
+      "reasoning": "Moderate score (2.600514) but likely explicit constraint/Jacobian approach (trust-constr/SLSQP); keep for constrained-method diversity and refinement potential.",
+      "category": "diversity",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_7_7",
+      "reasoning": "Historical near-best (2.635868) and proven baseline; useful for cross-seeding and hybridization with Gen10 improvements.",
+      "category": "potential",
+      "source_generation": 7
+    }
+  ],
+  "parents_used": [
+    "trial_7_7"
+  ],
+  "parents_used_counts": {
+    "trial_7_7": 8
+  },
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 766.2219799828017,
+      "count": 8
+    },
+    "child_llm_call": {
+      "total_s": 939.8206062532263,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 96.76017992489506,
+      "count": 7
+    },
+    "spawn_children": {
+      "total_s": 275.8709892850602,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T02:36:58.286279"
+}

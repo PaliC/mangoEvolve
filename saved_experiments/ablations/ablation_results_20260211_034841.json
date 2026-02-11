@@ -1,0 +1,258 @@
+{
+  "timestamp": "20260211_034841",
+  "num_configs": 6,
+  "results": [
+    {
+      "config": "all_ablations",
+      "experiment_name": "ablation_all_disabled_20260210_225140",
+      "total_trials": 60,
+      "successful_trials": 47,
+      "best_score": 2.635983084917586,
+      "num_generations": 10,
+      "reason": "max_generations_reached",
+      "cost": {
+        "total_cost": 0.5880384999999999,
+        "remaining_budget": 49.4119615,
+        "total_input_tokens": 244193,
+        "total_output_tokens": 155314,
+        "root_cost": 0.1701345,
+        "root_calls": 37,
+        "child_costs": {
+          "flash": 0.417904
+        },
+        "child_calls": {
+          "flash": 60
+        },
+        "total_child_cost": 0.417904,
+        "total_child_calls": 60,
+        "total_cache_creation_tokens": 0,
+        "total_cache_read_tokens": 0,
+        "cache_savings": 0.0,
+        "total_wall_time_s": 4445.389676186955,
+        "total_root_llm_time_s": 230.5892405587947,
+        "total_child_llm_time_s": 7743.192378035863,
+        "total_eval_time_s": 8123.806709428085,
+        "total_spawn_time_s": 4214.370956654893,
+        "num_generations_timed": 10,
+        "avg_generation_time_s": 443.5228407357819
+      },
+      "flags": {
+        "hide_scratchpad": true,
+        "hide_trial_reasoning": true,
+        "disable_query_llm": true
+      }
+    },
+    {
+      "config": "no_query_llm",
+      "experiment_name": "ablation_no_query_llm_20260210_225140",
+      "total_trials": 60,
+      "successful_trials": 42,
+      "best_score": 2.6359830855348263,
+      "num_generations": 10,
+      "reason": "max_generations_reached (with errors: gen2: RetryError: RetryError[<Future at 0x7f49c4dc3f50 state=finished returned GenerateContentResponse>]; gen5: RetryError: RetryError[<Future at 0x7f4904f35c50 state=finished returned GenerateContentResponse>]; gen5: RetryError: RetryError[<Future at 0x7f4904f34bd0 state=finished returned GenerateContentResponse>]; gen5: RetryError: RetryError[<Future at 0x7f4904f51b50 state=finished returned GenerateContentResponse>]; gen9: RetryError: RetryError[<Future at 0x7f4904fc77d0 state=finished returned GenerateContentResponse>])",
+      "cost": {
+        "total_cost": 0.7051284999999998,
+        "remaining_budget": 49.2948715,
+        "total_input_tokens": 329099,
+        "total_output_tokens": 180193,
+        "root_cost": 0.2034755,
+        "root_calls": 38,
+        "child_costs": {
+          "flash": 0.501653
+        },
+        "child_calls": {
+          "flash": 60
+        },
+        "total_child_cost": 0.501653,
+        "total_child_calls": 60,
+        "total_cache_creation_tokens": 0,
+        "total_cache_read_tokens": 0,
+        "cache_savings": 0.0,
+        "total_wall_time_s": 4631.22889845504,
+        "total_root_llm_time_s": 428.1642984688515,
+        "total_child_llm_time_s": 7107.013340682606,
+        "total_eval_time_s": 9084.275435093557,
+        "total_spawn_time_s": 4059.5974972196855,
+        "num_generations_timed": 10,
+        "avg_generation_time_s": 317.0742361310986
+      },
+      "flags": {
+        "hide_scratchpad": false,
+        "hide_trial_reasoning": false,
+        "disable_query_llm": true
+      }
+    },
+    {
+      "config": "no_scratchpad",
+      "experiment_name": "ablation_no_scratchpad_20260210_225140",
+      "total_trials": 60,
+      "successful_trials": 42,
+      "best_score": 2.6359830849618215,
+      "num_generations": 10,
+      "reason": "max_generations_reached",
+      "cost": {
+        "total_cost": 0.6165400000000001,
+        "remaining_budget": 49.38346,
+        "total_input_tokens": 326216,
+        "total_output_tokens": 151144,
+        "root_cost": 0.21438,
+        "root_calls": 38,
+        "child_costs": {
+          "flash": 0.40216
+        },
+        "child_calls": {
+          "flash": 60
+        },
+        "total_child_cost": 0.40216,
+        "total_child_calls": 60,
+        "total_cache_creation_tokens": 0,
+        "total_cache_read_tokens": 0,
+        "cache_savings": 0.0,
+        "total_wall_time_s": 4823.790250346065,
+        "total_root_llm_time_s": 254.75177815102506,
+        "total_child_llm_time_s": 7307.4252289438155,
+        "total_eval_time_s": 9687.462661640835,
+        "total_spawn_time_s": 4134.8554663860705,
+        "num_generations_timed": 10,
+        "avg_generation_time_s": 482.3474233452929
+      },
+      "flags": {
+        "hide_scratchpad": true,
+        "hide_trial_reasoning": false,
+        "disable_query_llm": false
+      }
+    },
+    {
+      "config": "baseline",
+      "experiment_name": "ablation_baseline_20260210_225140",
+      "total_trials": 60,
+      "successful_trials": 45,
+      "best_score": 2.6359830849359622,
+      "num_generations": 10,
+      "reason": "max_generations_reached (with errors: gen3: RetryError: RetryError[<Future at 0x7f49c4dc92d0 state=finished returned GenerateContentResponse>]; gen4: RetryError: RetryError[<Future at 0x7f49c4e36750 state=finished returned GenerateContentResponse>]; gen4: RetryError: RetryError[<Future at 0x7f49c4e37650 state=finished returned GenerateContentResponse>])",
+      "cost": {
+        "total_cost": 0.7045700000000001,
+        "remaining_budget": 49.29543,
+        "total_input_tokens": 449884,
+        "total_output_tokens": 159876,
+        "root_cost": 0.291439,
+        "root_calls": 39,
+        "child_costs": {
+          "flash": 0.413131
+        },
+        "child_calls": {
+          "flash": 60
+        },
+        "total_child_cost": 0.413131,
+        "total_child_calls": 60,
+        "total_cache_creation_tokens": 0,
+        "total_cache_read_tokens": 0,
+        "cache_savings": 0.0,
+        "total_wall_time_s": 4879.128221507999,
+        "total_root_llm_time_s": 400.30621844215784,
+        "total_child_llm_time_s": 7742.573242079699,
+        "total_eval_time_s": 10504.994866071036,
+        "total_spawn_time_s": 3910.9200825011358,
+        "num_generations_timed": 10,
+        "avg_generation_time_s": 385.2933374369051
+      },
+      "flags": {
+        "hide_scratchpad": false,
+        "hide_trial_reasoning": false,
+        "disable_query_llm": false
+      }
+    },
+    {
+      "config": "no_trial_reasoning",
+      "experiment_name": "ablation_no_trial_reasoning_20260210_225140",
+      "total_trials": 59,
+      "successful_trials": 50,
+      "best_score": 2.635983084917561,
+      "num_generations": 10,
+      "reason": "max_generations_reached (with errors: gen4: ```\nimport numpy as np\n\n# Analyze the best trial to understand its structure\nbest_trial = trials.filter(success=True, sort_by=\"-score\", limit=1)[0]\nprint(f\"Best trial so far: {best_trial.trial_id} wit; gen7: RetryError: RetryError[<Future at 0x7f491ce0d0d0 state=finished returned GenerateContentResponse>]; gen8: RetryError: RetryError[<Future at 0x7f491ce5b950 state=finished returned GenerateContentResponse>]; gen9: ServerError: 500 INTERNAL. {'error': {'code': 500, 'message': 'Internal error encountered.', 'status': 'INTERNAL'}})",
+      "cost": {
+        "total_cost": 0.6876955,
+        "remaining_budget": 49.3123045,
+        "total_input_tokens": 379067,
+        "total_output_tokens": 166054,
+        "root_cost": 0.23324899999999998,
+        "root_calls": 33,
+        "child_costs": {
+          "flash": 0.45444650000000003
+        },
+        "child_calls": {
+          "flash": 59
+        },
+        "total_child_cost": 0.45444650000000003,
+        "total_child_calls": 59,
+        "total_cache_creation_tokens": 0,
+        "total_cache_read_tokens": 0,
+        "cache_savings": 0.0,
+        "total_wall_time_s": 4923.288912542979,
+        "total_root_llm_time_s": 374.7527272090083,
+        "total_child_llm_time_s": 7187.667992031202,
+        "total_eval_time_s": 10967.479766423581,
+        "total_spawn_time_s": 4142.5615998439025,
+        "num_generations_timed": 10,
+        "avg_generation_time_s": 394.834963423491
+      },
+      "flags": {
+        "hide_scratchpad": false,
+        "hide_trial_reasoning": true,
+        "disable_query_llm": false
+      }
+    },
+    {
+      "config": "shinka_evolve_circle_packing",
+      "experiment_name": "shinka_evolve_circle_packing_20260210_225140",
+      "total_trials": 160,
+      "successful_trials": 122,
+      "best_score": 2.635919655314255,
+      "num_generations": 20,
+      "reason": "max_generations_reached (with errors: gen2: ```\n# Orchestrator: Generation 2 \u2014 Spawn 8 diverse children per strategy plan\n\n# Build common header and detailed prompts, then spawn children.\n# After spawning, record brief info to scratchpad for ne; gen2: ```\n# Inspect existing trials, then spawn 8 diverse children per the plan.\n\nfrom math import ceil\nfrom itertools import islice\nimport statistics\n\n# 1) Quick scan of current trials to learn what's work; gen2: ```\n# Analyze existing trials, spawn 8 diverse children, then select the best performers.\n# This orchestration follows the Generation 0 plan with gradient-calibrated penalties and LP-feasibilization.\n; gen2: ```\n# Generation 2 orchestration: spawn 8 diverse children, then select best\n\n# 1) Inspect existing trials for context (if any)\ntry:\n    total = len(trials)\n    top_prev = trials.filter(success=True, ; gen5: ```\n# Plan and spawn 8 diverse children with strict instructions\n\nprompts = []\n\ncommon_req = \"\"\"\nYou must output a single Python code block containing only code. No prose.\nImplement construct_packing(; gen5: ```\n# Analyze past trials, spawn 8 diverse children, and select the best ones.\n\n# 1) Inspect existing trials to inform prompts\ntop_now = trials.filter(success=True, sort_by=\"-score\", limit=5)\nsummary ; gen6: ```\n# Orchestrator: Generation 6\n# Strategy: Spawn 8 diverse children with strong LP-finalization and analytic gradients.\n# Notes:\n# - Children must output a single Python code block with an entry fun; gen7: ```\n# Analysis: inspect prior trials and prepare targeted child prompts\ntop = trials.filter(success=True, sort_by=\"-score\", limit=6)\ntop_summ = [(t.trial_id, t.score) for t in top]\nbest = top[0] if to; gen8: ```\n# Spawn 8 children with diverse strategies\n\nbest_prev = \"trial_7_7\"\nalt_prev = \"trial_6_7\"\nref_prev = \"trial_2_0\"\n\nchildren_specs = [\n    # 1) Exploit best: multi-start annealed L-BFGS-B with adap; gen8: ```\n# Analyze historical trials and spawn 8 children to push beyond 2.635\n\n# 1) Inspect top historical trials\ntop_all = trials.filter(success=True, sort_by=\"-score\", limit=8)\nbest = trials.filter(succ; gen8: ```\n# Generation 8 orchestration\n\n# 1) Inspect prior best trials to guide prompts\ntop5 = trials.filter(success=True, sort_by=\"-score\", limit=5)\nbest_overall = top5[0] if top5 else None\nbest_overall_id; gen8: ```\n# Generation 8 orchestration\n\n# Strategy: Build on the best-performing approaches (penalty-annealed L-BFGS-B + LP finalization, basin-hopping hybrids),\n# add diversity (Dykstra-like projections + ; gen8: ```\n# Generation 8 \u2014 Spawn 8 diverse children to improve 26-circle packing in [0,1]^2\n\n# Strategy notes for children (recap):\n# - Exactly 26 circles; strict feasibility; return (centers, radii, sum_ra; gen8: ```\n# Child prompts builder for consistent instructions\ncommon_header = \"\"\"\nYou are to write a single Python code block implementing circle packing of 26 circles in the unit square.\nRequirements:\n- Pr; gen8: ```\n# Orchestrator for Generation 8: spawn 8 diverse children and select best\n\n# Build common prompt header\nbest_known = 2.6358676293444767  # from trial_7_7\ntry:\n    ref_best_code = trials[\"trial_7_7; gen8: ```\n# Generation 8 orchestration: spawn 8 diverse yet focused children\n\nfrom textwrap import dedent\n\ncommon_intro = dedent(\"\"\"\nYou are to write a single Python module that constructs a packing of 26 n; gen8: ```\n# Gather references\nbest = trials[\"trial_7_7\"]  # Best so far: 2.6358676293444767\ngen6_best = trials[\"trial_6_7\"] if \"trial_6_7\" in trials else None\ngen2_best = trials[\"trial_2_0\"] if \"trial_2_0\" ; gen10: ```\n# Generation 10 \u2014 Orchestrator: spawn 8 children with diverse, high-quality strategies\n\n# Utilities to fetch reference codes and craft prompts\ndef get_best_codes():\n    # Try to pull known top tri; gen12: ```\n# Generation 12 orchestration: spawn 8 diverse children, analyze, and select\n\nfrom math import sqrt\nimport statistics\n\n# Helper: build a concise header to enforce format and feasibility guarantees; gen14: ```\n# Generation 14 orchestration\n\n# 1) Elite penalized L-BFGS-B + LP with adaptive density weights, multi-starts (build on best historical code)\nbest_refs = trials.filter(success=True, sort_by=\"-scor; gen16: ```\n# Generation 16 orchestration\n\n# Common imports available in this REPL context\nfrom textwrap import dedent\n\n# Helper to safely pull code from a prior trial (fallback if missing)\ndef get_code_or_em)",
+      "cost": {
+        "total_cost": 13.1345133,
+        "remaining_budget": 36.8654867,
+        "total_input_tokens": 2180799,
+        "total_output_tokens": 1517688,
+        "root_cost": 6.6103975,
+        "root_calls": 107,
+        "child_costs": {
+          "gemini-pro": 0.9376800000000001,
+          "gemini-flash": 0.5911847,
+          "sonnet": 1.248699,
+          "o4-mini": 0.5148242000000001,
+          "gpt5": 2.8389025,
+          "gpt5-mini": 0.31980125,
+          "gpt5-nano": 0.07302415000000001
+        },
+        "child_calls": {
+          "gemini-pro": 20,
+          "gemini-flash": 37,
+          "sonnet": 19,
+          "o4-mini": 20,
+          "gpt5": 27,
+          "gpt5-mini": 21,
+          "gpt5-nano": 16
+        },
+        "total_child_cost": 6.524115800000001,
+        "total_child_calls": 160,
+        "total_cache_creation_tokens": 0,
+        "total_cache_read_tokens": 0,
+        "cache_savings": 0.0,
+        "total_wall_time_s": 17820.85076391499,
+        "total_root_llm_time_s": 12972.528414782602,
+        "total_child_llm_time_s": 14939.113764106994,
+        "total_eval_time_s": 640.5885537514696,
+        "total_spawn_time_s": 3744.4885970032774,
+        "num_generations_timed": 20,
+        "avg_generation_time_s": 386.70970459320813
+      },
+      "flags": {
+        "hide_scratchpad": false,
+        "hide_trial_reasoning": false,
+        "disable_query_llm": false
+      }
+    }
+  ]
+}

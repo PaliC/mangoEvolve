@@ -1,0 +1,73 @@
+{
+  "generation_num": 9,
+  "num_trials": 8,
+  "num_successful_trials": 8,
+  "best_trial_id": "trial_9_4",
+  "best_score": 2.6070437984759827,
+  "selected_trial_ids": [
+    "trial_7_7",
+    "trial_6_7",
+    "trial_9_4",
+    "trial_9_2",
+    "trial_9_7"
+  ],
+  "selection_reasoning": "Carry forward the strongest historical baselines (trial_7_7, trial_6_7) for exploitation and the top Gen9 performer (trial_9_4) for potential gains, plus two diverse methods (trust-constr and active-set subgradient) to preserve methodological diversity.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_7_7",
+      "reasoning": "Best overall score (2.6359); strong baseline to further refine and hybridize.",
+      "category": "performance",
+      "source_generation": 7
+    },
+    {
+      "trial_id": "trial_6_7",
+      "reasoning": "High historical performer (2.6206) offering a reliable alternative baseline.",
+      "category": "performance",
+      "source_generation": 6
+    },
+    {
+      "trial_id": "trial_9_4",
+      "reasoning": "Best of Gen9 (2.6070); unconstrained reparam (sigmoid/softplus) + LP shows headroom with tuning.",
+      "category": "potential",
+      "source_generation": 9
+    },
+    {
+      "trial_id": "trial_9_2",
+      "reasoning": "Trust-constr with explicit constraints/Jacobians; different solver family worth advancing.",
+      "category": "diversity",
+      "source_generation": 9
+    },
+    {
+      "trial_id": "trial_9_7",
+      "reasoning": "Active-set LP-driven subgradient on centers; conceptually distinct path with improvement potential.",
+      "category": "diversity",
+      "source_generation": 9
+    }
+  ],
+  "parents_used": [
+    "trial_7_7"
+  ],
+  "parents_used_counts": {
+    "trial_7_7": 5
+  },
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 137.2863360280171,
+      "count": 2
+    },
+    "child_llm_call": {
+      "total_s": 616.5461935758358,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 9.57649463287089,
+      "count": 8
+    },
+    "spawn_children": {
+      "total_s": 182.00716129108332,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T02:19:36.157253"
+}

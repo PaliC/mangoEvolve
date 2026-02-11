@@ -1,0 +1,46 @@
+============================================================
+LINEAGE MAP FOR GENERATION 3
+============================================================
+
+### All-Time Top 5 (cross-generation selection candidates)
+  1. trial_1_5 [Gen 1] = 2.6309106660
+  2. trial_2_1 [Gen 2] = 2.6306884749
+  3. trial_2_0 [Gen 2] = 2.6278333987
+  4. trial_1_4 [Gen 1] = 2.6270695494
+  5. trial_2_3 [Gen 2] = 2.6197135601
+
+### Full Lineage Tree
+
+trial_1_5 (2.6309106659682073) ← best
+    └── trial_2_0 (2.6278333987203673)
+    └── trial_2_1 (2.6306884748870738)
+
+trial_1_4 (2.6270695494024667)
+
+trial_2_3 (2.6197135600647385)
+
+trial_0_1 (2.6131213990450148)
+
+trial_0_5 (2.6129168854433709)
+
+trial_1_1 (2.6122999656469563)
+
+trial_1_3 (2.6104258007752912)
+
+trial_2_5 (2.4139649166108201)
+
+trial_0_0 (INVALID)
+
+trial_0_2 (INVALID)
+
+trial_0_3 (INVALID)
+
+trial_0_4 (INVALID)
+
+trial_1_0 (INVALID)
+
+trial_1_2 (0.0000000000000000)
+
+trial_2_2 (INVALID)
+
+trial_2_4 (INVALID)

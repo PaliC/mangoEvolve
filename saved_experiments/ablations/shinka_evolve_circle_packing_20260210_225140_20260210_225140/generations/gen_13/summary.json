@@ -1,0 +1,84 @@
+{
+  "generation_num": 13,
+  "num_trials": 8,
+  "num_successful_trials": 7,
+  "best_trial_id": "trial_13_6",
+  "best_score": 2.6357155005325295,
+  "selected_trial_ids": [
+    "trial_13_6",
+    "trial_10_2",
+    "trial_13_7",
+    "trial_13_2",
+    "trial_13_1"
+  ],
+  "selection_reasoning": "Carry forward the Gen13 top performer (trial_13_6) and the historical best (trial_10_2) for exploitation, plus diverse constrained (trial_13_7), stochastic basin-hopping (trial_13_2), and trust-constr (trial_13_1) approaches to preserve methodological diversity and improvement potential.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_13_6",
+      "reasoning": "Best of Gen13 (2.635716); density-weighted penalized L-BFGS-B + LP, closest to historical best and strong base for exploitation.",
+      "category": "performance",
+      "source_generation": 13
+    },
+    {
+      "trial_id": "trial_10_2",
+      "reasoning": "Historical best overall (2.635920); strong template to refine and hybridize with Gen13 improvements.",
+      "category": "performance",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_13_7",
+      "reasoning": "Constrained SLSQP + LP finalize (2.630590); complementary methodology to penalty methods.",
+      "category": "diversity",
+      "source_generation": 13
+    },
+    {
+      "trial_id": "trial_13_2",
+      "reasoning": "Basin-hopping outer + L-BFGS-B inner + LP (2.626420); stochastic approach offers different basin exploration.",
+      "category": "diversity",
+      "source_generation": 13
+    },
+    {
+      "trial_id": "trial_13_1",
+      "reasoning": "trust-constr with Jacobians + LP (2.614892); slightly lower score but promising constrained line for improvement.",
+      "category": "potential",
+      "source_generation": 13
+    }
+  ],
+  "parents_used": [
+    "trial_10_2",
+    "trial_10_6",
+    "trial_5_0",
+    "trial_7_7"
+  ],
+  "parents_used_counts": {
+    "trial_10_2": 2,
+    "trial_10_6": 2,
+    "trial_5_0": 2,
+    "trial_7_7": 2
+  },
+  "parents_not_selected_prev_gen": [
+    "trial_10_2",
+    "trial_10_6",
+    "trial_5_0",
+    "trial_7_7"
+  ],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 152.83711813704576,
+      "count": 3
+    },
+    "child_llm_call": {
+      "total_s": 706.8355666281423,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 28.681263596052304,
+      "count": 8
+    },
+    "spawn_children": {
+      "total_s": 168.43017885508016,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T02:56:56.711687"
+}

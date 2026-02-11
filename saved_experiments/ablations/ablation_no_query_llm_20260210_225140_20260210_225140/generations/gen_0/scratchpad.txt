@@ -1,0 +1,24 @@
+============================================================
+SCRATCHPAD FOR GENERATION 0
+============================================================
+
+# Generation 0: Initial Exploration
+Objective: Maximize sum of radii for 26 circles in a unit square.
+Best known: 2.6359850561146603
+
+Strategies to explore:
+1. Grid-based initialization (5x5 + 1) + SLSQP optimization.
+2. Random initialization + Basin-hopping global optimization.
+3. Force-directed / "Growth" simulation followed by local refinement.
+4. Multi-start SLSQP with random initial positions.
+5. Optimization where radii are explicit variables vs. derived from centers.
+6. Equal-radius packing seeds followed by radius expansion.
+
+## Generation 0 Analysis
+- Best score: 2.619210 (trial_0_4) using a two-stage approach (equal radius then variable).
+- trial_0_0 (grid + SLSQP) also performed well (2.607).
+- Failures (0_2, 0_3, 0_5) were due to:
+    - trial_0_2: 'radii' not defined/returned correctly.
+    - trial_0_3: Optimization failed to converge or returned invalid shapes.
+    - trial_0_5: trust-constr was too slow or had constraint violations.
+- Key Insight: SLSQP seems robust for this problem size. Two-stage initialization is superior to simple grid/random.

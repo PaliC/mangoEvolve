@@ -1,0 +1,69 @@
+{
+  "generation_num": 17,
+  "num_trials": 8,
+  "num_successful_trials": 6,
+  "best_trial_id": "trial_17_0",
+  "best_score": 2.6218278438591467,
+  "selected_trial_ids": [
+    "trial_10_2",
+    "trial_15_7",
+    "trial_17_0",
+    "trial_17_3",
+    "trial_17_4"
+  ],
+  "selection_reasoning": "Carry forward two elite historical performers for exploitation (trial_10_2, trial_15_7) and the best from Gen17 (trial_17_0). Add two diverse approaches from Gen17 (unconstrained reparam and Dykstra-like) to preserve methodological diversity.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_10_2",
+      "reasoning": "Best historical performer (2.6359); strong penalized + LP baseline to exploit.",
+      "category": "performance",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_15_7",
+      "reasoning": "Recent top performer at 2.6359; maintains elite family with updated seeding/annealing.",
+      "category": "performance",
+      "source_generation": 15
+    },
+    {
+      "trial_id": "trial_17_0",
+      "reasoning": "Best of Gen17 (2.6218); penalized L-BFGS-B + LP with kNN/density weighting shows room for improvement via restarts/masks.",
+      "category": "performance",
+      "source_generation": 17
+    },
+    {
+      "trial_id": "trial_17_3",
+      "reasoning": "Unconstrained reparameterization (sigmoid/softplus) + LP; different landscape and promising at 2.6059.",
+      "category": "diversity",
+      "source_generation": 17
+    },
+    {
+      "trial_id": "trial_17_4",
+      "reasoning": "Dykstra-like projection + LP hybrid; distinct local search dynamics worth refining despite moderate score (2.4755).",
+      "category": "diversity",
+      "source_generation": 17
+    }
+  ],
+  "parents_used": [],
+  "parents_used_counts": {},
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 167.63971722801216,
+      "count": 2
+    },
+    "child_llm_call": {
+      "total_s": 830.2272916709771,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 51.85341857094318,
+      "count": 8
+    },
+    "spawn_children": {
+      "total_s": 272.7367763010552,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T03:32:26.373553"
+}

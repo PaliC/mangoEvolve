@@ -1,0 +1,52 @@
+============================================================
+LINEAGE MAP FOR GENERATION 2
+============================================================
+
+### All-Time Top 5 (cross-generation selection candidates)
+  1. trial_2_0 [Gen 2] = 2.6141785497
+  2. trial_2_4 [Gen 2] = 2.6131787257
+  3. trial_1_0 [Gen 1] = 2.6127440487
+  4. trial_0_7 [Gen 0] = 2.5879586123
+  5. trial_1_2 [Gen 1] = 2.5770557773
+
+### Full Lineage Tree
+
+trial_1_0 (2.6127440487037714)
+    └── trial_2_0 (2.6141785496646719) ← best
+    └── trial_2_1 (2.5280096035958040)
+    └── trial_2_2 (1.3251163284101144)
+    └── trial_2_3 (2.3206504496577685)
+    └── trial_2_4 (2.6131787257269616)
+    └── trial_2_5 (INVALID)
+    └── trial_2_6 (INVALID) [An elegant and robust solution is presen...]
+    └── trial_2_7 (2.4619507670792364)
+
+trial_0_7 (2.5879586123410077)
+
+trial_1_2 (2.5770557773234612)
+
+trial_0_3 (2.4185308452850824)
+
+trial_1_3 (2.2240799079971802)
+
+trial_1_7 (2.1666536666666669)
+
+trial_0_4 (2.0863546889093465)
+
+trial_1_6 (2.0516949430724964) [An expert algorithm designer's solution...]
+
+trial_0_0 (1.9557176277366164)
+
+trial_0_1 (1.7118658713085122)
+
+trial_1_4 (1.5271808194693133)
+
+trial_0_2 (0.2730000000000000)
+
+trial_0_6 (0.0006735803241116) [An expert-level solution to the circle p...]
+
+trial_0_5 (INVALID)
+
+trial_1_1 (INVALID)
+
+trial_1_5 (INVALID)

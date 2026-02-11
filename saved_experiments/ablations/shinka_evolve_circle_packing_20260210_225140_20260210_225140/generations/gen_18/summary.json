@@ -1,0 +1,80 @@
+{
+  "generation_num": 18,
+  "num_trials": 8,
+  "num_successful_trials": 6,
+  "best_trial_id": "trial_18_2",
+  "best_score": 2.628938792552358,
+  "selected_trial_ids": [
+    "trial_18_2",
+    "trial_18_4",
+    "trial_18_0",
+    "trial_18_7",
+    "trial_10_2"
+  ],
+  "selection_reasoning": "Carry forward Gen18\u2019s top three performers for exploitation, include a distinct shake-and-polish method for diversity, and keep the historical best as an anchor for refinement and seeding.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_18_2",
+      "reasoning": "Best of Gen18 (2.628939); basin-hopping + local L-BFGS-B + LP shows strong performance and stochastic diversity.",
+      "category": "performance",
+      "source_generation": 18
+    },
+    {
+      "trial_id": "trial_18_4",
+      "reasoning": "Second-best Gen18 (2.625284); budget multi-start penalized L-BFGS-B + LP is robust and scalable for further exploitation.",
+      "category": "performance",
+      "source_generation": 18
+    },
+    {
+      "trial_id": "trial_18_0",
+      "reasoning": "Third-best Gen18 (2.606733); annealed neighbor-weighted penalty variant with clear headroom via weight tuning and more starts.",
+      "category": "potential",
+      "source_generation": 18
+    },
+    {
+      "trial_id": "trial_18_7",
+      "reasoning": "Distinct shake-and-polish cycle with LP finalization; adds methodological diversity while remaining competitive (2.574547).",
+      "category": "diversity",
+      "source_generation": 18
+    },
+    {
+      "trial_id": "trial_10_2",
+      "reasoning": "Historical best (2.635919); strong anchor to refine and to seed/benchmark future hybrids.",
+      "category": "performance",
+      "source_generation": 10
+    }
+  ],
+  "parents_used": [
+    "trial_10_2",
+    "trial_10_6",
+    "trial_7_7"
+  ],
+  "parents_used_counts": {
+    "trial_10_2": 5,
+    "trial_10_6": 1,
+    "trial_7_7": 2
+  },
+  "parents_not_selected_prev_gen": [
+    "trial_10_6",
+    "trial_7_7"
+  ],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 165.8681804459775,
+      "count": 2
+    },
+    "child_llm_call": {
+      "total_s": 786.7905615469208,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 12.649862112943083,
+      "count": 8
+    },
+    "spawn_children": {
+      "total_s": 167.9804077630397,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T03:38:00.236854"
+}

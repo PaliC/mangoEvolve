@@ -1,0 +1,159 @@
+============================================================
+SCRATCHPAD FOR GENERATION 5
+============================================================
+
+
+# Initial Strategy: Circle Packing for Max Sum of Radii (N=26)
+
+The objective is to maximize the sum of radii of 26 non-overlapping circles within a unit square.
+This is slightly different from the standard packing problem (maximizing a single uniform radius).
+The optimization landscape is highly non-convex with many local optima.
+
+## Approaches to explore:
+1.  **Multi-start SLSQP**: Use random initializations for (x, y, r) and optimize using Sequential Least Squares Programming.
+2.  **Basin-Hopping**: Use global optimization to explore the center configurations, potentially solving for radii as a sub-problem.
+3.  **Structured Initialization**: Start from grid-like (5x5 + 1) or hexagonal patterns and refine.
+4.  **Sequential Addition**: Place circles one-by-one into the largest available gaps and optimize locally.
+5.  **Penalty-based Optimization**: Use a soft-constraint approach (e.g., minimize overlap energy) before switching to hard constraints.
+6.  **Fixed-Center Radii Optimization**: Note that for fixed centers, maximizing the sum of radii is a Linear Programming problem. This can be used to decouple the search for centers from the search for radii.
+
+## Key Constraints:
+- 0 <= x_i - r_i
+- x_i + r_i <= 1
+- 0 <= y_i - r_i
+- y_i + r_i <= 1
+- dist(c_i, c_j) >= r_i + r_j
+
+## Generation 0 Analysis
+- Best Score: 2.629914 (trial_0_0)
+- trial_0_0 used multi-start SLSQP with random initialization.
+- trial_0_2 used a grid-based initialization and reached 2.618.
+- trial_0_1 used basin-hopping but scored lower than pure multi-start SLSQP, possibly due to fewer iterations or poor step size.
+- trial_0_3 (LP approach) underperformed (2.216), likely because the center optimization wasn't aggressive enough.
+- trial_0_4 failed (INVALID).
+
+## Generation 1 Insights
+- Best score: 2.632342 (trial_1_3)
+- trial_1_3 used 'Iterative Local Refinement' (shaking) on top of the best Gen 0 result. This proved more effective than pure multi-start.
+- trial_1_0 (multi-start with Sobol) achieved 2.628, which is slightly lower than the best Gen 0 but very robust.
+- trial_1_4 (Force-Directed) reached 2.626, showing that physics-based initialization is competitive.
+- The LP-based approach (trial_1_1) is still underperforming (2.612) compared to direct SLSQP on (x, y, r), likely because the center movement is restricted or the objective landscape for centers is too rugged for the global optimizer used.
+
+## Strategy for Gen 2
+- Focus on "Shaking + SLSQP": The success of trial_1_3 suggests that local search with perturbations is the way to go.
+- Increase the intensity and variety of the "shaking" (e.g., swapping circles, variable perturbation sizes).
+- Try combining the Force-Directed approach (trial_1_4) as an initialization for the Shaking refinement.
+
+## Generation 2 Analysis
+- trial_2_0 (2.629) was a slight regression from trial_1_3 (2.632).
+- Many Gen 2 trials failed due to implementation errors (INVALID). 
+- The "Shrink-and-Expand" (trial_2_5) had a very low score, suggesting the implementation didn't actually optimize the radii effectively.
+- Key Insight: The sum(radii) objective is sensitive. Small perturbations (shaking) are good for local refinement, but we need a more robust global search or a better way to handle the non-overlap constraints during 'jumps'.
+
+## Generation 3 Strategy
+- The current best (2.632342, trial_1_3) uses a 'shaking' mechanism (adding noise) followed by SLSQP refinement.
+- Generation 2 failed to improve this significantly, likely due to implementation errors or insufficient exploration of the perturbation space.
+- I will now focus on more structured perturbations: swapping circle positions and multi-scale refinement.
+- I will also introduce a 'Force-Directed' initialization coupled with the successful SLSQP refinement.
+
+## Generation 3 Analysis
+- Best Gen 3 score: 2.630060 (trial_3_2), which is a regression from trial_1_3 (2.632342).
+- The 'Multi-Scale Shaking' (trial_3_2) and 'Circle Swapping' (trial_3_0) were implemented but may have been limited by the 300s timeout or suboptimal hyperparameters (e.g., too many swaps, not enough SLSQP refinement per swap).
+- Trial 3.3 (Voronoi) had a very low score (0.856), suggesting the local optimization within Voronoi cells is not a good proxy for the global sum-of-radii objective.
+- Trial 3_5 failed due to an implementation error.
+
+## Strategy for Gen 4
+- Re-center on trial_1_3. It remains the most effective "engine".
+- Instead of complex meta-heuristics, try improving the SLSQP step itself:
+    - Use `jac` (Jacobian) for the constraints and objective to speed up convergence and improve precision.
+    - Implement a "Staged Optimization": first optimize for a uniform radius (standard packing) to get a tight configuration, then switch to maximizing the sum of radii.
+    - Try a "Grid-Search" on the shaking parameters (sigma and iteration count) to find the sweet spot for trial_1_3's logic.
+
+## Generation 4 Strategy
+- The primary goal is to break the 2.632 plateau.
+- I am focusing on:
+    1. Improving the 'engine' (trial_1_3) with analytical Jacobians.
+    2. Decoupling centers and radii using Linear Programming (Basin-Hopping on centers).
+    3. Two-stage optimization (Max-Min then Max-Sum).
+    4. Heuristics like circle swapping and sequential addition.
+
+## Generation 4 Analysis
+- Best Gen 4 score: 2.627 (trial_4_0), still below trial_1_3 (2.632).
+- The analytical Jacobian implementation in trial_4_0 is a good technical step but might need more 'shaking' iterations or a better perturbation schedule to find better optima.
+- The LP approach (trial_4_1) is still underperforming, likely because the center movement is too decoupled from the radii growth in the outer loop.
+- Strategy for Gen 5: Combine trial_1_3's robust exploration with trial_4_0's precision (Jacobians). Increase the search budget (more restarts/shaking) within the 300s limit.
+
+## Gen 5 Analysis
+### Analysis of Top-Performing Trials
+
+The objective is to maximize $\sum r_i$ for $N=26$ circles in a unit square. This objective function differs significantly from the standard "packing" problem (maximizing a single uniform $r$). In this problem, the optimal solution usually involves a few large circles and many smaller ones filling the interstices.
+
+#### Why Trial 1_3 Outperformed the Others
+Trial 1_3 achieved the highest score (2.6323) because of its **two-phase hybrid approach**:
+
+1.  **Phase 1 (Broad Exploration):** It spends the first 60 seconds performing multi-start SLSQP. This establishes a high-quality "global" layout.
+2.  **Phase 2 (Iterative "Shake and Refine"):** Instead of starting from scratch (like Trial 0_0), it spends the remaining 225 seconds performing local stochastic searches.
+3.  **Gap-Filling Logic:** Its `shake` function is more effective than Trial 3_2's because it focuses on **re-placing** circles into the **largest available gaps** found via sampling. This specifically targets the objective ($\sum r_i$) by trying to find spaces where a newly placed circle can grow larger than the one it replaced.
+4.  **Vectorized Jacobian:** Both 1_3 and 0_0 use a precomputed, vectorized Jacobian for SLSQP. This makes each optimization step significantly faster than methods that rely on automatic differentiation or numerical gradients, allowing for more iterations within the time limit.
+
+#### Weaknesses in the Current "Shaking" Strategy
+While Trial 1_3 is effective, its shaking strategy has three main flaws:
+1.  **Random Removal:** It selects circles to remove at random. In a $\sum r_i$ problem, the smallest circles are often "fillers." Removing a large circle might destroy a good configuration, whereas removing small circles allows the large ones to shift and expand.
+2.  **Fixed Perturbation:** The perturbation (`np.random.normal(0, 0.001)`) is static. It doesn't adapt based on whether the search is stagnating.
+3.  **Greedy Re-insertion:** It places circles one-by-one into gaps. It doesn't consider that moving *existing* circles slightly could create a much larger gap than any currently available.
+
+---
+
+### Proposed Improvement: "Targeted Thermal Shaking"
+
+To improve the score, we can refine the `shake` strategy to be more surgical and adaptive.
+
+#### 1. Targeted Removal (The "Smallest-First" Heuristic)
+Instead of `random.choice(n, size=num_replace)`, we should prioritize removing circles with the **smallest radii**. These are the circles most likely to be trapped in sub-optimal local pockets. Removing them gives the larger circles "breathing room" to expand during the next SLSQP refinement.
+
+#### 2. Adaptive Perturbation (Thermal Annealing)
+Instead of a fixed `0.001` jitter, we can use a "temperature" that decreases over time. Early in Phase 2, we shake the centers vigorously; late in Phase 2, we perform very fine adjustments.
+
+#### 3. LP-Refinement for Initialization
+Before passing the "shaken" state to SLSQP, we can use **Linear Programming (LP)** to instantly find the optimal radii for the new center positions. This provides a much better starting point for the SLSQP solver than a fixed $r=0.02$.
+
+### Improved `shake` Function Sketch
+
+```python
+def shake(current_vars, n, temperature):
+    vars_copy = current_vars.copy()
+    x, y, r = vars_copy[0::3], vars_copy[1::3], vars_copy[2::3]
+    
+    # 1. Targeted Removal: Remove 1-2 smallest circles and 1 random circle
+    # This allows large circles to expand into the space of small ones.
+    small_indices = np.argsort(r)[:np.random.randint(1, 3)]
+    rand_indices = np.random.choice(n, size=1)
+    indices_to_replace = np.unique(np.concatenate([small_indices, rand_indices]))
+    
+    # 2. Thermal Perturbation: Shake remaining circles
+    # Magnitude depends on temperature (how much time is left)
+    active_mask = np.ones(n, dtype=bool)
+    active_mask[indices_to_replace] = False
+    vars_copy[0::3][active_mask] += np.random.normal(0, 0.005 * temperature, np.sum(active_mask))
+    vars_copy[1::3][active_mask] += np.random.normal(0, 0.005 * temperature, np.sum(active_mask))
+    
+    # 3. Gap Filling (Improved Sampling)
+    # Use more samples (5000) for the targeted re-insertion
+    for idx in indices_to_replace:
+        samples = np.random.uniform(0, 1, (5000, 2))
+        # ... (Distance calculations as in Trial 1_3)
+        # Place circle at best_sample
+        vars_copy[3*idx] = samples[best_sample_idx, 0]
+        vars_copy[3*idx+1] = samples[best_sample_idx, 1]
+        vars_copy[3*idx+2] = r_cand[best_sample_idx] # Better initial R
+        
+    return vars_copy
+```
+
+### Implementation Recommendation
+To beat 2.6323, implement Phase 1 for only 40 seconds (to get a "good enough" base) and dedicate the rest of the time to this **Targeted Thermal Shaking**. The combination of removing small "filler" circles and using a cooling schedule for perturbations will allow the solver to push the large circles into more optimal packing arrangements.
+## Generation 5 Breakthrough
+- New Best Score: 2.635983084917561 (trial_5_0)
+- Approach: Refined 'shaking' engine with analytical Jacobians and dynamic perturbation scaling.
+- The precision of the Jacobian combined with the robust multi-start/shaking logic finally broke the 2.632 plateau.
+- Trial 5_5 also performed well (2.623) using a two-pass SLSQP approach.

@@ -1,0 +1,7053 @@
+{
+  "total_cost": 13.1345133,
+  "max_budget": 50.0,
+  "root_cost": 6.6103975,
+  "root_calls": 107,
+  "child_costs": {
+    "gemini-pro": 0.9376800000000001,
+    "gemini-flash": 0.5911847,
+    "sonnet": 1.248699,
+    "o4-mini": 0.5148242000000001,
+    "gpt5": 2.8389025,
+    "gpt5-mini": 0.31980125,
+    "gpt5-nano": 0.07302415000000001
+  },
+  "child_calls": {
+    "gemini-pro": 20,
+    "gemini-flash": 37,
+    "sonnet": 19,
+    "o4-mini": 20,
+    "gpt5": 27,
+    "gpt5-mini": 21,
+    "gpt5-nano": 16
+  },
+  "total_child_cost": 6.524115800000001,
+  "total_child_calls": 160,
+  "cache_savings": 0.0,
+  "total_cache_creation_tokens": 0,
+  "total_cache_read_tokens": 0,
+  "usage_log": [
+    {
+      "input_tokens": 1851,
+      "output_tokens": 8192,
+      "cost": 0.08423375000000001,
+      "timestamp": "2026-02-10T22:54:05.687242",
+      "llm_type": "root",
+      "call_id": "6dd10e4c-c6b3-4a5e-8b54-00f14c4268da",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5835,
+      "output_tokens": 5933,
+      "cost": 0.06662375000000001,
+      "timestamp": "2026-02-10T22:56:02.085719",
+      "llm_type": "root",
+      "call_id": "2309ea4c-e77e-45f6-beeb-cd34934efdb8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 35795,
+      "output_tokens": 5375,
+      "cost": 0.09849375000000002,
+      "timestamp": "2026-02-10T23:00:57.013607",
+      "llm_type": "root",
+      "call_id": "58973f72-777f-4166-bee1-fb04d1eb8cd5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 37603,
+      "output_tokens": 8192,
+      "cost": 0.12892375,
+      "timestamp": "2026-02-10T23:03:31.547980",
+      "llm_type": "root",
+      "call_id": "34361044-d2cf-4da9-bc0f-4782b314817a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 38745,
+      "output_tokens": 7376,
+      "cost": 0.12219125,
+      "timestamp": "2026-02-10T23:06:06.759662",
+      "llm_type": "root",
+      "call_id": "426e6f29-b677-425d-b39c-cdd482641be3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 59816,
+      "output_tokens": 5347,
+      "cost": 0.12824000000000002,
+      "timestamp": "2026-02-10T23:09:37.043861",
+      "llm_type": "root",
+      "call_id": "95c2d3b6-216e-4569-8119-5aa06a7648b8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 60656,
+      "output_tokens": 709,
+      "cost": 0.08291000000000001,
+      "timestamp": "2026-02-10T23:09:56.064430",
+      "llm_type": "root",
+      "call_id": "121bbab8-b49e-482f-adc6-1002dfd1f551",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 60820,
+      "output_tokens": 383,
+      "cost": 0.07985500000000001,
+      "timestamp": "2026-02-10T23:10:03.878381",
+      "llm_type": "root",
+      "call_id": "5ec44279-7892-4e7e-8dd8-d8082378b1ba",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:13:25.624029",
+      "llm_type": "root",
+      "call_id": "dd0c6a6f-a7f3-42c1-a948-9097003d130b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:17:03.662916",
+      "llm_type": "root",
+      "call_id": "e098a6c5-3fd8-4dcf-9758-13fd970b5de1",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:19:45.145742",
+      "llm_type": "root",
+      "call_id": "7d3403ec-80f9-45e4-be77-cbdc679363d8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:23:05.571537",
+      "llm_type": "root",
+      "call_id": "e94eff32-9eda-4296-94d3-bd72a13c9825",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:31:03.633507",
+      "llm_type": "root",
+      "call_id": "b7d2cb63-279d-40b7-87ad-7d049d4754d0",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:33:59.377438",
+      "llm_type": "root",
+      "call_id": "4b39f54f-6f40-4ff8-acba-8af89a92a34a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:37:37.819596",
+      "llm_type": "root",
+      "call_id": "d9187c49-e155-418b-a8b2-fa9ed822ad88",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:41:27.358852",
+      "llm_type": "root",
+      "call_id": "1c43c0e5-a6c1-429d-8aee-a507c46deec7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-10T23:44:55.648952",
+      "llm_type": "root",
+      "call_id": "441d07db-1953-4b6a-8254-9c71fb719dda",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-11T00:00:10.712414",
+      "llm_type": "root",
+      "call_id": "99adc7e8-ed5d-44b0-9add-2129d927fc44",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-11T00:08:05.675867",
+      "llm_type": "root",
+      "call_id": "48c9cff6-a90c-4ea6-9c19-0a65455e1644",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3678,
+      "output_tokens": 8192,
+      "cost": 0.08651750000000001,
+      "timestamp": "2026-02-11T00:12:32.446778",
+      "llm_type": "root",
+      "call_id": "daf349f2-f45e-45cb-ae8d-554185c21ef4",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4091,
+      "output_tokens": 8192,
+      "cost": 0.08703375000000001,
+      "timestamp": "2026-02-11T00:15:33.443248",
+      "llm_type": "root",
+      "call_id": "66836336-60a4-4b56-bea6-7758b530770a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1035,
+      "output_tokens": 9795,
+      "cost": 0.09924375,
+      "timestamp": "2026-02-11T00:19:32.031102",
+      "llm_type": "child:gpt5",
+      "call_id": "2a8770d2-833d-4816-b224-c8dbcb6f1db1",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 926,
+      "output_tokens": 3223,
+      "cost": 0.015199800000000001,
+      "timestamp": "2026-02-11T00:19:32.031235",
+      "llm_type": "child:o4-mini",
+      "call_id": "55e933ac-413a-4f94-8672-0657c1be00b8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 908,
+      "output_tokens": 5156,
+      "cost": 0.013162400000000001,
+      "timestamp": "2026-02-11T00:19:32.031276",
+      "llm_type": "child:gemini-flash",
+      "call_id": "f25fc833-a873-4617-b9ed-4de6c151390c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1027,
+      "output_tokens": 1925,
+      "cost": 0.031956,
+      "timestamp": "2026-02-11T00:19:32.031291",
+      "llm_type": "child:sonnet",
+      "call_id": "a851e1df-adf0-402c-9903-c4704c76d723",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 827,
+      "output_tokens": 4545,
+      "cost": 0.00929675,
+      "timestamp": "2026-02-11T00:19:32.031312",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "6df56043-9a12-4950-b802-ec10587674fd",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 836,
+      "output_tokens": 9616,
+      "cost": 0.0038882,
+      "timestamp": "2026-02-11T00:19:32.031324",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "b14b2ed6-a5f9-483c-8f72-43504a89fb3b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1002,
+      "output_tokens": 4325,
+      "cost": 0.0445025,
+      "timestamp": "2026-02-11T00:19:32.031339",
+      "llm_type": "child:gemini-pro",
+      "call_id": "271f4a8d-27c9-40eb-be30-b852832d45b2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 915,
+      "output_tokens": 4883,
+      "cost": 0.012482000000000002,
+      "timestamp": "2026-02-11T00:19:32.031351",
+      "llm_type": "child:gemini-flash",
+      "call_id": "6f178311-0a82-4c95-a932-a11284cfc45b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7449,
+      "output_tokens": 1610,
+      "cost": 0.02541125,
+      "timestamp": "2026-02-11T00:20:13.341907",
+      "llm_type": "root",
+      "call_id": "95637361-4fe8-435f-b8e4-d181703dade7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4164,
+      "output_tokens": 5420,
+      "cost": 0.059405000000000006,
+      "timestamp": "2026-02-11T00:22:12.004856",
+      "llm_type": "root",
+      "call_id": "ed3e49a1-362c-4104-91ec-9254f437c692",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1078,
+      "output_tokens": 9776,
+      "cost": 0.09910750000000002,
+      "timestamp": "2026-02-11T00:26:18.684820",
+      "llm_type": "child:gpt5",
+      "call_id": "d9750fd9-28ad-4e44-9d27-8d17d2efef7a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 980,
+      "output_tokens": 2976,
+      "cost": 0.014172400000000002,
+      "timestamp": "2026-02-11T00:26:18.684925",
+      "llm_type": "child:o4-mini",
+      "call_id": "985d82a1-e1ff-467e-8dfa-b28ff51c5fb9",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 931,
+      "output_tokens": 4667,
+      "cost": 0.0119468,
+      "timestamp": "2026-02-11T00:26:18.684950",
+      "llm_type": "child:gemini-flash",
+      "call_id": "369c9912-8db3-4693-9793-e36e239a67bb",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1067,
+      "output_tokens": 2221,
+      "cost": 0.036516,
+      "timestamp": "2026-02-11T00:26:18.684967",
+      "llm_type": "child:sonnet",
+      "call_id": "34448db7-996d-459e-81bc-293b1e28acd8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 864,
+      "output_tokens": 5339,
+      "cost": 0.010894,
+      "timestamp": "2026-02-11T00:26:18.684982",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "b590d934-f366-48a9-a384-6595ca0d797c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 886,
+      "output_tokens": 9636,
+      "cost": 0.0038987000000000006,
+      "timestamp": "2026-02-11T00:26:18.684996",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "5291a5c9-4d82-4602-bd14-e5e78fb4395e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1066,
+      "output_tokens": 3335,
+      "cost": 0.034682500000000005,
+      "timestamp": "2026-02-11T00:26:18.685010",
+      "llm_type": "child:gemini-pro",
+      "call_id": "945f3c58-aadf-44c2-85e8-8648739787ff",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1021,
+      "output_tokens": 5031,
+      "cost": 0.012883800000000003,
+      "timestamp": "2026-02-11T00:26:18.685023",
+      "llm_type": "child:gemini-flash",
+      "call_id": "45ac1a7a-0c53-471b-821b-74cf0bf92830",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7622,
+      "output_tokens": 546,
+      "cost": 0.0149875,
+      "timestamp": "2026-02-11T00:26:31.513755",
+      "llm_type": "root",
+      "call_id": "d0a0d46c-ed0a-4d14-a2a6-b0f6b9cd2308",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4164,
+      "output_tokens": 8192,
+      "cost": 0.08712500000000001,
+      "timestamp": "2026-02-11T00:30:04.787612",
+      "llm_type": "root",
+      "call_id": "8d496844-4dcd-4cec-8797-96a177f0b678",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4164,
+      "output_tokens": 7191,
+      "cost": 0.077115,
+      "timestamp": "2026-02-11T00:33:20.233802",
+      "llm_type": "root",
+      "call_id": "d1ad76ea-773e-44a0-a617-dc2490585f32",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4164,
+      "output_tokens": 8192,
+      "cost": 0.08712500000000001,
+      "timestamp": "2026-02-11T00:36:46.818712",
+      "llm_type": "root",
+      "call_id": "f373a729-84ac-4528-8dfe-91c5bee234e3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4164,
+      "output_tokens": 4539,
+      "cost": 0.05059500000000001,
+      "timestamp": "2026-02-11T00:39:11.067017",
+      "llm_type": "root",
+      "call_id": "b0d5a920-3e59-41b2-a58f-56897ff1a7fc",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4219,
+      "output_tokens": 1744,
+      "cost": 0.02271375,
+      "timestamp": "2026-02-11T00:40:01.469585",
+      "llm_type": "root",
+      "call_id": "65f396f6-fe8f-484f-a863-9c18b370e4ef",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4239,
+      "output_tokens": 7748,
+      "cost": 0.08277875000000001,
+      "timestamp": "2026-02-11T00:43:01.507201",
+      "llm_type": "root",
+      "call_id": "5a1c4783-d0a9-452c-b429-8ea622af8298",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4277,
+      "output_tokens": 8192,
+      "cost": 0.08726625,
+      "timestamp": "2026-02-11T00:45:49.613810",
+      "llm_type": "root",
+      "call_id": "5eda41c9-85a5-4eea-9426-420eaf4499a0",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4277,
+      "output_tokens": 8192,
+      "cost": 0.08726625,
+      "timestamp": "2026-02-11T00:49:20.458030",
+      "llm_type": "root",
+      "call_id": "3554a799-d98b-4072-b36e-e3c74fbe0e9b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4277,
+      "output_tokens": 5923,
+      "cost": 0.06457625,
+      "timestamp": "2026-02-11T00:51:43.138887",
+      "llm_type": "root",
+      "call_id": "1d8b8b7e-5afe-4421-9d9c-36420ff0021b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4304,
+      "output_tokens": 8192,
+      "cost": 0.0873,
+      "timestamp": "2026-02-11T00:54:41.773974",
+      "llm_type": "root",
+      "call_id": "3ff58abf-3865-48b5-a6e9-67f595fa34f4",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4304,
+      "output_tokens": 5197,
+      "cost": 0.057350000000000005,
+      "timestamp": "2026-02-11T01:04:20.406596",
+      "llm_type": "root",
+      "call_id": "330fe06e-7bfb-40f4-ac3a-029ed62c78e1",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4558,
+      "output_tokens": 7658,
+      "cost": 0.0822775,
+      "timestamp": "2026-02-11T01:07:07.102333",
+      "llm_type": "child:gpt5",
+      "call_id": "0a98ba28-7c39-4a47-a864-ddc801772e24",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 832,
+      "output_tokens": 5187,
+      "cost": 0.023738000000000002,
+      "timestamp": "2026-02-11T01:07:07.102451",
+      "llm_type": "child:o4-mini",
+      "call_id": "d13ce97b-e2e7-4f22-bc67-d2d5c14b9fe8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 833,
+      "output_tokens": 3845,
+      "cost": 0.009862400000000002,
+      "timestamp": "2026-02-11T01:07:07.102473",
+      "llm_type": "child:gemini-flash",
+      "call_id": "e5a2a0cc-2398-4fd9-a021-acb31ce70f45",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 838,
+      "output_tokens": 1975,
+      "cost": 0.032139,
+      "timestamp": "2026-02-11T01:07:07.102488",
+      "llm_type": "child:sonnet",
+      "call_id": "0695e989-60ab-403b-a9c9-51025c596649",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4263,
+      "output_tokens": 5913,
+      "cost": 0.01289175,
+      "timestamp": "2026-02-11T01:07:07.102502",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "e8e4af93-d82a-4e10-90e0-4c13343e40a8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 672,
+      "output_tokens": 12043,
+      "cost": 0.004850800000000001,
+      "timestamp": "2026-02-11T01:07:07.102514",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "8993fa39-d647-4bcb-befd-4a30823ddd67",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 839,
+      "output_tokens": 2905,
+      "cost": 0.030098750000000004,
+      "timestamp": "2026-02-11T01:07:07.102538",
+      "llm_type": "child:gemini-pro",
+      "call_id": "5dcd498e-ca70-4258-8791-3153964a45bc",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 860,
+      "output_tokens": 4984,
+      "cost": 0.012718,
+      "timestamp": "2026-02-11T01:07:07.102551",
+      "llm_type": "child:gemini-flash",
+      "call_id": "927d99b5-e47a-4eb3-810b-ec9b167c8b78",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8898,
+      "output_tokens": 1257,
+      "cost": 0.023692500000000002,
+      "timestamp": "2026-02-11T01:07:29.857915",
+      "llm_type": "root",
+      "call_id": "f3df4936-ae2a-4c42-bfb7-a09ec22dbe14",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9845,
+      "output_tokens": 1574,
+      "cost": 0.02804625,
+      "timestamp": "2026-02-11T01:07:59.488185",
+      "llm_type": "root",
+      "call_id": "ece55c1d-23dd-4cc7-a090-4d635c6e7be5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4705,
+      "output_tokens": 3945,
+      "cost": 0.045331250000000003,
+      "timestamp": "2026-02-11T01:09:22.538399",
+      "llm_type": "root",
+      "call_id": "097d1884-20d4-4d13-98fa-c5d60009d3a3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 691,
+      "output_tokens": 4951,
+      "cost": 0.022544500000000002,
+      "timestamp": "2026-02-11T01:12:43.285191",
+      "llm_type": "child:o4-mini",
+      "call_id": "c2552ff0-e4d6-46b3-9a2e-e0bc1f3bbbf5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 680,
+      "output_tokens": 5572,
+      "cost": 0.014134,
+      "timestamp": "2026-02-11T01:12:43.285260",
+      "llm_type": "child:gemini-flash",
+      "call_id": "cfd743f7-d43f-46ab-addd-80df0db6ba65",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 744,
+      "output_tokens": 2271,
+      "cost": 0.036296999999999996,
+      "timestamp": "2026-02-11T01:12:43.285278",
+      "llm_type": "child:sonnet",
+      "call_id": "32980005-d8b5-4d18-b93d-40d153691cd5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 743,
+      "output_tokens": 3455,
+      "cost": 0.03547875,
+      "timestamp": "2026-02-11T01:12:43.285294",
+      "llm_type": "child:gemini-pro",
+      "call_id": "191e7b50-9812-424f-9e51-cf7afc32cf6f",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 652,
+      "output_tokens": 7381,
+      "cost": 0.014924999999999999,
+      "timestamp": "2026-02-11T01:12:43.285307",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "ca952a7d-ef1f-47eb-82f3-23f7b8f156df",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 723,
+      "output_tokens": 7782,
+      "cost": 0.07872375,
+      "timestamp": "2026-02-11T01:12:43.285324",
+      "llm_type": "child:gpt5",
+      "call_id": "733359d4-e640-41a2-a8d9-61be181c2ae2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4513,
+      "output_tokens": 10439,
+      "cost": 0.11003125000000001,
+      "timestamp": "2026-02-11T01:12:43.285335",
+      "llm_type": "child:gpt5",
+      "call_id": "6a0eea22-a4f1-4eab-a19d-030d240305d4",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 2103,
+      "output_tokens": 5920,
+      "cost": 0.01236575,
+      "timestamp": "2026-02-11T01:12:43.285346",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "b49eab9f-f3db-46f3-bcd8-7778bbba072c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8546,
+      "output_tokens": 561,
+      "cost": 0.0162925,
+      "timestamp": "2026-02-11T01:12:53.583833",
+      "llm_type": "root",
+      "call_id": "39c16450-e38d-4032-9ab5-260a0be5fec1",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4801,
+      "output_tokens": 5277,
+      "cost": 0.058771250000000004,
+      "timestamp": "2026-02-11T01:14:40.133913",
+      "llm_type": "root",
+      "call_id": "881f06cd-8484-47c1-896e-4474c85874d3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 743,
+      "output_tokens": 9148,
+      "cost": 0.09240875000000001,
+      "timestamp": "2026-02-11T01:17:27.912167",
+      "llm_type": "child:gpt5",
+      "call_id": "7dc7ee5e-ddfa-4191-a25b-e656acdba815",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 551,
+      "output_tokens": 4515,
+      "cost": 0.0204721,
+      "timestamp": "2026-02-11T01:17:27.912277",
+      "llm_type": "child:o4-mini",
+      "call_id": "fa940817-8c81-419d-986e-b9b88fd5bc69",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 531,
+      "output_tokens": 6223,
+      "cost": 0.015716800000000003,
+      "timestamp": "2026-02-11T01:17:27.912298",
+      "llm_type": "child:gemini-flash",
+      "call_id": "8bc9d2f6-df3e-497c-a46d-d263bd23ca22",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 588,
+      "output_tokens": 2140,
+      "cost": 0.033864000000000005,
+      "timestamp": "2026-02-11T01:17:27.912314",
+      "llm_type": "child:sonnet",
+      "call_id": "7c08f3e1-d114-400e-970c-b421a905fd51",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 620,
+      "output_tokens": 7368,
+      "cost": 0.014891,
+      "timestamp": "2026-02-11T01:17:27.912329",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "ae1f12b3-2a78-4867-857b-4bd3d3c01886",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 444,
+      "output_tokens": 12636,
+      "cost": 0.0050766000000000006,
+      "timestamp": "2026-02-11T01:17:27.912341",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "d8e2da74-205c-4f67-84cc-bc2ae9f1508c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 616,
+      "output_tokens": 3466,
+      "cost": 0.03543,
+      "timestamp": "2026-02-11T01:17:27.912355",
+      "llm_type": "child:gemini-pro",
+      "call_id": "607efbe2-298c-490d-beda-5cfc177daba5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 441,
+      "output_tokens": 4558,
+      "cost": 0.0115273,
+      "timestamp": "2026-02-11T01:17:27.912367",
+      "llm_type": "child:gemini-flash",
+      "call_id": "09448414-28ed-4e5e-a3c2-bf1dd4cbaffe",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9691,
+      "output_tokens": 1901,
+      "cost": 0.031123750000000006,
+      "timestamp": "2026-02-11T01:18:05.892172",
+      "llm_type": "root",
+      "call_id": "79e4559d-8797-4cb6-bd13-384409a87d7c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5043,
+      "output_tokens": 3742,
+      "cost": 0.043723750000000006,
+      "timestamp": "2026-02-11T01:19:15.472112",
+      "llm_type": "root",
+      "call_id": "0b0c0176-31a7-4174-bde6-92e2cca2528f",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5162,
+      "output_tokens": 5328,
+      "cost": 0.0597325,
+      "timestamp": "2026-02-11T01:20:51.145274",
+      "llm_type": "root",
+      "call_id": "dbbb6477-5190-47ca-a38b-48af2222b492",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5188,
+      "output_tokens": 3942,
+      "cost": 0.045905,
+      "timestamp": "2026-02-11T01:22:11.713454",
+      "llm_type": "root",
+      "call_id": "58433e31-f1a3-442b-942a-b737a21c70d1",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 929,
+      "output_tokens": 5615,
+      "cost": 0.011462249999999998,
+      "timestamp": "2026-02-11T01:24:23.962818",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "52c932e8-ab7d-446a-89c7-472bc0b0df79",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 933,
+      "output_tokens": 3125,
+      "cost": 0.03241625,
+      "timestamp": "2026-02-11T01:24:23.962942",
+      "llm_type": "child:gemini-pro",
+      "call_id": "53b2fc5d-e236-4792-a6b1-c1aca0ef6ee4",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 826,
+      "output_tokens": 8956,
+      "cost": 0.0036237000000000005,
+      "timestamp": "2026-02-11T01:24:23.962966",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "7a2f280f-71ff-45ab-a7f9-f874b21310f5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 867,
+      "output_tokens": 2605,
+      "cost": 0.006772600000000001,
+      "timestamp": "2026-02-11T01:24:23.962993",
+      "llm_type": "child:gemini-flash",
+      "call_id": "a091d998-e5a2-4754-9b74-3c7e07b4769a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5057,
+      "output_tokens": 5237,
+      "cost": 0.014609600000000002,
+      "timestamp": "2026-02-11T01:24:23.963008",
+      "llm_type": "child:gemini-flash",
+      "call_id": "16873477-c78a-4315-be6a-900f4115fdca",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4529,
+      "output_tokens": 9106,
+      "cost": 0.09672125000000001,
+      "timestamp": "2026-02-11T01:24:23.963025",
+      "llm_type": "child:gpt5",
+      "call_id": "15991101-a5b0-4824-8058-00d1b634651c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 11325,
+      "output_tokens": 4007,
+      "cost": 0.09408,
+      "timestamp": "2026-02-11T01:24:23.963040",
+      "llm_type": "child:sonnet",
+      "call_id": "0740538c-94ae-46e8-9c6b-a9693d3533c5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5393,
+      "output_tokens": 3445,
+      "cost": 0.021090300000000003,
+      "timestamp": "2026-02-11T01:24:23.963055",
+      "llm_type": "child:o4-mini",
+      "call_id": "a9a0c71e-53bc-485e-a31a-bd960bc05928",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9089,
+      "output_tokens": 1545,
+      "cost": 0.026811250000000002,
+      "timestamp": "2026-02-11T01:25:01.973832",
+      "llm_type": "root",
+      "call_id": "4a66d4f0-e0d6-4fa1-ba70-361e139f05ae",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5566,
+      "output_tokens": 6472,
+      "cost": 0.0716775,
+      "timestamp": "2026-02-11T01:28:10.537725",
+      "llm_type": "root",
+      "call_id": "f61fe953-5f1b-4a18-ac2d-162d11dbce34",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5566,
+      "output_tokens": 8192,
+      "cost": 0.08887750000000001,
+      "timestamp": "2026-02-11T01:31:30.461529",
+      "llm_type": "root",
+      "call_id": "8e21e723-b5fc-4db5-b309-9db4a3e53ca4",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5566,
+      "output_tokens": 7018,
+      "cost": 0.07713750000000001,
+      "timestamp": "2026-02-11T01:34:28.647150",
+      "llm_type": "root",
+      "call_id": "9bc2117a-4d61-4556-b00e-d766718d31da",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 13361,
+      "output_tokens": 7141,
+      "cost": 0.08811125,
+      "timestamp": "2026-02-11T01:36:27.761024",
+      "llm_type": "child:gpt5",
+      "call_id": "f487f717-42f9-445a-8503-d25c29eec785",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 926,
+      "output_tokens": 2806,
+      "cost": 0.013365,
+      "timestamp": "2026-02-11T01:36:27.761114",
+      "llm_type": "child:o4-mini",
+      "call_id": "e870d515-c914-4921-a42f-674d211719e3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 962,
+      "output_tokens": 4404,
+      "cost": 0.0112986,
+      "timestamp": "2026-02-11T01:36:27.761134",
+      "llm_type": "child:gemini-flash",
+      "call_id": "d7fd31d4-9acf-4e7c-a801-a81eae0482d9",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1035,
+      "output_tokens": 2901,
+      "cost": 0.046619999999999995,
+      "timestamp": "2026-02-11T01:36:27.761159",
+      "llm_type": "child:sonnet",
+      "call_id": "f26811c8-aee7-4182-ac29-8bcc8f9a5721",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 906,
+      "output_tokens": 7607,
+      "cost": 0.0154405,
+      "timestamp": "2026-02-11T01:36:27.761175",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "0f18ea03-03ea-4c12-9492-a955785dead2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 911,
+      "output_tokens": 14450,
+      "cost": 0.0058255500000000005,
+      "timestamp": "2026-02-11T01:36:27.761186",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "8ebee166-c72d-4d85-b547-3315793c4a97",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1013,
+      "output_tokens": 3305,
+      "cost": 0.034316250000000006,
+      "timestamp": "2026-02-11T01:36:27.761206",
+      "llm_type": "child:gemini-pro",
+      "call_id": "8e973980-a380-4860-948e-4f428f44aefa",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 946,
+      "output_tokens": 2985,
+      "cost": 0.0077463,
+      "timestamp": "2026-02-11T01:36:27.761219",
+      "llm_type": "child:gemini-flash",
+      "call_id": "cab61027-0d32-46e8-ae0b-c261414ec50b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8654,
+      "output_tokens": 2048,
+      "cost": 0.031297500000000006,
+      "timestamp": "2026-02-11T01:38:11.976983",
+      "llm_type": "root",
+      "call_id": "95fb8a2b-a5b1-4be8-a26b-8df213f73d5d",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5710,
+      "output_tokens": 8192,
+      "cost": 0.08905750000000001,
+      "timestamp": "2026-02-11T01:40:49.444651",
+      "llm_type": "root",
+      "call_id": "ec1e0414-ac60-43e0-b133-176612e03fc1",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5710,
+      "output_tokens": 5344,
+      "cost": 0.0605775,
+      "timestamp": "2026-02-11T01:42:42.241035",
+      "llm_type": "root",
+      "call_id": "a87d0333-05cb-4659-b0d4-e4bee46a0b27",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5759,
+      "output_tokens": 4949,
+      "cost": 0.05668875000000001,
+      "timestamp": "2026-02-11T01:44:33.514854",
+      "llm_type": "root",
+      "call_id": "6a02b3f7-afe4-47e1-8465-e6d47cfeb179",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6050,
+      "output_tokens": 8136,
+      "cost": 0.0889225,
+      "timestamp": "2026-02-11T01:47:05.719663",
+      "llm_type": "child:gpt5",
+      "call_id": "2d5ca092-bf2b-4268-953b-d474f707dd68",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 791,
+      "output_tokens": 5146,
+      "cost": 0.0235125,
+      "timestamp": "2026-02-11T01:47:05.719777",
+      "llm_type": "child:o4-mini",
+      "call_id": "b11ae771-e878-4e66-a21d-335c9e1a9759",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 795,
+      "output_tokens": 5983,
+      "cost": 0.015196000000000001,
+      "timestamp": "2026-02-11T01:47:05.719800",
+      "llm_type": "child:gemini-flash",
+      "call_id": "3573eea2-f683-4d9d-ae1b-f847af65e3d4",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 853,
+      "output_tokens": 1655,
+      "cost": 0.027384,
+      "timestamp": "2026-02-11T01:47:05.719817",
+      "llm_type": "child:sonnet",
+      "call_id": "6b4a3c42-2260-4247-9c33-ee8b7fa9f4ad",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 891,
+      "output_tokens": 3192,
+      "cost": 0.03303375,
+      "timestamp": "2026-02-11T01:47:05.719831",
+      "llm_type": "child:gemini-pro",
+      "call_id": "93296712-51bd-4e80-9328-851b9aaff750",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 802,
+      "output_tokens": 8019,
+      "cost": 0.0162385,
+      "timestamp": "2026-02-11T01:47:05.719845",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "b14b4c31-979b-44b7-9e78-ad9841b6aa86",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 730,
+      "output_tokens": 8805,
+      "cost": 0.0889625,
+      "timestamp": "2026-02-11T01:47:05.719858",
+      "llm_type": "child:gpt5",
+      "call_id": "6c68a8b7-db13-4b8e-aac7-5509b82c2f10",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9953,
+      "output_tokens": 7816,
+      "cost": 0.0225259,
+      "timestamp": "2026-02-11T01:47:05.719870",
+      "llm_type": "child:gemini-flash",
+      "call_id": "a1606a79-0277-4e5d-a17c-62db0d2005f3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9672,
+      "output_tokens": 2048,
+      "cost": 0.03257,
+      "timestamp": "2026-02-11T01:47:42.149547",
+      "llm_type": "root",
+      "call_id": "1d713b8c-6fbc-44e4-a664-09dee3c0afb6",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5971,
+      "output_tokens": 6595,
+      "cost": 0.07341375000000001,
+      "timestamp": "2026-02-11T01:50:00.861919",
+      "llm_type": "root",
+      "call_id": "1029ea3f-3cc7-48fe-8ff7-7e3bfedb1aa5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5971,
+      "output_tokens": 8192,
+      "cost": 0.08938375000000001,
+      "timestamp": "2026-02-11T01:52:24.270771",
+      "llm_type": "root",
+      "call_id": "187a83d4-d0c7-4321-9ebe-ed9ca8725279",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5971,
+      "output_tokens": 3897,
+      "cost": 0.04643375,
+      "timestamp": "2026-02-11T01:53:35.953697",
+      "llm_type": "root",
+      "call_id": "f7337c3c-72b3-436e-b1ce-48a937ffbf82",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6007,
+      "output_tokens": 1019,
+      "cost": 0.017698750000000003,
+      "timestamp": "2026-02-11T01:54:03.702196",
+      "llm_type": "root",
+      "call_id": "89d0ef5a-49dc-4698-9ee7-c4540f3a9ce8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6007,
+      "output_tokens": 4979,
+      "cost": 0.05729875,
+      "timestamp": "2026-02-11T01:55:30.291137",
+      "llm_type": "root",
+      "call_id": "9830b81b-7f31-4abe-98f2-ba39fa4e7395",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6135,
+      "output_tokens": 4060,
+      "cost": 0.048268750000000006,
+      "timestamp": "2026-02-11T01:56:39.823138",
+      "llm_type": "root",
+      "call_id": "8cda905c-f086-42bc-8144-0a16b8279b9e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6128,
+      "output_tokens": 5462,
+      "cost": 0.06228,
+      "timestamp": "2026-02-11T01:58:17.863409",
+      "llm_type": "root",
+      "call_id": "bcbcc60d-fe57-4695-b5c0-52f7579acbc0",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6128,
+      "output_tokens": 4629,
+      "cost": 0.053950000000000005,
+      "timestamp": "2026-02-11T01:59:38.628635",
+      "llm_type": "root",
+      "call_id": "abffe6bd-6d5f-4c64-be8e-fb5915d97d88",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6286,
+      "output_tokens": 7951,
+      "cost": 0.08736750000000001,
+      "timestamp": "2026-02-11T02:02:59.967193",
+      "llm_type": "root",
+      "call_id": "14c052a2-d8d5-4bd0-8112-77c4e7c4395a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6309,
+      "output_tokens": 8192,
+      "cost": 0.08980625,
+      "timestamp": "2026-02-11T02:05:52.647782",
+      "llm_type": "root",
+      "call_id": "03abd0aa-15dc-4b77-9f4f-575da553d8f8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6309,
+      "output_tokens": 5451,
+      "cost": 0.06239625,
+      "timestamp": "2026-02-11T02:07:49.842412",
+      "llm_type": "root",
+      "call_id": "ec26ba23-6d5d-4b95-aa06-b012e494f144",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6309,
+      "output_tokens": 4059,
+      "cost": 0.04847625,
+      "timestamp": "2026-02-11T02:09:21.759151",
+      "llm_type": "root",
+      "call_id": "3c4c0484-ba6a-4a4b-bf77-ac20634f2b6e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6378,
+      "output_tokens": 6190,
+      "cost": 0.0698725,
+      "timestamp": "2026-02-11T02:11:37.477389",
+      "llm_type": "root",
+      "call_id": "0a995e5c-0681-4137-af8e-0d65462ef916",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9018,
+      "output_tokens": 7342,
+      "cost": 0.0210604,
+      "timestamp": "2026-02-11T02:13:18.385108",
+      "llm_type": "child:gemini-flash",
+      "call_id": "96b0189f-ba1d-4faf-9428-cfc91c4cd0ce",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1068,
+      "output_tokens": 5104,
+      "cost": 0.0130804,
+      "timestamp": "2026-02-11T02:13:18.385223",
+      "llm_type": "child:gemini-flash",
+      "call_id": "0e652431-8623-476e-bb4e-f5687889b448",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1037,
+      "output_tokens": 4847,
+      "cost": 0.012428600000000001,
+      "timestamp": "2026-02-11T02:13:18.385243",
+      "llm_type": "child:gemini-flash",
+      "call_id": "3a44de7a-e9a7-437d-af7d-43a524830d79",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 997,
+      "output_tokens": 4058,
+      "cost": 0.010444100000000001,
+      "timestamp": "2026-02-11T02:13:18.385258",
+      "llm_type": "child:gemini-flash",
+      "call_id": "506fc545-97f5-49b7-949e-f217958418a2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1019,
+      "output_tokens": 3759,
+      "cost": 0.009703200000000002,
+      "timestamp": "2026-02-11T02:13:18.385271",
+      "llm_type": "child:gemini-flash",
+      "call_id": "a7b0497d-1c20-4aeb-8c6e-075fcc1c4054",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1065,
+      "output_tokens": 4530,
+      "cost": 0.011644500000000002,
+      "timestamp": "2026-02-11T02:13:18.385284",
+      "llm_type": "child:gemini-flash",
+      "call_id": "9c98bb79-3706-4ae8-9609-ad267dbbe5d7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 977,
+      "output_tokens": 5346,
+      "cost": 0.013658100000000001,
+      "timestamp": "2026-02-11T02:13:18.385298",
+      "llm_type": "child:gemini-flash",
+      "call_id": "bd284d1a-da48-4ef2-8544-698890af8778",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 971,
+      "output_tokens": 4396,
+      "cost": 0.011281300000000001,
+      "timestamp": "2026-02-11T02:13:18.385308",
+      "llm_type": "child:gemini-flash",
+      "call_id": "9a2db218-32de-46a1-8730-0b25079fe1e7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 10735,
+      "output_tokens": 592,
+      "cost": 0.019338750000000002,
+      "timestamp": "2026-02-11T02:13:32.165294",
+      "llm_type": "root",
+      "call_id": "fd3dc02b-4136-49e4-9f9a-32989509fea8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 10911,
+      "output_tokens": 957,
+      "cost": 0.02320875,
+      "timestamp": "2026-02-11T02:13:53.168813",
+      "llm_type": "root",
+      "call_id": "dbd9fd29-45d2-4a2c-92f2-18a62d0d5445",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 12012,
+      "output_tokens": 1309,
+      "cost": 0.028105,
+      "timestamp": "2026-02-11T02:14:16.850552",
+      "llm_type": "root",
+      "call_id": "80be4768-ac5d-48c9-b45a-e1fb6f15bd0e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6460,
+      "output_tokens": 5467,
+      "cost": 0.06274500000000001,
+      "timestamp": "2026-02-11T02:16:03.116332",
+      "llm_type": "root",
+      "call_id": "a5c07765-f822-45db-8d2a-92549e0b85da",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1745,
+      "output_tokens": 2651,
+      "cost": 0.02869125,
+      "timestamp": "2026-02-11T02:19:05.125178",
+      "llm_type": "child:gemini-pro",
+      "call_id": "8c5a79de-cc12-4637-bd41-a30b9258e669",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1647,
+      "output_tokens": 2733,
+      "cost": 0.029388750000000005,
+      "timestamp": "2026-02-11T02:19:05.125280",
+      "llm_type": "child:gemini-pro",
+      "call_id": "fb5ea821-fb81-4fdd-8a0a-4897788593f2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1463,
+      "output_tokens": 6124,
+      "cost": 0.0025227500000000003,
+      "timestamp": "2026-02-11T02:19:05.125307",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "138516c9-4a93-4383-a514-e369a593e936",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1506,
+      "output_tokens": 9457,
+      "cost": 0.0964525,
+      "timestamp": "2026-02-11T02:19:05.125324",
+      "llm_type": "child:gpt5",
+      "call_id": "88b2150e-bed3-43e8-88b8-6780d2b2bfb7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1455,
+      "output_tokens": 2854,
+      "cost": 0.0141581,
+      "timestamp": "2026-02-11T02:19:05.125338",
+      "llm_type": "child:o4-mini",
+      "call_id": "24d37db1-b762-41c5-88c2-27aafcc82a72",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1662,
+      "output_tokens": 2492,
+      "cost": 0.0067286,
+      "timestamp": "2026-02-11T02:19:05.125350",
+      "llm_type": "child:gemini-flash",
+      "call_id": "a2bfb978-2314-43c3-a554-0430fbad734c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1427,
+      "output_tokens": 4694,
+      "cost": 0.009744749999999998,
+      "timestamp": "2026-02-11T02:19:05.125362",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "1d65ba09-7e0e-46f8-87fc-f50e92681f27",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1745,
+      "output_tokens": 1961,
+      "cost": 0.03465,
+      "timestamp": "2026-02-11T02:19:05.125374",
+      "llm_type": "child:sonnet",
+      "call_id": "0360f393-695d-4aa3-8c77-02f1a12042ce",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 10663,
+      "output_tokens": 1636,
+      "cost": 0.029688750000000003,
+      "timestamp": "2026-02-11T02:19:36.156204",
+      "llm_type": "root",
+      "call_id": "23719a30-190b-48d2-b6fd-53f400dd662a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6671,
+      "output_tokens": 8011,
+      "cost": 0.08844875,
+      "timestamp": "2026-02-11T02:21:46.767978",
+      "llm_type": "root",
+      "call_id": "c6717a5d-c28e-4be9-90e7-490d22aae348",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6679,
+      "output_tokens": 8192,
+      "cost": 0.09026875000000001,
+      "timestamp": "2026-02-11T02:24:05.390284",
+      "llm_type": "root",
+      "call_id": "73de6581-996a-4935-a27f-3b954bdfeb30",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6679,
+      "output_tokens": 2542,
+      "cost": 0.03376875,
+      "timestamp": "2026-02-11T02:25:01.169259",
+      "llm_type": "root",
+      "call_id": "63b38701-eb6e-43d3-a70f-b9f1e4d70654",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6679,
+      "output_tokens": 8192,
+      "cost": 0.09026875000000001,
+      "timestamp": "2026-02-11T02:27:47.494707",
+      "llm_type": "root",
+      "call_id": "dfc0adfd-52d1-4203-9d91-eb457b022425",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6679,
+      "output_tokens": 5841,
+      "cost": 0.06675875,
+      "timestamp": "2026-02-11T02:29:40.516977",
+      "llm_type": "root",
+      "call_id": "210be2b0-14bb-421d-85d4-43a18f27c2f5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7226,
+      "output_tokens": 13026,
+      "cost": 0.1392925,
+      "timestamp": "2026-02-11T02:34:16.388798",
+      "llm_type": "child:gpt5",
+      "call_id": "5d7599fa-f02e-4c14-bbe8-68e0ee83febd",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7234,
+      "output_tokens": 6233,
+      "cost": 0.0353826,
+      "timestamp": "2026-02-11T02:34:16.388962",
+      "llm_type": "child:o4-mini",
+      "call_id": "ea6ebd83-c38d-4a00-9e01-b5b723d2cd28",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8352,
+      "output_tokens": 8769,
+      "cost": 0.0244281,
+      "timestamp": "2026-02-11T02:34:16.389022",
+      "llm_type": "child:gemini-flash",
+      "call_id": "19818347-bebf-4c65-bb26-3c8fb1d5e4f7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8719,
+      "output_tokens": 4990,
+      "cost": 0.101007,
+      "timestamp": "2026-02-11T02:34:16.389056",
+      "llm_type": "child:sonnet",
+      "call_id": "fff22c13-b50a-4eb1-8c28-681ed342b288",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7074,
+      "output_tokens": 8487,
+      "cost": 0.0187425,
+      "timestamp": "2026-02-11T02:34:16.389080",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "74c13e6e-cbd3-45ed-a3b2-dda5a2c2d712",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7053,
+      "output_tokens": 14390,
+      "cost": 0.006108650000000001,
+      "timestamp": "2026-02-11T02:34:16.389112",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "828ec93a-e6ff-44c4-ba52-b068acc3e4e8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8253,
+      "output_tokens": 5469,
+      "cost": 0.06500625,
+      "timestamp": "2026-02-11T02:34:16.389147",
+      "llm_type": "child:gemini-pro",
+      "call_id": "e194055a-c3ac-487e-8798-eda032a51440",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 11251,
+      "output_tokens": 10905,
+      "cost": 0.030637800000000003,
+      "timestamp": "2026-02-11T02:34:16.389171",
+      "llm_type": "child:gemini-flash",
+      "call_id": "a1fd00d4-01c8-46bc-b86e-44e943aa7e2b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 11762,
+      "output_tokens": 1251,
+      "cost": 0.0272125,
+      "timestamp": "2026-02-11T02:35:59.768396",
+      "llm_type": "root",
+      "call_id": "f573d23c-51d1-417e-b2b2-40d3f51abe2e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 12746,
+      "output_tokens": 2024,
+      "cost": 0.0361725,
+      "timestamp": "2026-02-11T02:36:40.032579",
+      "llm_type": "root",
+      "call_id": "a129b292-d28d-4ed3-a711-e5cf3eb48476",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 13919,
+      "output_tokens": 1079,
+      "cost": 0.028188750000000002,
+      "timestamp": "2026-02-11T02:36:58.285170",
+      "llm_type": "root",
+      "call_id": "df5e1ab2-e1b6-4750-9643-45dcd9d39efb",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6837,
+      "output_tokens": 5729,
+      "cost": 0.06583625000000001,
+      "timestamp": "2026-02-11T02:39:40.985167",
+      "llm_type": "root",
+      "call_id": "4740afd2-da06-4abb-89da-2917db2f71d6",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3149,
+      "output_tokens": 2495,
+      "cost": 0.0144419,
+      "timestamp": "2026-02-11T02:42:36.063658",
+      "llm_type": "child:o4-mini",
+      "call_id": "cde6cf0d-223e-4333-8b0d-cdebcebd0d0a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4653,
+      "output_tokens": 4328,
+      "cost": 0.009819249999999998,
+      "timestamp": "2026-02-11T02:42:36.063788",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "f5cf68dd-57f4-4752-a5e1-310641855661",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 3670,
+      "output_tokens": 3144,
+      "cost": 0.036027500000000004,
+      "timestamp": "2026-02-11T02:42:36.063810",
+      "llm_type": "child:gemini-pro",
+      "call_id": "c2383c35-148a-4078-8f05-08d5aa7ff225",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 962,
+      "output_tokens": 1947,
+      "cost": 0.032091,
+      "timestamp": "2026-02-11T02:42:36.063828",
+      "llm_type": "child:sonnet",
+      "call_id": "e61331a8-0961-48c6-8c30-4e0796409c3c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 796,
+      "output_tokens": 6479,
+      "cost": 0.0026314000000000003,
+      "timestamp": "2026-02-11T02:42:36.063884",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "60df2561-d696-4f0a-9beb-c55a5a727976",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 825,
+      "output_tokens": 3617,
+      "cost": 0.00929,
+      "timestamp": "2026-02-11T02:42:36.063901",
+      "llm_type": "child:gemini-flash",
+      "call_id": "c8998484-b309-4f8c-8078-b21aaa81c3d7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7517,
+      "output_tokens": 9920,
+      "cost": 0.10859625,
+      "timestamp": "2026-02-11T02:42:36.063914",
+      "llm_type": "child:gpt5",
+      "call_id": "c5ea1b0e-61db-4e38-872f-2180a37a2120",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7410,
+      "output_tokens": 8661,
+      "cost": 0.0191745,
+      "timestamp": "2026-02-11T02:42:36.063931",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "17bc980c-0e39-442f-bcc6-8de9c92b9434",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 11007,
+      "output_tokens": 1320,
+      "cost": 0.026958750000000004,
+      "timestamp": "2026-02-11T02:43:03.625217",
+      "llm_type": "root",
+      "call_id": "8828a9b7-f25e-4cfa-8384-9a6d6c6b2681",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 12536,
+      "output_tokens": 1109,
+      "cost": 0.02676,
+      "timestamp": "2026-02-11T02:43:19.922925",
+      "llm_type": "root",
+      "call_id": "d29e377c-f987-4766-9d04-052243223748",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7153,
+      "output_tokens": 7425,
+      "cost": 0.08319125000000001,
+      "timestamp": "2026-02-11T02:45:30.777183",
+      "llm_type": "root",
+      "call_id": "25977feb-6221-433b-bb60-2c8663de798b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7153,
+      "output_tokens": 1156,
+      "cost": 0.020501250000000002,
+      "timestamp": "2026-02-11T02:46:07.891712",
+      "llm_type": "root",
+      "call_id": "33e9522c-587d-413a-87cd-f1c940771a0c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7152,
+      "output_tokens": 4177,
+      "cost": 0.050710000000000005,
+      "timestamp": "2026-02-11T02:48:30.463848",
+      "llm_type": "root",
+      "call_id": "607a6624-943c-4e82-a37f-773d9a938ce1",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7608,
+      "output_tokens": 9559,
+      "cost": 0.10510000000000001,
+      "timestamp": "2026-02-11T02:50:54.416980",
+      "llm_type": "child:gpt5",
+      "call_id": "fc1f4f70-787b-4d17-a912-16cef62c95a7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 900,
+      "output_tokens": 2493,
+      "cost": 0.0119592,
+      "timestamp": "2026-02-11T02:50:54.417079",
+      "llm_type": "child:o4-mini",
+      "call_id": "3f12571f-f354-4843-90f0-874ded697dd3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 946,
+      "output_tokens": 4398,
+      "cost": 0.0090325,
+      "timestamp": "2026-02-11T02:50:54.417110",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "4cdcb5ad-7238-4d14-8c76-5cc70385674f",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 960,
+      "output_tokens": 3071,
+      "cost": 0.048945,
+      "timestamp": "2026-02-11T02:50:54.417128",
+      "llm_type": "child:sonnet",
+      "call_id": "0820d070-2357-40cf-a03a-ccc3cabe1266",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1043,
+      "output_tokens": 5087,
+      "cost": 0.013030400000000001,
+      "timestamp": "2026-02-11T02:50:54.417142",
+      "llm_type": "child:gemini-flash",
+      "call_id": "d6a2e4ef-c216-4d65-9c8d-fc4af907f9d6",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1040,
+      "output_tokens": 3062,
+      "cost": 0.031920000000000004,
+      "timestamp": "2026-02-11T02:50:54.417165",
+      "llm_type": "child:gemini-pro",
+      "call_id": "0d6334d8-19b0-4fbd-8a29-30164d4773b2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7827,
+      "output_tokens": 8256,
+      "cost": 0.0036937500000000004,
+      "timestamp": "2026-02-11T02:50:54.417179",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "369fe538-aad6-4f0b-9c4c-f091ccd440e4",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7613,
+      "output_tokens": 7443,
+      "cost": 0.08394625000000001,
+      "timestamp": "2026-02-11T02:50:54.417190",
+      "llm_type": "child:gpt5",
+      "call_id": "42b607c3-faf9-4322-b834-cd9025e2ac65",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 11423,
+      "output_tokens": 2048,
+      "cost": 0.034758750000000005,
+      "timestamp": "2026-02-11T02:51:35.425752",
+      "llm_type": "root",
+      "call_id": "84014ca8-e8e1-4d57-8747-8e8bdddfd4d2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7830,
+      "output_tokens": 862,
+      "cost": 0.0184075,
+      "timestamp": "2026-02-11T02:51:57.875488",
+      "llm_type": "root",
+      "call_id": "cf694098-2938-4d13-9888-00a725ab0e5a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7830,
+      "output_tokens": 6028,
+      "cost": 0.0700675,
+      "timestamp": "2026-02-11T02:53:42.569973",
+      "llm_type": "root",
+      "call_id": "ec47f662-faf4-43b2-bc00-031130603426",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7429,
+      "output_tokens": 9242,
+      "cost": 0.10170625,
+      "timestamp": "2026-02-11T02:56:31.002551",
+      "llm_type": "child:gpt5",
+      "call_id": "de5a854b-3336-4780-aa23-eeedd7b2157d",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8600,
+      "output_tokens": 5903,
+      "cost": 0.06978000000000001,
+      "timestamp": "2026-02-11T02:56:31.002681",
+      "llm_type": "child:gemini-pro",
+      "call_id": "a1dda8f6-d8fa-4615-a296-3913e7c1e398",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5002,
+      "output_tokens": 5179,
+      "cost": 0.028289800000000004,
+      "timestamp": "2026-02-11T02:56:31.002737",
+      "llm_type": "child:o4-mini",
+      "call_id": "4acd5416-ae88-4eb2-bd82-17995929ed01",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4955,
+      "output_tokens": 6331,
+      "cost": 0.0027801500000000003,
+      "timestamp": "2026-02-11T02:56:31.002772",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "448a6674-12f2-452f-8a63-c421eae7bb96",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7524,
+      "output_tokens": 4305,
+      "cost": 0.087147,
+      "timestamp": "2026-02-11T02:56:31.002801",
+      "llm_type": "child:sonnet",
+      "call_id": "4c3ff3e7-d1f6-456e-9923-9bb2e312bdc8",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6063,
+      "output_tokens": 7138,
+      "cost": 0.07895875,
+      "timestamp": "2026-02-11T02:56:31.002825",
+      "llm_type": "child:gpt5",
+      "call_id": "b294d471-7268-4b18-a40b-079111ec41a2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8757,
+      "output_tokens": 8051,
+      "cost": 0.022754600000000003,
+      "timestamp": "2026-02-11T02:56:31.002856",
+      "llm_type": "child:gemini-flash",
+      "call_id": "138ed89a-5376-4eb5-920b-fbd34f84622c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7462,
+      "output_tokens": 7279,
+      "cost": 0.0164235,
+      "timestamp": "2026-02-11T02:56:31.002879",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "a498459f-52fb-486a-842e-17ab2b526dc1",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 12037,
+      "output_tokens": 1373,
+      "cost": 0.028776250000000003,
+      "timestamp": "2026-02-11T02:56:56.710859",
+      "llm_type": "root",
+      "call_id": "100c5ac8-644c-4f59-8ff0-981baf490e80",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8252,
+      "output_tokens": 8192,
+      "cost": 0.09223500000000001,
+      "timestamp": "2026-02-11T02:59:37.375143",
+      "llm_type": "root",
+      "call_id": "af0ed08c-7324-4d59-b752-22ee9d2dbb82",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8252,
+      "output_tokens": 5321,
+      "cost": 0.06352500000000001,
+      "timestamp": "2026-02-11T03:01:42.575437",
+      "llm_type": "root",
+      "call_id": "2cb33954-c670-4798-aac2-e24c8e1ae17d",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8394,
+      "output_tokens": 3810,
+      "cost": 0.048592500000000004,
+      "timestamp": "2026-02-11T03:03:11.475253",
+      "llm_type": "root",
+      "call_id": "fae98215-c927-4609-bb47-25701235816a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 13847,
+      "output_tokens": 9932,
+      "cost": 0.11662875,
+      "timestamp": "2026-02-11T03:06:42.452419",
+      "llm_type": "child:gpt5",
+      "call_id": "aab27709-ec45-49f9-b57b-726d3fa9bbe4",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 11514,
+      "output_tokens": 5413,
+      "cost": 0.036482600000000004,
+      "timestamp": "2026-02-11T03:06:42.452520",
+      "llm_type": "child:o4-mini",
+      "call_id": "72418dfd-2b8f-47bd-9283-2499657b4d91",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8538,
+      "output_tokens": 6536,
+      "cost": 0.0189014,
+      "timestamp": "2026-02-11T03:06:42.452541",
+      "llm_type": "child:gemini-flash",
+      "call_id": "61f550c3-5456-4f0e-8b45-1d5e25625eb3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7804,
+      "output_tokens": 8651,
+      "cost": 0.019253,
+      "timestamp": "2026-02-11T03:06:42.452556",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "4b730b85-6799-4bf1-9302-aef50d26ddc2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7263,
+      "output_tokens": 5078,
+      "cost": 0.05985875,
+      "timestamp": "2026-02-11T03:06:42.452570",
+      "llm_type": "child:gemini-pro",
+      "call_id": "d9868955-3a34-47ac-aeba-156d990c0f8a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8852,
+      "output_tokens": 2646,
+      "cost": 0.066246,
+      "timestamp": "2026-02-11T03:06:42.452585",
+      "llm_type": "child:sonnet",
+      "call_id": "bd5c432b-2ce7-41d7-bf0f-0ffaa10f992e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7279,
+      "output_tokens": 7416,
+      "cost": 0.00333035,
+      "timestamp": "2026-02-11T03:06:42.452597",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "d8eb4cf3-72e9-490b-ad18-53a43d8d79a3",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5890,
+      "output_tokens": 4696,
+      "cost": 0.027141400000000003,
+      "timestamp": "2026-02-11T03:06:42.452610",
+      "llm_type": "child:o4-mini",
+      "call_id": "123bfd72-fb91-4250-a4f9-3f5bbaf62e9f",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 11605,
+      "output_tokens": 991,
+      "cost": 0.02441625,
+      "timestamp": "2026-02-11T03:07:01.105718",
+      "llm_type": "root",
+      "call_id": "37e4358e-611e-4b7e-a7c2-a6516a29267c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 12389,
+      "output_tokens": 2009,
+      "cost": 0.035576250000000004,
+      "timestamp": "2026-02-11T03:07:43.198542",
+      "llm_type": "root",
+      "call_id": "a1fcbe2f-6ce4-4bde-9448-7aeeb9f96507",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8688,
+      "output_tokens": 7118,
+      "cost": 0.08204,
+      "timestamp": "2026-02-11T03:10:22.449028",
+      "llm_type": "root",
+      "call_id": "99392eca-dac5-490e-a9d9-494bd4c19827",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 33191,
+      "output_tokens": 2382,
+      "cost": 0.0469909,
+      "timestamp": "2026-02-11T03:14:11.667637",
+      "llm_type": "child:o4-mini",
+      "call_id": "9c6561fb-c8a7-4f0d-b083-02e3a267a230",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 33114,
+      "output_tokens": 8280,
+      "cost": 0.0248385,
+      "timestamp": "2026-02-11T03:14:11.667744",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "c2801477-adb1-4469-a75c-bdee8241b908",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 39079,
+      "output_tokens": 8871,
+      "cost": 0.033901200000000006,
+      "timestamp": "2026-02-11T03:14:11.667765",
+      "llm_type": "child:gemini-flash",
+      "call_id": "4dfa6d56-8fde-437d-8baf-4345a44b3609",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 40840,
+      "output_tokens": 2923,
+      "cost": 0.166365,
+      "timestamp": "2026-02-11T03:14:11.667781",
+      "llm_type": "child:sonnet",
+      "call_id": "13f7599e-8f10-4639-869c-965336f909aa",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 33102,
+      "output_tokens": 13087,
+      "cost": 0.006889900000000001,
+      "timestamp": "2026-02-11T03:14:11.667796",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "3193505b-389c-4f4b-a059-85a50e202510",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 39158,
+      "output_tokens": 5488,
+      "cost": 0.10382750000000002,
+      "timestamp": "2026-02-11T03:14:11.667811",
+      "llm_type": "child:gemini-pro",
+      "call_id": "6acd8660-bd70-415c-b993-6c4f8196587c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 33276,
+      "output_tokens": 12008,
+      "cost": 0.161675,
+      "timestamp": "2026-02-11T03:14:11.667824",
+      "llm_type": "child:gpt5",
+      "call_id": "0bb1aaa1-45f3-462a-abcf-61e095383dee",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 33122,
+      "output_tokens": 9935,
+      "cost": 0.1407525,
+      "timestamp": "2026-02-11T03:14:11.667838",
+      "llm_type": "child:gpt5",
+      "call_id": "d7a15a66-7578-4f61-b1c5-8ba08a212db6",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 12861,
+      "output_tokens": 2048,
+      "cost": 0.03655625,
+      "timestamp": "2026-02-11T03:15:51.842882",
+      "llm_type": "root",
+      "call_id": "41cf72cb-3bc3-47b8-b05a-8110bf8c3924",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9025,
+      "output_tokens": 5682,
+      "cost": 0.06810125,
+      "timestamp": "2026-02-11T03:17:41.431015",
+      "llm_type": "root",
+      "call_id": "b2ff210e-a620-4577-9770-081602417a45",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9025,
+      "output_tokens": 6258,
+      "cost": 0.07386125000000002,
+      "timestamp": "2026-02-11T03:19:46.551591",
+      "llm_type": "root",
+      "call_id": "f5386819-9674-4629-a7ce-8cad6f15dd80",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 64358,
+      "output_tokens": 11785,
+      "cost": 0.19829750000000002,
+      "timestamp": "2026-02-11T03:23:33.505410",
+      "llm_type": "child:gpt5",
+      "call_id": "1adb263a-6bc8-4b52-9f81-0c0236a08b22",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 44528,
+      "output_tokens": 3577,
+      "cost": 0.0647196,
+      "timestamp": "2026-02-11T03:23:33.505566",
+      "llm_type": "child:o4-mini",
+      "call_id": "c23d8b41-0826-44e4-8005-62ed63cddd71",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 52556,
+      "output_tokens": 7767,
+      "cost": 0.0351843,
+      "timestamp": "2026-02-11T03:23:33.505605",
+      "llm_type": "child:gemini-flash",
+      "call_id": "2eff4826-5f0a-409f-98f4-2ee1257485be",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 54861,
+      "output_tokens": 3465,
+      "cost": 0.216558,
+      "timestamp": "2026-02-11T03:23:33.505625",
+      "llm_type": "child:sonnet",
+      "call_id": "4ea334d3-852c-4102-9651-d85469480d88",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 44448,
+      "output_tokens": 7621,
+      "cost": 0.026354,
+      "timestamp": "2026-02-11T03:23:33.505644",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "e395a27d-1b73-4036-8921-2ac4b538eac2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 44475,
+      "output_tokens": 15011,
+      "cost": 0.00822815,
+      "timestamp": "2026-02-11T03:23:33.505656",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "2fed1baa-05fc-4bf6-9f8c-c7b07846b3f0",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 52659,
+      "output_tokens": 3464,
+      "cost": 0.10046375,
+      "timestamp": "2026-02-11T03:23:33.505717",
+      "llm_type": "child:gemini-pro",
+      "call_id": "4863ef9a-d607-4486-b789-7b761f9e0f1f",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 20490,
+      "output_tokens": 7757,
+      "cost": 0.10318250000000001,
+      "timestamp": "2026-02-11T03:23:33.505736",
+      "llm_type": "child:gpt5",
+      "call_id": "03c9f56c-e5ff-4878-9805-9b04d207491e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 12858,
+      "output_tokens": 1521,
+      "cost": 0.031282500000000005,
+      "timestamp": "2026-02-11T03:25:05.984811",
+      "llm_type": "root",
+      "call_id": "2c1ae97c-626f-4ba2-bf72-56e85ca67dd5",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9212,
+      "output_tokens": 5062,
+      "cost": 0.06213500000000001,
+      "timestamp": "2026-02-11T03:27:23.402925",
+      "llm_type": "root",
+      "call_id": "aeb62e58-53c9-47e1-832c-e53ca2d89ee9",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1945,
+      "output_tokens": 11281,
+      "cost": 0.11524125,
+      "timestamp": "2026-02-11T03:31:56.141858",
+      "llm_type": "child:gpt5",
+      "call_id": "d0727e96-7271-4ce4-af04-b5f5aac12ce7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 897,
+      "output_tokens": 4365,
+      "cost": 0.0201927,
+      "timestamp": "2026-02-11T03:31:56.141945",
+      "llm_type": "child:o4-mini",
+      "call_id": "76fab0af-d25d-4416-95df-d2ca9ff1d3ad",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1113,
+      "output_tokens": 5830,
+      "cost": 0.014908900000000001,
+      "timestamp": "2026-02-11T03:31:56.141963",
+      "llm_type": "child:gemini-flash",
+      "call_id": "06c6f1c3-3a66-4ed6-9a7c-e2adc2ad28bf",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1100,
+      "output_tokens": 4445,
+      "cost": 0.045825000000000005,
+      "timestamp": "2026-02-11T03:31:56.141978",
+      "llm_type": "child:gemini-pro",
+      "call_id": "5eb38705-5f98-4b31-8925-ea9f8f63f6c2",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1190,
+      "output_tokens": 3136,
+      "cost": 0.05061,
+      "timestamp": "2026-02-11T03:31:56.141991",
+      "llm_type": "child:sonnet",
+      "call_id": "014c0ccf-d793-4aa8-a041-52a8749fbace",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1044,
+      "output_tokens": 7459,
+      "cost": 0.015179,
+      "timestamp": "2026-02-11T03:31:56.142007",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "78aa8994-e1ff-4617-9f5d-46c7a484a7a0",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1047,
+      "output_tokens": 10864,
+      "cost": 0.00439795,
+      "timestamp": "2026-02-11T03:31:56.142019",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "7be47c37-d768-426c-a51c-b79caaf2c322",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 1104,
+      "output_tokens": 6425,
+      "cost": 0.0163937,
+      "timestamp": "2026-02-11T03:31:56.142030",
+      "llm_type": "child:gemini-flash",
+      "call_id": "6e3c6378-fed3-41e4-a3ad-ec24e2381861",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 13473,
+      "output_tokens": 1999,
+      "cost": 0.03683125,
+      "timestamp": "2026-02-11T03:32:26.372398",
+      "llm_type": "root",
+      "call_id": "1bc176ff-cc78-4afa-9135-be9a25d167ac",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9458,
+      "output_tokens": 7629,
+      "cost": 0.08811250000000001,
+      "timestamp": "2026-02-11T03:34:30.248535",
+      "llm_type": "root",
+      "call_id": "1ea4aad3-fea6-4de6-a8c9-781622bfd28a",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7656,
+      "output_tokens": 8900,
+      "cost": 0.09857,
+      "timestamp": "2026-02-11T03:37:18.231560",
+      "llm_type": "child:gpt5",
+      "call_id": "036da0ca-f55c-45ce-9f4a-f7637ba222ac",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8688,
+      "output_tokens": 8307,
+      "cost": 0.023373900000000003,
+      "timestamp": "2026-02-11T03:37:18.231667",
+      "llm_type": "child:gemini-flash",
+      "call_id": "96739088-0803-454c-8916-683cc082e9ae",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7411,
+      "output_tokens": 6786,
+      "cost": 0.01542475,
+      "timestamp": "2026-02-11T03:37:18.231689",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "8c01b29c-b400-4e17-b74f-e0d1f4514f61",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 375,
+      "output_tokens": 13147,
+      "cost": 0.00527755,
+      "timestamp": "2026-02-11T03:37:18.231705",
+      "llm_type": "child:gpt5-nano",
+      "call_id": "55307fd5-1898-452b-8212-5f748e78ea5b",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7410,
+      "output_tokens": 9184,
+      "cost": 0.10110250000000001,
+      "timestamp": "2026-02-11T03:37:18.231720",
+      "llm_type": "child:gpt5",
+      "call_id": "f4670a81-1361-487f-abea-bb6b19e20f27",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 527,
+      "output_tokens": 2509,
+      "cost": 0.039216,
+      "timestamp": "2026-02-11T03:37:18.231734",
+      "llm_type": "child:sonnet",
+      "call_id": "5729f751-8460-4a4d-8f83-6899140acb86",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7664,
+      "output_tokens": 5387,
+      "cost": 0.0321332,
+      "timestamp": "2026-02-11T03:37:18.231749",
+      "llm_type": "child:o4-mini",
+      "call_id": "9346aa3e-5292-4b04-ac9c-dcaf0df91d23",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 468,
+      "output_tokens": 3682,
+      "cost": 0.03740500000000001,
+      "timestamp": "2026-02-11T03:37:18.231762",
+      "llm_type": "child:gemini-pro",
+      "call_id": "db164112-0f8b-429d-acc0-7213ba390aee",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 13862,
+      "output_tokens": 1893,
+      "cost": 0.036257500000000005,
+      "timestamp": "2026-02-11T03:38:00.235689",
+      "llm_type": "root",
+      "call_id": "83733296-9f0d-477d-8885-83d675777188",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9681,
+      "output_tokens": 8192,
+      "cost": 0.09402125,
+      "timestamp": "2026-02-11T03:40:57.609747",
+      "llm_type": "root",
+      "call_id": "47ef9214-ab4d-47d5-b049-ac4eb444fc14",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9681,
+      "output_tokens": 8192,
+      "cost": 0.09402125,
+      "timestamp": "2026-02-11T03:43:44.123274",
+      "llm_type": "root",
+      "call_id": "b6f95f7b-f040-4c8a-a106-9ad01c138782",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 9681,
+      "output_tokens": 4105,
+      "cost": 0.053151250000000004,
+      "timestamp": "2026-02-11T03:45:02.460102",
+      "llm_type": "root",
+      "call_id": "c5eef6e5-8f7c-462e-a326-44c843f83341",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 8688,
+      "output_tokens": 9093,
+      "cost": 0.025338900000000004,
+      "timestamp": "2026-02-11T03:47:49.024328",
+      "llm_type": "child:gemini-flash",
+      "call_id": "7712d572-c6b3-4deb-b332-a303c845db59",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 5886,
+      "output_tokens": 4217,
+      "cost": 0.04952750000000001,
+      "timestamp": "2026-02-11T03:47:49.024484",
+      "llm_type": "child:gemini-pro",
+      "call_id": "f1ef96a8-0cbc-4797-ab1e-acf81ab85cb7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7998,
+      "output_tokens": 7705,
+      "cost": 0.0174095,
+      "timestamp": "2026-02-11T03:47:49.024517",
+      "llm_type": "child:gpt5-mini",
+      "call_id": "de146e9a-2f94-4cff-a890-4b69f25849f7",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6456,
+      "output_tokens": 7833,
+      "cost": 0.0864,
+      "timestamp": "2026-02-11T03:47:49.024535",
+      "llm_type": "child:gpt5",
+      "call_id": "130bede2-df0e-4beb-918c-207811c0d79c",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6041,
+      "output_tokens": 7447,
+      "cost": 0.0204298,
+      "timestamp": "2026-02-11T03:47:49.024555",
+      "llm_type": "child:gemini-flash",
+      "call_id": "a4f13c41-5096-456e-be9f-0daed0ccab97",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 6184,
+      "output_tokens": 7076,
+      "cost": 0.07849,
+      "timestamp": "2026-02-11T03:47:49.024567",
+      "llm_type": "child:gpt5",
+      "call_id": "c288b9dd-e8ca-40ff-8f5a-71a9ff91f099",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 4111,
+      "output_tokens": 3645,
+      "cost": 0.067008,
+      "timestamp": "2026-02-11T03:47:49.024581",
+      "llm_type": "child:sonnet",
+      "call_id": "caa6534d-077b-45e8-a54f-379a9dfc9459",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 7584,
+      "output_tokens": 4658,
+      "cost": 0.0288376,
+      "timestamp": "2026-02-11T03:47:49.024596",
+      "llm_type": "child:o4-mini",
+      "call_id": "8b46e3be-6743-4089-82bd-9ba668317b4e",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    },
+    {
+      "input_tokens": 13896,
+      "output_tokens": 2048,
+      "cost": 0.03785,
+      "timestamp": "2026-02-11T03:48:41.598725",
+      "llm_type": "root",
+      "call_id": "18f1e8c2-9120-407d-9672-3d2a4cc8b661",
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    }
+  ],
+  "timing": {
+    "total_wall_time_s": 17820.83186120598,
+    "total_root_llm_time_s": 12972.528414782602,
+    "total_child_llm_time_s": 14939.113764106994,
+    "total_eval_time_s": 640.5885537514696,
+    "total_spawn_time_s": 3744.4885970032774,
+    "num_generations_timed": 20,
+    "avg_generation_time_s": 386.70970459320813
+  },
+  "timing_log": [
+    {
+      "operation": "root_llm_call",
+      "duration_s": 201.7372593699256,
+      "timestamp": "2026-02-10T23:13:25.624074",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 218.037446297938,
+      "timestamp": "2026-02-10T23:17:03.662953",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 161.48178738891147,
+      "timestamp": "2026-02-10T23:19:45.145773",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 200.42460705304984,
+      "timestamp": "2026-02-10T23:23:05.571565",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 478.0609338210197,
+      "timestamp": "2026-02-10T23:31:03.633539",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 175.74227683700155,
+      "timestamp": "2026-02-10T23:33:59.377468",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 218.44075084198266,
+      "timestamp": "2026-02-10T23:37:37.819627",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 229.5378691550577,
+      "timestamp": "2026-02-10T23:41:27.358882",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 208.28853115299717,
+      "timestamp": "2026-02-10T23:44:55.648984",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 915.0623695360264,
+      "timestamp": "2026-02-11T00:00:10.712614",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 474.9602709650062,
+      "timestamp": "2026-02-11T00:08:05.675892",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 266.76956250402145,
+      "timestamp": "2026-02-11T00:12:32.446809",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 180.99338167300448,
+      "timestamp": "2026-02-11T00:15:33.443277",
+      "metadata": {
+        "generation": 0,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 237.9508403800428,
+      "timestamp": "2026-02-11T00:19:32.031111",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6336581980576739,
+      "timestamp": "2026-02-11T00:19:32.031116",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 30.728386187925935,
+      "timestamp": "2026-02-11T00:19:32.031237",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.40951791999395937,
+      "timestamp": "2026-02-11T00:19:32.031239",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 50.024327313061804,
+      "timestamp": "2026-02-11T00:19:32.031278",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.35268776305019855,
+      "timestamp": "2026-02-11T00:19:32.031279",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 26.908725718967617,
+      "timestamp": "2026-02-11T00:19:32.031293",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6623629289679229,
+      "timestamp": "2026-02-11T00:19:32.031294",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 56.64296924509108,
+      "timestamp": "2026-02-11T00:19:32.031313",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.33809867000672966,
+      "timestamp": "2026-02-11T00:19:32.031314",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 135.51929368404672,
+      "timestamp": "2026-02-11T00:19:32.031325",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_5",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3155308470595628,
+      "timestamp": "2026-02-11T00:19:32.031326",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 167.06907245796174,
+      "timestamp": "2026-02-11T00:19:32.031340",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_6",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5119162229821086,
+      "timestamp": "2026-02-11T00:19:32.031341",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 65.51701951900031,
+      "timestamp": "2026-02-11T00:19:32.031352",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.5609320100629702,
+      "timestamp": "2026-02-11T00:19:32.031353",
+      "metadata": {
+        "generation": 0,
+        "trial_id": "trial_0_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 238.58640509401448,
+      "timestamp": "2026-02-11T00:19:32.031364",
+      "metadata": {
+        "generation": 0,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 41.30983433290385,
+      "timestamp": "2026-02-11T00:20:13.341941",
+      "metadata": {
+        "generation": 0,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 41.3145174899837,
+      "timestamp": "2026-02-11T00:20:13.346336",
+      "metadata": {
+        "generation": 0
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 460.89716606994625,
+      "timestamp": "2026-02-11T00:20:13.346342",
+      "metadata": {
+        "generation": 0
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 118.65625800704584,
+      "timestamp": "2026-02-11T00:22:12.004887",
+      "metadata": {
+        "generation": 1,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 246.03131455101538,
+      "timestamp": "2026-02-11T00:26:18.684838",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6422321039717644,
+      "timestamp": "2026-02-11T00:26:18.684846",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 26.824655015952885,
+      "timestamp": "2026-02-11T00:26:18.684927",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3486221929779276,
+      "timestamp": "2026-02-11T00:26:18.684929",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 51.80491368495859,
+      "timestamp": "2026-02-11T00:26:18.684952",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.4439348540036008,
+      "timestamp": "2026-02-11T00:26:18.684953",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 25.555897368933074,
+      "timestamp": "2026-02-11T00:26:18.684969",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.3959916370222345,
+      "timestamp": "2026-02-11T00:26:18.684971",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 63.815307963988744,
+      "timestamp": "2026-02-11T00:26:18.684984",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.37360114895273,
+      "timestamp": "2026-02-11T00:26:18.684985",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 87.65938555402681,
+      "timestamp": "2026-02-11T00:26:18.684997",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_5",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.336007775971666,
+      "timestamp": "2026-02-11T00:26:18.684998",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 131.2959806639701,
+      "timestamp": "2026-02-11T00:26:18.685011",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_6",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.89285022392869,
+      "timestamp": "2026-02-11T00:26:18.685012",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 79.0203032370191,
+      "timestamp": "2026-02-11T00:26:18.685024",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3417958329664543,
+      "timestamp": "2026-02-11T00:26:18.685025",
+      "metadata": {
+        "generation": 1,
+        "trial_id": "trial_1_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 246.67909237497952,
+      "timestamp": "2026-02-11T00:26:18.685039",
+      "metadata": {
+        "generation": 1,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 12.827905162004754,
+      "timestamp": "2026-02-11T00:26:31.513789",
+      "metadata": {
+        "generation": 1,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 12.833154455991462,
+      "timestamp": "2026-02-11T00:26:31.518775",
+      "metadata": {
+        "generation": 1
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 378.17098417994566,
+      "timestamp": "2026-02-11T00:26:31.518781",
+      "metadata": {
+        "generation": 1
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 213.26664752699435,
+      "timestamp": "2026-02-11T00:30:04.787643",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 195.44484422402456,
+      "timestamp": "2026-02-11T00:33:20.233836",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 206.57030329701956,
+      "timestamp": "2026-02-11T00:36:46.818744",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 144.24687521602027,
+      "timestamp": "2026-02-11T00:39:11.067141",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 50.389019089983776,
+      "timestamp": "2026-02-11T00:40:01.469618",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 180.03507190698292,
+      "timestamp": "2026-02-11T00:43:01.507233",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 168.10051215696149,
+      "timestamp": "2026-02-11T00:45:49.613845",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 210.842401673086,
+      "timestamp": "2026-02-11T00:49:20.458062",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 142.67931890801992,
+      "timestamp": "2026-02-11T00:51:43.138918",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 178.6299821480643,
+      "timestamp": "2026-02-11T00:54:41.774008",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 578.6310419479851,
+      "timestamp": "2026-02-11T01:04:20.406626",
+      "metadata": {
+        "generation": 2,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 165.7914865310304,
+      "timestamp": "2026-02-11T01:07:07.102351",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.8963426119880751,
+      "timestamp": "2026-02-11T01:07:07.102359",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 44.7670710911043,
+      "timestamp": "2026-02-11T01:07:07.102454",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.2794353689532727,
+      "timestamp": "2026-02-11T01:07:07.102455",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 87.33597408805508,
+      "timestamp": "2026-02-11T01:07:07.102474",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5153150239493698,
+      "timestamp": "2026-02-11T01:07:07.102475",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 23.202539543039165,
+      "timestamp": "2026-02-11T01:07:07.102489",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 9.490247279056348,
+      "timestamp": "2026-02-11T01:07:07.102490",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 85.52165407396387,
+      "timestamp": "2026-02-11T01:07:07.102503",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.0979742599884048,
+      "timestamp": "2026-02-11T01:07:07.102504",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 106.91163028497249,
+      "timestamp": "2026-02-11T01:07:07.102515",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_5",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.32630440895445645,
+      "timestamp": "2026-02-11T01:07:07.102516",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 139.2783626409946,
+      "timestamp": "2026-02-11T01:07:07.102540",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_6",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6541658679489046,
+      "timestamp": "2026-02-11T01:07:07.102541",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 89.85802653199062,
+      "timestamp": "2026-02-11T01:07:07.102553",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.8773584859445691,
+      "timestamp": "2026-02-11T01:07:07.102554",
+      "metadata": {
+        "generation": 2,
+        "trial_id": "trial_2_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 166.6928226139862,
+      "timestamp": "2026-02-11T01:07:07.102565",
+      "metadata": {
+        "generation": 2,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 22.752094743889757,
+      "timestamp": "2026-02-11T01:07:29.857945",
+      "metadata": {
+        "generation": 2,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 29.627400533063337,
+      "timestamp": "2026-02-11T01:07:59.488224",
+      "metadata": {
+        "generation": 2,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 52.38941756100394,
+      "timestamp": "2026-02-11T01:07:59.495027",
+      "metadata": {
+        "generation": 2
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 797.7204740440939,
+      "timestamp": "2026-02-11T01:07:59.495036",
+      "metadata": {
+        "generation": 2
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 83.03948186803609,
+      "timestamp": "2026-02-11T01:09:22.538436",
+      "metadata": {
+        "generation": 3,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 51.02723779703956,
+      "timestamp": "2026-02-11T01:12:43.285199",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.4771765769692138,
+      "timestamp": "2026-02-11T01:12:43.285204",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 71.88290989899542,
+      "timestamp": "2026-02-11T01:12:43.285262",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.7972485199570656,
+      "timestamp": "2026-02-11T01:12:43.285264",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 29.081426195101812,
+      "timestamp": "2026-02-11T01:12:43.285280",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 167.29524261900224,
+      "timestamp": "2026-02-11T01:12:43.285281",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 153.77229946595617,
+      "timestamp": "2026-02-11T01:12:43.285296",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_4",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.9703387330519035,
+      "timestamp": "2026-02-11T01:12:43.285297",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 143.35675609507598,
+      "timestamp": "2026-02-11T01:12:43.285308",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_5",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 182.64405735803302,
+      "timestamp": "2026-02-11T01:12:43.285325",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_6",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.403378427028656,
+      "timestamp": "2026-02-11T01:12:43.285326",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 198.7887767079519,
+      "timestamp": "2026-02-11T01:12:43.285337",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.9483528060372919,
+      "timestamp": "2026-02-11T01:12:43.285337",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 112.08793184696697,
+      "timestamp": "2026-02-11T01:12:43.285347",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_7",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3968628910370171,
+      "timestamp": "2026-02-11T01:12:43.285348",
+      "metadata": {
+        "generation": 3,
+        "trial_id": "trial_3_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 200.74131066910923,
+      "timestamp": "2026-02-11T01:12:43.285357",
+      "metadata": {
+        "generation": 3,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 10.296877364977263,
+      "timestamp": "2026-02-11T01:12:53.583856",
+      "metadata": {
+        "generation": 3,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 10.299753756029531,
+      "timestamp": "2026-02-11T01:12:53.586486",
+      "metadata": {
+        "generation": 3
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 294.08901339105796,
+      "timestamp": "2026-02-11T01:12:53.586489",
+      "metadata": {
+        "generation": 3
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 106.54611235996708,
+      "timestamp": "2026-02-11T01:14:40.133946",
+      "metadata": {
+        "generation": 4,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 166.05529695097357,
+      "timestamp": "2026-02-11T01:17:27.912184",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.7173245860030875,
+      "timestamp": "2026-02-11T01:17:27.912192",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 42.125137561000884,
+      "timestamp": "2026-02-11T01:17:27.912279",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.525752320070751,
+      "timestamp": "2026-02-11T01:17:27.912281",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 87.64374094107188,
+      "timestamp": "2026-02-11T01:17:27.912299",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 14.239108740002848,
+      "timestamp": "2026-02-11T01:17:27.912301",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 24.742466755909845,
+      "timestamp": "2026-02-11T01:17:27.912316",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 7.018659071996808,
+      "timestamp": "2026-02-11T01:17:27.912317",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 106.27169816300739,
+      "timestamp": "2026-02-11T01:17:27.912330",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.9508156729862094,
+      "timestamp": "2026-02-11T01:17:27.912331",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 106.90340986591764,
+      "timestamp": "2026-02-11T01:17:27.912343",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_5",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.4233479400863871,
+      "timestamp": "2026-02-11T01:17:27.912344",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 132.55265195702668,
+      "timestamp": "2026-02-11T01:17:27.912356",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_6",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.7418853950221092,
+      "timestamp": "2026-02-11T01:17:27.912358",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 55.80931211193092,
+      "timestamp": "2026-02-11T01:17:27.912368",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.4097749460488558,
+      "timestamp": "2026-02-11T01:17:27.912369",
+      "metadata": {
+        "generation": 4,
+        "trial_id": "trial_4_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 167.77727171289735,
+      "timestamp": "2026-02-11T01:17:27.912382",
+      "metadata": {
+        "generation": 4,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 37.97601417393889,
+      "timestamp": "2026-02-11T01:18:05.892192",
+      "metadata": {
+        "generation": 4,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 37.97873271990102,
+      "timestamp": "2026-02-11T01:18:05.894662",
+      "metadata": {
+        "generation": 4
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 312.3073978670873,
+      "timestamp": "2026-02-11T01:18:05.894664",
+      "metadata": {
+        "generation": 4
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 69.5764464730164,
+      "timestamp": "2026-02-11T01:19:15.472145",
+      "metadata": {
+        "generation": 5,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 95.66614995803684,
+      "timestamp": "2026-02-11T01:20:51.145306",
+      "metadata": {
+        "generation": 5,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 80.56156232999638,
+      "timestamp": "2026-02-11T01:22:11.713570",
+      "metadata": {
+        "generation": 5,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 86.4486240070546,
+      "timestamp": "2026-02-11T01:24:23.962835",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.6264775519957766,
+      "timestamp": "2026-02-11T01:24:23.962843",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 115.81316849193536,
+      "timestamp": "2026-02-11T01:24:23.962944",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_5",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5320138520328328,
+      "timestamp": "2026-02-11T01:24:23.962946",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 40.958873708033934,
+      "timestamp": "2026-02-11T01:24:23.962968",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_6",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.35976838297210634,
+      "timestamp": "2026-02-11T01:24:23.962969",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 66.28292066999711,
+      "timestamp": "2026-02-11T01:24:23.962995",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.4550320759881288,
+      "timestamp": "2026-02-11T01:24:23.962996",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_7"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 68.71925342804752,
+      "timestamp": "2026-02-11T01:24:23.963010",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.324679845944047,
+      "timestamp": "2026-02-11T01:24:23.963011",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 130.2439826920163,
+      "timestamp": "2026-02-11T01:24:23.963027",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.9996539319399744,
+      "timestamp": "2026-02-11T01:24:23.963028",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 49.712011391995475,
+      "timestamp": "2026-02-11T01:24:23.963042",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.1258273160783574,
+      "timestamp": "2026-02-11T01:24:23.963043",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 35.952047651982866,
+      "timestamp": "2026-02-11T01:24:23.963056",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.1307073560310528,
+      "timestamp": "2026-02-11T01:24:23.963058",
+      "metadata": {
+        "generation": 5,
+        "trial_id": "trial_5_1"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 132.245159784914,
+      "timestamp": "2026-02-11T01:24:23.963069",
+      "metadata": {
+        "generation": 5,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 38.0093285900075,
+      "timestamp": "2026-02-11T01:25:01.973866",
+      "metadata": {
+        "generation": 5,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 38.0146055968944,
+      "timestamp": "2026-02-11T01:25:01.978889",
+      "metadata": {
+        "generation": 5
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 250.82791260699742,
+      "timestamp": "2026-02-11T01:25:01.978895",
+      "metadata": {
+        "generation": 5
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 188.55630987498444,
+      "timestamp": "2026-02-11T01:28:10.537757",
+      "metadata": {
+        "generation": 6,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 199.9160082610324,
+      "timestamp": "2026-02-11T01:31:30.461561",
+      "metadata": {
+        "generation": 6,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 178.1838894690154,
+      "timestamp": "2026-02-11T01:34:28.647169",
+      "metadata": {
+        "generation": 6,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 111.63261988700833,
+      "timestamp": "2026-02-11T01:36:27.761041",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 27.198597079957835,
+      "timestamp": "2026-02-11T01:36:27.761116",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3194018380017951,
+      "timestamp": "2026-02-11T01:36:27.761118",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 55.90739400207531,
+      "timestamp": "2026-02-11T01:36:27.761136",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.472869354998693,
+      "timestamp": "2026-02-11T01:36:27.761137",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 34.20827483001631,
+      "timestamp": "2026-02-11T01:36:27.761161",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3405322839971632,
+      "timestamp": "2026-02-11T01:36:27.761162",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 93.09808999905363,
+      "timestamp": "2026-02-11T01:36:27.761176",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 95.83496474195272,
+      "timestamp": "2026-02-11T01:36:27.761187",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_5",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 117.62189975997899,
+      "timestamp": "2026-02-11T01:36:27.761207",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_6",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.4877830090699717,
+      "timestamp": "2026-02-11T01:36:27.761208",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 73.90067972103134,
+      "timestamp": "2026-02-11T01:36:27.761220",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.634902125922963,
+      "timestamp": "2026-02-11T01:36:27.761221",
+      "metadata": {
+        "generation": 6,
+        "trial_id": "trial_6_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 119.11299253290053,
+      "timestamp": "2026-02-11T01:36:27.761232",
+      "metadata": {
+        "generation": 6,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 104.21444022399373,
+      "timestamp": "2026-02-11T01:38:11.977019",
+      "metadata": {
+        "generation": 6,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 104.22049618791789,
+      "timestamp": "2026-02-11T01:38:11.982835",
+      "metadata": {
+        "generation": 6
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 401.52080371405464,
+      "timestamp": "2026-02-11T01:38:11.982838",
+      "metadata": {
+        "generation": 6
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 157.46039718505926,
+      "timestamp": "2026-02-11T01:40:49.444684",
+      "metadata": {
+        "generation": 7,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 112.7945866730297,
+      "timestamp": "2026-02-11T01:42:42.241067",
+      "metadata": {
+        "generation": 7,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 111.2664427109994,
+      "timestamp": "2026-02-11T01:44:33.514886",
+      "metadata": {
+        "generation": 7,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 108.9945610150462,
+      "timestamp": "2026-02-11T01:47:05.719690",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.5430803970666602,
+      "timestamp": "2026-02-11T01:47:05.719697",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 41.834140110062435,
+      "timestamp": "2026-02-11T01:47:05.719780",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3983265639981255,
+      "timestamp": "2026-02-11T01:47:05.719782",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 94.86405086598825,
+      "timestamp": "2026-02-11T01:47:05.719802",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 12.981501166941598,
+      "timestamp": "2026-02-11T01:47:05.719803",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 22.035838552983478,
+      "timestamp": "2026-02-11T01:47:05.719819",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 28.66489106498193,
+      "timestamp": "2026-02-11T01:47:05.719820",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 123.73245864198543,
+      "timestamp": "2026-02-11T01:47:05.719832",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_4",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.5318041279679164,
+      "timestamp": "2026-02-11T01:47:05.719834",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 113.51148230396211,
+      "timestamp": "2026-02-11T01:47:05.719847",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_5",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.35620065790135413,
+      "timestamp": "2026-02-11T01:47:05.719848",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 151.31289617693983,
+      "timestamp": "2026-02-11T01:47:05.719860",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_6",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.8868584119481966,
+      "timestamp": "2026-02-11T01:47:05.719861",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 81.37377147900406,
+      "timestamp": "2026-02-11T01:47:05.719871",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 11.542627180926502,
+      "timestamp": "2026-02-11T01:47:05.719872",
+      "metadata": {
+        "generation": 7,
+        "trial_id": "trial_7_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 152.20251981308684,
+      "timestamp": "2026-02-11T01:47:05.719884",
+      "metadata": {
+        "generation": 7,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 36.428046807996,
+      "timestamp": "2026-02-11T01:47:42.149576",
+      "metadata": {
+        "generation": 7,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 36.43368570797611,
+      "timestamp": "2026-02-11T01:47:42.154971",
+      "metadata": {
+        "generation": 7
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 299.90761990100145,
+      "timestamp": "2026-02-11T01:47:42.154976",
+      "metadata": {
+        "generation": 7
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 138.70443904097192,
+      "timestamp": "2026-02-11T01:50:00.861953",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 143.40169090393465,
+      "timestamp": "2026-02-11T01:52:24.270802",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 71.68091542297043,
+      "timestamp": "2026-02-11T01:53:35.953731",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 27.74168890994042,
+      "timestamp": "2026-02-11T01:54:03.702229",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 86.58603412797675,
+      "timestamp": "2026-02-11T01:55:30.291172",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 69.52503215696197,
+      "timestamp": "2026-02-11T01:56:39.823159",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 98.03705276397523,
+      "timestamp": "2026-02-11T01:58:17.863442",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 80.76072443195153,
+      "timestamp": "2026-02-11T01:59:38.628668",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 201.32794732495677,
+      "timestamp": "2026-02-11T02:02:59.967224",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 172.6747069871053,
+      "timestamp": "2026-02-11T02:05:52.647813",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 117.19266980502289,
+      "timestamp": "2026-02-11T02:07:49.842443",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 91.91138391697314,
+      "timestamp": "2026-02-11T02:09:21.759184",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 135.71044653793797,
+      "timestamp": "2026-02-11T02:11:37.477462",
+      "metadata": {
+        "generation": 8,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 84.70816153904889,
+      "timestamp": "2026-02-11T02:13:18.385127",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_0",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 12.73346246604342,
+      "timestamp": "2026-02-11T02:13:18.385135",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 60.684494422981516,
+      "timestamp": "2026-02-11T02:13:18.385225",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_1",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.5368219970259815,
+      "timestamp": "2026-02-11T02:13:18.385227",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 78.40434684208594,
+      "timestamp": "2026-02-11T02:13:18.385244",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5080723939463496,
+      "timestamp": "2026-02-11T02:13:18.385246",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 75.03423213306814,
+      "timestamp": "2026-02-11T02:13:18.385259",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_3",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3623860599473119,
+      "timestamp": "2026-02-11T02:13:18.385261",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 54.21323947503697,
+      "timestamp": "2026-02-11T02:13:18.385272",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_4",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 5.544198425952345,
+      "timestamp": "2026-02-11T02:13:18.385274",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 79.43185319902841,
+      "timestamp": "2026-02-11T02:13:18.385285",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_5",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 21.264190742047504,
+      "timestamp": "2026-02-11T02:13:18.385286",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 96.29996210499667,
+      "timestamp": "2026-02-11T02:13:18.385299",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_6",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6715621399926022,
+      "timestamp": "2026-02-11T02:13:18.385300",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 80.31552980293054,
+      "timestamp": "2026-02-11T02:13:18.385309",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5628085900098085,
+      "timestamp": "2026-02-11T02:13:18.385310",
+      "metadata": {
+        "generation": 8,
+        "trial_id": "trial_8_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 100.69823577394709,
+      "timestamp": "2026-02-11T02:13:18.385321",
+      "metadata": {
+        "generation": 8,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 13.777780050062574,
+      "timestamp": "2026-02-11T02:13:32.165328",
+      "metadata": {
+        "generation": 8,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 21.001901332987472,
+      "timestamp": "2026-02-11T02:13:53.168846",
+      "metadata": {
+        "generation": 8,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 23.678405429935083,
+      "timestamp": "2026-02-11T02:14:16.850583",
+      "metadata": {
+        "generation": 8,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 58.46865191694815,
+      "timestamp": "2026-02-11T02:14:16.855941",
+      "metadata": {
+        "generation": 8
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 295.0901285469299,
+      "timestamp": "2026-02-11T02:14:16.855946",
+      "metadata": {
+        "generation": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 106.25768204696942,
+      "timestamp": "2026-02-11T02:16:03.116364",
+      "metadata": {
+        "generation": 9,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 107.90180711902212,
+      "timestamp": "2026-02-11T02:19:05.125195",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_2",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.3872609169920906,
+      "timestamp": "2026-02-11T02:19:05.125202",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 117.31175919005182,
+      "timestamp": "2026-02-11T02:19:05.125282",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_4",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.39444185595493764,
+      "timestamp": "2026-02-11T02:19:05.125283",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 49.27616888098419,
+      "timestamp": "2026-02-11T02:19:05.125309",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_6",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3530323030427098,
+      "timestamp": "2026-02-11T02:19:05.125310",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 179.72375007695518,
+      "timestamp": "2026-02-11T02:19:05.125325",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.2807590479496866,
+      "timestamp": "2026-02-11T02:19:05.125326",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 28.83300181897357,
+      "timestamp": "2026-02-11T02:19:05.125339",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.0722424800042063,
+      "timestamp": "2026-02-11T02:19:05.125340",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 52.695878723985516,
+      "timestamp": "2026-02-11T02:19:05.125351",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_3",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.1523803509771824,
+      "timestamp": "2026-02-11T02:19:05.125352",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 60.58315052394755,
+      "timestamp": "2026-02-11T02:19:05.125364",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_5",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.1084988249931484,
+      "timestamp": "2026-02-11T02:19:05.125365",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 20.220677241915837,
+      "timestamp": "2026-02-11T02:19:05.125375",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_7",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.8278788529569283,
+      "timestamp": "2026-02-11T02:19:05.125376",
+      "metadata": {
+        "generation": 9,
+        "trial_id": "trial_9_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 182.00716129108332,
+      "timestamp": "2026-02-11T02:19:05.125387",
+      "metadata": {
+        "generation": 9,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 31.028653981047682,
+      "timestamp": "2026-02-11T02:19:36.156233",
+      "metadata": {
+        "generation": 9,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 31.034297017962672,
+      "timestamp": "2026-02-11T02:19:36.161640",
+      "metadata": {
+        "generation": 9
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 319.3042693390744,
+      "timestamp": "2026-02-11T02:19:36.161646",
+      "metadata": {
+        "generation": 9
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 130.6036428679945,
+      "timestamp": "2026-02-11T02:21:46.768008",
+      "metadata": {
+        "generation": 10,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 138.61636579490732,
+      "timestamp": "2026-02-11T02:24:05.390313",
+      "metadata": {
+        "generation": 10,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 55.77693998394534,
+      "timestamp": "2026-02-11T02:25:01.169291",
+      "metadata": {
+        "generation": 10,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 166.3220628669951,
+      "timestamp": "2026-02-11T02:27:47.494737",
+      "metadata": {
+        "generation": 10,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 113.02015911997296,
+      "timestamp": "2026-02-11T02:29:40.516997",
+      "metadata": {
+        "generation": 10,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 275.8675848400453,
+      "timestamp": "2026-02-11T02:34:16.388839",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 53.280612829956226,
+      "timestamp": "2026-02-11T02:34:16.388968",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 7.248281311010942,
+      "timestamp": "2026-02-11T02:34:16.388972",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 79.35908038099296,
+      "timestamp": "2026-02-11T02:34:16.389026",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.568458372959867,
+      "timestamp": "2026-02-11T02:34:16.389029",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 62.09337336104363,
+      "timestamp": "2026-02-11T02:34:16.389059",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.0701794490450993,
+      "timestamp": "2026-02-11T02:34:16.389061",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 119.64322017703671,
+      "timestamp": "2026-02-11T02:34:16.389083",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 16.333880102960393,
+      "timestamp": "2026-02-11T02:34:16.389085",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 115.14312366908416,
+      "timestamp": "2026-02-11T02:34:16.389115",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_5",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 65.13731546793133,
+      "timestamp": "2026-02-11T02:34:16.389117",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 145.63092661404517,
+      "timestamp": "2026-02-11T02:34:16.389149",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_6",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.0786957630189136,
+      "timestamp": "2026-02-11T02:34:16.389151",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 88.80268438102212,
+      "timestamp": "2026-02-11T02:34:16.389174",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3233694579685107,
+      "timestamp": "2026-02-11T02:34:16.389176",
+      "metadata": {
+        "generation": 10,
+        "trial_id": "trial_10_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 275.8709892850602,
+      "timestamp": "2026-02-11T02:34:16.389198",
+      "metadata": {
+        "generation": 10,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 103.373686737963,
+      "timestamp": "2026-02-11T02:35:59.768432",
+      "metadata": {
+        "generation": 10,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 40.259918299969286,
+      "timestamp": "2026-02-11T02:36:40.032611",
+      "metadata": {
+        "generation": 10,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 18.2492043110542,
+      "timestamp": "2026-02-11T02:36:58.285199",
+      "metadata": {
+        "generation": 10,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 161.896653385018,
+      "timestamp": "2026-02-11T02:36:58.290833",
+      "metadata": {
+        "generation": 10
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 550.7955250709783,
+      "timestamp": "2026-02-11T02:36:58.290838",
+      "metadata": {
+        "generation": 10
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 162.69155518792104,
+      "timestamp": "2026-02-11T02:39:40.985198",
+      "metadata": {
+        "generation": 11,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 23.07336199202109,
+      "timestamp": "2026-02-11T02:42:36.063680",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.8017049239715561,
+      "timestamp": "2026-02-11T02:42:36.063690",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 53.85948963300325,
+      "timestamp": "2026-02-11T02:42:36.063790",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_2",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.9135502689750865,
+      "timestamp": "2026-02-11T02:42:36.063792",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 110.57491438498255,
+      "timestamp": "2026-02-11T02:42:36.063811",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_3",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.7490397919900715,
+      "timestamp": "2026-02-11T02:42:36.063813",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 24.217412144993432,
+      "timestamp": "2026-02-11T02:42:36.063829",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_4",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.473300761077553,
+      "timestamp": "2026-02-11T02:42:36.063831",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 81.61560947902035,
+      "timestamp": "2026-02-11T02:42:36.063887",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_5",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.31651711999438703,
+      "timestamp": "2026-02-11T02:42:36.063888",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 66.82073771103751,
+      "timestamp": "2026-02-11T02:42:36.063902",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_6",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 5.9959969179471955,
+      "timestamp": "2026-02-11T02:42:36.063903",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 173.18871262611356,
+      "timestamp": "2026-02-11T02:42:36.063916",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.8831140460679308,
+      "timestamp": "2026-02-11T02:42:36.063917",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 97.78978008800186,
+      "timestamp": "2026-02-11T02:42:36.063932",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_7",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.8311341260559857,
+      "timestamp": "2026-02-11T02:42:36.063933",
+      "metadata": {
+        "generation": 11,
+        "trial_id": "trial_11_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 175.07705295004416,
+      "timestamp": "2026-02-11T02:42:36.063944",
+      "metadata": {
+        "generation": 11,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 27.558193862088956,
+      "timestamp": "2026-02-11T02:43:03.625253",
+      "metadata": {
+        "generation": 11,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 16.29275352798868,
+      "timestamp": "2026-02-11T02:43:19.922958",
+      "metadata": {
+        "generation": 11,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 43.862731270026416,
+      "timestamp": "2026-02-11T02:43:19.929557",
+      "metadata": {
+        "generation": 11
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 381.6372899849666,
+      "timestamp": "2026-02-11T02:43:19.929563",
+      "metadata": {
+        "generation": 11
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 130.84473299002275,
+      "timestamp": "2026-02-11T02:45:30.777213",
+      "metadata": {
+        "generation": 12,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 37.108831390039995,
+      "timestamp": "2026-02-11T02:46:07.891745",
+      "metadata": {
+        "generation": 12,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 142.5688095280202,
+      "timestamp": "2026-02-11T02:48:30.463881",
+      "metadata": {
+        "generation": 12,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 140.2016314700013,
+      "timestamp": "2026-02-11T02:50:54.416998",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 19.415398410055786,
+      "timestamp": "2026-02-11T02:50:54.417082",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5119906570762396,
+      "timestamp": "2026-02-11T02:50:54.417084",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 54.86820699495729,
+      "timestamp": "2026-02-11T02:50:54.417112",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_2",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.9055273329140618,
+      "timestamp": "2026-02-11T02:50:54.417114",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 36.14023498597089,
+      "timestamp": "2026-02-11T02:50:54.417130",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.024684934061952,
+      "timestamp": "2026-02-11T02:50:54.417131",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 69.09651102102362,
+      "timestamp": "2026-02-11T02:50:54.417144",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_4",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.3479165649041533,
+      "timestamp": "2026-02-11T02:50:54.417145",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 143.6262776600197,
+      "timestamp": "2026-02-11T02:50:54.417166",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_5",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.32232307200320065,
+      "timestamp": "2026-02-11T02:50:54.417167",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 63.31887992809061,
+      "timestamp": "2026-02-11T02:50:54.417180",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_6",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 113.76144598599058,
+      "timestamp": "2026-02-11T02:50:54.417191",
+      "metadata": {
+        "generation": 12,
+        "trial_id": "trial_12_7",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 143.94987396604847,
+      "timestamp": "2026-02-11T02:50:54.417202",
+      "metadata": {
+        "generation": 12,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 41.00667868391611,
+      "timestamp": "2026-02-11T02:51:35.425782",
+      "metadata": {
+        "generation": 12,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 41.01284014200792,
+      "timestamp": "2026-02-11T02:51:35.431703",
+      "metadata": {
+        "generation": 12
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 327.5380282680271,
+      "timestamp": "2026-02-11T02:51:35.431708",
+      "metadata": {
+        "generation": 12
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 22.440971789998002,
+      "timestamp": "2026-02-11T02:51:57.875519",
+      "metadata": {
+        "generation": 13,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 104.69117499201093,
+      "timestamp": "2026-02-11T02:53:42.570003",
+      "metadata": {
+        "generation": 13,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 168.10349290806334,
+      "timestamp": "2026-02-11T02:56:31.002573",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3226348119787872,
+      "timestamp": "2026-02-11T02:56:31.002582",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 113.94143872603308,
+      "timestamp": "2026-02-11T02:56:31.002687",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_5",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.0758079490624368,
+      "timestamp": "2026-02-11T02:56:31.002690",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 39.97503118007444,
+      "timestamp": "2026-02-11T02:56:31.002741",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 14.93804119003471,
+      "timestamp": "2026-02-11T02:56:31.002744",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 47.59926699497737,
+      "timestamp": "2026-02-11T02:56:31.002775",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_7",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.454352968954481,
+      "timestamp": "2026-02-11T02:56:31.002777",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_7"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 52.03069855493959,
+      "timestamp": "2026-02-11T02:56:31.002803",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.3446737070335075,
+      "timestamp": "2026-02-11T02:56:31.002806",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 118.85284314106684,
+      "timestamp": "2026-02-11T02:56:31.002827",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_6",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.251258122967556,
+      "timestamp": "2026-02-11T02:56:31.002829",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 47.79941264493391,
+      "timestamp": "2026-02-11T02:56:31.002858",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.657619650941342,
+      "timestamp": "2026-02-11T02:56:31.002860",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 118.53338247805368,
+      "timestamp": "2026-02-11T02:56:31.002881",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6368751950794831,
+      "timestamp": "2026-02-11T02:56:31.002883",
+      "metadata": {
+        "generation": 13,
+        "trial_id": "trial_13_4"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 168.43017885508016,
+      "timestamp": "2026-02-11T02:56:31.002903",
+      "metadata": {
+        "generation": 13,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 25.704971355036832,
+      "timestamp": "2026-02-11T02:56:56.710882",
+      "metadata": {
+        "generation": 13,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 25.70943811396137,
+      "timestamp": "2026-02-11T02:56:56.714756",
+      "metadata": {
+        "generation": 13
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 298.8373478789581,
+      "timestamp": "2026-02-11T02:56:56.714760",
+      "metadata": {
+        "generation": 13
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 160.65853094006889,
+      "timestamp": "2026-02-11T02:59:37.375176",
+      "metadata": {
+        "generation": 14,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 125.1979880189756,
+      "timestamp": "2026-02-11T03:01:42.575471",
+      "metadata": {
+        "generation": 14,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 88.89052400493529,
+      "timestamp": "2026-02-11T03:03:11.475285",
+      "metadata": {
+        "generation": 14,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 210.36708384705707,
+      "timestamp": "2026-02-11T03:06:42.452436",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6048728000605479,
+      "timestamp": "2026-02-11T03:06:42.452444",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 46.08788302401081,
+      "timestamp": "2026-02-11T03:06:42.452522",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5585167049430311,
+      "timestamp": "2026-02-11T03:06:42.452524",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 89.66443493007682,
+      "timestamp": "2026-02-11T03:06:42.452543",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.9156726880464703,
+      "timestamp": "2026-02-11T03:06:42.452544",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 125.51565081998706,
+      "timestamp": "2026-02-11T03:06:42.452557",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_3",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.569746299064718,
+      "timestamp": "2026-02-11T03:06:42.452559",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 132.01295214809943,
+      "timestamp": "2026-02-11T03:06:42.452571",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_4",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.9315360459731892,
+      "timestamp": "2026-02-11T03:06:42.452572",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 36.38986117497552,
+      "timestamp": "2026-02-11T03:06:42.452586",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_5",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.8988005840219557,
+      "timestamp": "2026-02-11T03:06:42.452588",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 65.58728849806357,
+      "timestamp": "2026-02-11T03:06:42.452598",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_6",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.326024456997402,
+      "timestamp": "2026-02-11T03:06:42.452600",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 41.097046563983895,
+      "timestamp": "2026-02-11T03:06:42.452611",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_7",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3912763010011986,
+      "timestamp": "2026-02-11T03:06:42.452611",
+      "metadata": {
+        "generation": 14,
+        "trial_id": "trial_14_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 210.97502967901528,
+      "timestamp": "2026-02-11T03:06:42.452624",
+      "metadata": {
+        "generation": 14,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 18.6514427770162,
+      "timestamp": "2026-02-11T03:07:01.105749",
+      "metadata": {
+        "generation": 14,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 42.09053031797521,
+      "timestamp": "2026-02-11T03:07:43.198573",
+      "metadata": {
+        "generation": 14,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 60.750830914010294,
+      "timestamp": "2026-02-11T03:07:43.204887",
+      "metadata": {
+        "generation": 14
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 360.62156237999443,
+      "timestamp": "2026-02-11T03:07:43.204892",
+      "metadata": {
+        "generation": 14
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 159.24126111308578,
+      "timestamp": "2026-02-11T03:10:22.449059",
+      "metadata": {
+        "generation": 15,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 22.025816901004873,
+      "timestamp": "2026-02-11T03:14:11.667654",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_2",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5840101059293374,
+      "timestamp": "2026-02-11T03:14:11.667662",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 117.94512169109657,
+      "timestamp": "2026-02-11T03:14:11.667746",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_3",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.1872009180951864,
+      "timestamp": "2026-02-11T03:14:11.667748",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 80.13905540097039,
+      "timestamp": "2026-02-11T03:14:11.667767",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_4",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 15.489515668014064,
+      "timestamp": "2026-02-11T03:14:11.667768",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 40.692809190019034,
+      "timestamp": "2026-02-11T03:14:11.667782",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_5",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.47062724898569286,
+      "timestamp": "2026-02-11T03:14:11.667784",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 101.15538917598315,
+      "timestamp": "2026-02-11T03:14:11.667797",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_6",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.32353087002411485,
+      "timestamp": "2026-02-11T03:14:11.667799",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 162.01267403899692,
+      "timestamp": "2026-02-11T03:14:11.667812",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_7",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.0530894360272214,
+      "timestamp": "2026-02-11T03:14:11.667813",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_7"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 227.99318643996958,
+      "timestamp": "2026-02-11T03:14:11.667826",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.2175352980848402,
+      "timestamp": "2026-02-11T03:14:11.667827",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 199.11149849405047,
+      "timestamp": "2026-02-11T03:14:11.667839",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_1",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.067489781999029,
+      "timestamp": "2026-02-11T03:14:11.667840",
+      "metadata": {
+        "generation": 15,
+        "trial_id": "trial_15_1"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 229.21593727299478,
+      "timestamp": "2026-02-11T03:14:11.667851",
+      "metadata": {
+        "generation": 15,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 100.17182665097062,
+      "timestamp": "2026-02-11T03:15:51.842912",
+      "metadata": {
+        "generation": 15,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 100.17843542492483,
+      "timestamp": "2026-02-11T03:15:51.849280",
+      "metadata": {
+        "generation": 15
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 488.6429584340658,
+      "timestamp": "2026-02-11T03:15:51.849285",
+      "metadata": {
+        "generation": 15
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 109.57873833598569,
+      "timestamp": "2026-02-11T03:17:41.431049",
+      "metadata": {
+        "generation": 16,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 125.11396975303069,
+      "timestamp": "2026-02-11T03:19:46.551621",
+      "metadata": {
+        "generation": 16,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 226.62017557502259,
+      "timestamp": "2026-02-11T03:23:33.505440",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3263388719642535,
+      "timestamp": "2026-02-11T03:23:33.505450",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 48.75392973597627,
+      "timestamp": "2026-02-11T03:23:33.505569",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.613477188977413,
+      "timestamp": "2026-02-11T03:23:33.505571",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 38.439787650015205,
+      "timestamp": "2026-02-11T03:23:33.505607",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 11.398932268028148,
+      "timestamp": "2026-02-11T03:23:33.505608",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 48.56149026600178,
+      "timestamp": "2026-02-11T03:23:33.505626",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 4.811454704962671,
+      "timestamp": "2026-02-11T03:23:33.505627",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 102.97294010699261,
+      "timestamp": "2026-02-11T03:23:33.505645",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.5482485599350184,
+      "timestamp": "2026-02-11T03:23:33.505646",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 123.44272116199136,
+      "timestamp": "2026-02-11T03:23:33.505658",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_5",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.32077709399163723,
+      "timestamp": "2026-02-11T03:23:33.505659",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 121.27103799791075,
+      "timestamp": "2026-02-11T03:23:33.505725",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_6",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.804553493973799,
+      "timestamp": "2026-02-11T03:23:33.505726",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 141.6116126519628,
+      "timestamp": "2026-02-11T03:23:33.505737",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_7",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.8405327380169183,
+      "timestamp": "2026-02-11T03:23:33.505743",
+      "metadata": {
+        "generation": 16,
+        "trial_id": "trial_16_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 226.9497711060103,
+      "timestamp": "2026-02-11T03:23:33.505761",
+      "metadata": {
+        "generation": 16,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 92.47677438601386,
+      "timestamp": "2026-02-11T03:25:05.984839",
+      "metadata": {
+        "generation": 16,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 92.48061311198398,
+      "timestamp": "2026-02-11T03:25:05.988409",
+      "metadata": {
+        "generation": 16
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 444.5522709849756,
+      "timestamp": "2026-02-11T03:25:05.988411",
+      "metadata": {
+        "generation": 16
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 137.41305763006676,
+      "timestamp": "2026-02-11T03:27:23.402957",
+      "metadata": {
+        "generation": 17,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 271.6469080300303,
+      "timestamp": "2026-02-11T03:31:56.141867",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.0860965580213815,
+      "timestamp": "2026-02-11T03:31:56.141872",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 43.07162607903592,
+      "timestamp": "2026-02-11T03:31:56.141947",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 10.178286529961042,
+      "timestamp": "2026-02-11T03:31:56.141948",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 69.43147237203084,
+      "timestamp": "2026-02-11T03:31:56.141965",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.0637466049520299,
+      "timestamp": "2026-02-11T03:31:56.141966",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 142.42786546691786,
+      "timestamp": "2026-02-11T03:31:56.141979",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_3",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.8920654390240088,
+      "timestamp": "2026-02-11T03:31:56.141980",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 38.44319125905167,
+      "timestamp": "2026-02-11T03:31:56.141992",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_4",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 36.975454260013066,
+      "timestamp": "2026-02-11T03:31:56.141993",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 107.94431342696771,
+      "timestamp": "2026-02-11T03:31:56.142008",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_5",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6706254839664325,
+      "timestamp": "2026-02-11T03:31:56.142009",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 78.05656199692748,
+      "timestamp": "2026-02-11T03:31:56.142020",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_6",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.6601312590064481,
+      "timestamp": "2026-02-11T03:31:56.142021",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 79.20535304001532,
+      "timestamp": "2026-02-11T03:31:56.142031",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3270124359987676,
+      "timestamp": "2026-02-11T03:31:56.142032",
+      "metadata": {
+        "generation": 17,
+        "trial_id": "trial_17_7"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 272.7367763010552,
+      "timestamp": "2026-02-11T03:31:56.142041",
+      "metadata": {
+        "generation": 17,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 30.2266595979454,
+      "timestamp": "2026-02-11T03:32:26.372429",
+      "metadata": {
+        "generation": 17,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 30.233966488973238,
+      "timestamp": "2026-02-11T03:32:26.379494",
+      "metadata": {
+        "generation": 17
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 440.3904849649407,
+      "timestamp": "2026-02-11T03:32:26.379500",
+      "metadata": {
+        "generation": 17
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 123.86595412704628,
+      "timestamp": "2026-02-11T03:34:30.248568",
+      "metadata": {
+        "generation": 18,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 162.81674204498995,
+      "timestamp": "2026-02-11T03:37:18.231578",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 5.161795661086217,
+      "timestamp": "2026-02-11T03:37:18.231585",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_0"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 72.44840222399216,
+      "timestamp": "2026-02-11T03:37:18.231669",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_2",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.1660813679918647,
+      "timestamp": "2026-02-11T03:37:18.231671",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 90.17819760402199,
+      "timestamp": "2026-02-11T03:37:18.231690",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.243737138924189,
+      "timestamp": "2026-02-11T03:37:18.231692",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_4"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 90.88518525206018,
+      "timestamp": "2026-02-11T03:37:18.231706",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_6",
+        "model": "gpt5-nano"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3234423539834097,
+      "timestamp": "2026-02-11T03:37:18.231707",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 162.9879294639686,
+      "timestamp": "2026-02-11T03:37:18.231722",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_7",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 2.624159161001444,
+      "timestamp": "2026-02-11T03:37:18.231723",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_7"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 32.892916430020705,
+      "timestamp": "2026-02-11T03:37:18.231735",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_3",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.3552172229392454,
+      "timestamp": "2026-02-11T03:37:18.231736",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_3"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 51.487202349933796,
+      "timestamp": "2026-02-11T03:37:18.231751",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_1",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.450319538009353,
+      "timestamp": "2026-02-11T03:37:18.231752",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 123.0939861779334,
+      "timestamp": "2026-02-11T03:37:18.231763",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_5",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.32510966900736094,
+      "timestamp": "2026-02-11T03:37:18.231765",
+      "metadata": {
+        "generation": 18,
+        "trial_id": "trial_18_5"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 167.9804077630397,
+      "timestamp": "2026-02-11T03:37:18.231781",
+      "metadata": {
+        "generation": 18,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 42.00222631893121,
+      "timestamp": "2026-02-11T03:38:00.235719",
+      "metadata": {
+        "generation": 18,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 42.0094991880469,
+      "timestamp": "2026-02-11T03:38:00.242750",
+      "metadata": {
+        "generation": 18
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 333.8617901291,
+      "timestamp": "2026-02-11T03:38:00.242756",
+      "metadata": {
+        "generation": 18
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 177.36393064493313,
+      "timestamp": "2026-02-11T03:40:57.609768",
+      "metadata": {
+        "generation": 19,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 166.51225523406174,
+      "timestamp": "2026-02-11T03:43:44.123304",
+      "metadata": {
+        "generation": 19,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 78.33450522599742,
+      "timestamp": "2026-02-11T03:45:02.460132",
+      "metadata": {
+        "generation": 19,
+        "phase": "spawn"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 94.51448670995887,
+      "timestamp": "2026-02-11T03:47:49.024359",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_1",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.33909697795752436,
+      "timestamp": "2026-02-11T03:47:49.024371",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_1"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 164.88021092000417,
+      "timestamp": "2026-02-11T03:47:49.024486",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_2",
+        "model": "gemini-pro"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 1.6780049660010263,
+      "timestamp": "2026-02-11T03:47:49.024488",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_2"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 91.4325649200473,
+      "timestamp": "2026-02-11T03:47:49.024519",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_4",
+        "model": "gpt5-mini"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 142.7991535110632,
+      "timestamp": "2026-02-11T03:47:49.024536",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_6",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 3.197954829898663,
+      "timestamp": "2026-02-11T03:47:49.024544",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_6"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 81.36852816492319,
+      "timestamp": "2026-02-11T03:47:49.024556",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_7",
+        "model": "gemini-flash"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.33485062199179083,
+      "timestamp": "2026-02-11T03:47:49.024557",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_7"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 130.60475646401756,
+      "timestamp": "2026-02-11T03:47:49.024568",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_0",
+        "model": "gpt5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 46.71712167002261,
+      "timestamp": "2026-02-11T03:47:49.024582",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_5",
+        "model": "sonnet"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 0.39043411903548986,
+      "timestamp": "2026-02-11T03:47:49.024584",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_5"
+      }
+    },
+    {
+      "operation": "child_llm_call",
+      "duration_s": 45.472002341994084,
+      "timestamp": "2026-02-11T03:47:49.024597",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_3",
+        "model": "o4-mini"
+      }
+    },
+    {
+      "operation": "evaluation",
+      "duration_s": 10.885838560992852,
+      "timestamp": "2026-02-11T03:47:49.024598",
+      "metadata": {
+        "generation": 19,
+        "trial_id": "trial_19_3"
+      }
+    },
+    {
+      "operation": "spawn_children",
+      "duration_s": 166.55960816401057,
+      "timestamp": "2026-02-11T03:47:49.024609",
+      "metadata": {
+        "generation": 19,
+        "num_children": 8
+      }
+    },
+    {
+      "operation": "root_llm_call",
+      "duration_s": 52.56977944995742,
+      "timestamp": "2026-02-11T03:48:41.598770",
+      "metadata": {
+        "generation": 19,
+        "phase": "selection"
+      }
+    },
+    {
+      "operation": "selection",
+      "duration_s": 52.57606108300388,
+      "timestamp": "2026-02-11T03:48:41.604818",
+      "metadata": {
+        "generation": 19
+      }
+    },
+    {
+      "operation": "generation",
+      "duration_s": 297.48106410796754,
+      "timestamp": "2026-02-11T03:48:41.604823",
+      "metadata": {
+        "generation": 19
+      }
+    }
+  ]
+}

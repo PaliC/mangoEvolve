@@ -1,0 +1,480 @@
+============================================================
+SCRATCHPAD FOR GENERATION 8
+============================================================
+
+
+## Generation 0 Summary
+- Best Score: 2.615866860608053 (trial_0_1) using Basin-hopping + SLSQP.
+- trial_0_4 (2.5457) used a two-stage approach (equal radii then relaxation).
+- Common failure: SLSQP constraint formatting and objective return types.
+- Insight: For fixed centers, the optimal radii can be found via Linear Programming (LP).
+
+## Strategy for Generation 1
+- **Refinement**: Improve the best-performing basin-hopping approach (trial_0_1).
+- **LP Integration**: Use LP to optimize radii for fixed centers, either as a final step or within the optimization loop.
+- **Diversity**: Explore Differential Evolution and Penalty-based optimization to avoid local minima.
+- **Initialization**: Use the best result from Gen 0 as a seed for further optimization.
+
+## Generation 1 Insights
+- Significant improvement: Best score jumped from 2.615 to 2.633 (trial_1_2).
+- trial_1_2 used a "Growth and Repulsion" strategy followed by SLSQP. This suggests that a good physical-inspired initialization is superior to pure random or grid starts.
+- trial_1_4 (score 2.624) used multiple grid initializations with SLSQP refinement.
+- trial_1_3 (Differential Evolution) failed, likely due to the high dimensionality (78 variables) and complex constraints making the search space too difficult for DE without a better constraint handling mechanism.
+- Bilevel optimization (LP for radii) in trial_1_1 was stable but didn't reach the top scores yet, possibly needing more iterations on the center positions.
+
+## Strategy for Generation 2
+- Combine the "Growth/Repulsion" initialization from trial_1_2 with the LP-based radii optimization.
+- Explore "Basin-hopping" where the local minimization step is a full SLSQP run starting from a "Growth" phase.
+- Investigate why trial_1_2 succeeded: was it the specific repulsion parameters or the simultaneous (x,y,r) optimization?
+
+## Technical Deep Dive (Gen 1)
+- **Jacobian Formulation**: trial_1_2 used squared distance constraints (xi-xj)^2 + (yi-yj)^2 >= (ri+rj)^2. This is more stable than sqrt(...) >= ri+rj.
+- **Vectorization**: trial_1_2's use of np.triu_indices for Jacobian calculation significantly increased the number of optimization runs possible within the 300s limit.
+- **Polishing**: trial_1_2's post-processing loop ensures that for fixed centers, radii are maximized to the point of contact. This is essentially a manual coordinate-descent version of the LP approach.
+- **Multi-start vs Basin-hopping**: trial_1_2's random multi-start explored more basins than trial_1_0's basin-hopping, likely because the basin-hopping 'jumps' weren't as effective at finding new high-quality regions as fresh random starts.
+
+## Plan for Gen 2
+1. **Hybrid Strategy**: Use trial_1_2's vectorized SLSQP and squared-distance formulation but replace random starts with a mix of "Growth/Repulsion" starts and perturbed versions of the best known configuration.
+2. **LP Radii**: Integrate a formal LP solver (scipy.optimize.linprog) for the final polishing step, as it is mathematically guaranteed to find the optimal radii for fixed centers.
+3. **Adaptive Time Management**: Use the 300s budget more effectively - spend 200s on broad multi-start and 100s on intense refinement of the top 3 candidates.
+
+## Generation 2 Analysis
+- Best Trial: trial_1_2 (Score: 2.6330352288703494)
+- Key Success Factor in 1_2: Vectorized Jacobian for SLSQP and a custom 'repulsion' initialization.
+- Observation: The gap to the best known (2.6359) is very small. We need high-precision refinement.
+- Strategy: Implement LP-based radii optimization for fixed centers to guarantee optimality of radii for any given center configuration.
+
+## Generation 2 Insights
+- HUGE SUCCESS: trial_2_4 achieved 2.635983, which is extremely close to the best known solution (2.635985).
+- The 'shaking' strategy (local perturbations + SLSQP refinement) is clearly the winning metaheuristic.
+- trial_2_0 and trial_2_5 also performed well (>2.63), confirming that high-quality initializations (perturbed bests or geometric patterns) are key.
+- Failures in 2_1 and 2_3 were likely due to implementation errors in the MD simulation or the basin-hopping wrapper (check errors).
+- Next Step: Focus on extreme refinement of trial_2_4. Try even smaller 'shaking' magnitudes and more iterations. Consider if the LP polishing from trial_2_0 can be integrated into the trial_2_4 loop.
+
+## Generation 2 Recap
+- trial_2_4 is the current state-of-the-art (2.635983).
+- The strategy of 'shaking' (local perturbations) followed by SLSQP is extremely effective.
+- The next frontier is high-precision refinement and potentially integrating Linear Programming (LP) for radii optimality within the loop.
+
+## Strategy for Generation 3
+1. **Precision Refinement**: Use trial_2_4 as the base. Decrease solver tolerances (ftol=1e-12) and increase max iterations.
+2. **LP Integration**: Incorporate `scipy.optimize.linprog` to find the globally optimal radii for any set of centers produced by the shaking/SLSQP process.
+3. **Adaptive Shaking**: Implement a cooling schedule or an adaptive step-size (like the 1/5th rule in Evolution Strategies) for the perturbations.
+4. **Targeted Perturbations**: Identify 'loose' circles (those with fewer than 3 contacts) and perturb them more than 'locked' circles.
+5. **Basin Hopping**: Use a formal Basin Hopping algorithm with the vectorized Jacobian from trial_2_4.
+
+## Generation 3 Insights
+- trial_3_4 matched the best score of trial_2_4 (2.635983). It seems we are hitting a precision limit or a very stable local optimum.
+- trial_3_5 (Sequential Linear Programming) showed decent performance (2.634) and represents a different optimization flavor that might be worth hybridizing.
+- trial_3_0 and trial_3_3 failed to improve, likely due to implementation complexities in the LP integration or the 'targeted' logic disrupting the SLSQP convergence.
+- The 'shaking' magnitude and the number of iterations in the final refinement stage are the most sensitive parameters.
+- Next: We need to focus on 'Micro-shaking'. If we are at 2.635983 and the goal is 2.635985, the perturbations should be in the range of 1e-6 to 1e-8.
+
+## Generation 3 Recap
+- Best score remains 2.635983 (trial_3_4, trial_2_4).
+- We are in the final refinement stage (gap to best known is ~2e-6).
+- The "shaking + SLSQP" method is robust but might need more precision or better radii handling.
+- Strategy for Gen 4: Focus on micro-refinement, LP-based radii maximization, and adaptive perturbation.
+
+## Gen 4 Analysis
+The gap of **2e-6** between your results (~2.635983) and the best-known solution (2.635985) for $N=26$ is characteristic of two specific issues in circle packing optimization: **SLSQP convergence limits** and **basin trapping**.
+
+### 1. Numerical Precision Issues
+In both trials, the SLSQP optimizer is likely terminating early because the default tolerance (`ftol`) is usually $1e-6$ or $1e-7$. When the objective function is a sum of 26 variables, a change of $1e-8$ in each radius is "invisible" to the optimizer, yet it accounts for $2.6e-7$ of your total sum.
+
+*   **The Fix:** You must explicitly set `tol` and `ftol` to much smaller values (e.g., $1e-12$).
+*   **The Constraint Tolerance:** Your code uses `np.all(constraints_func(res.x) >= -1e-8)`. This is a "hard" rejection. If SLSQP finds a solution with a sum of 2.635986 but a violation of $1.1e-8$, it is discarded. It is better to allow slight violations during the search and "pull" them back in a final high-precision polish.
+
+### 2. Shaking Strategy Modification
+The current shaking strategy (randomly re-placing 1–3 circles) is a "Large Neighborhood Search." This is excellent for finding the general "basin" of a good packing. However, the final 2e-6 gap is often a "local geometry" problem where the circles are in the right relative positions but need to "settle" into a tighter configuration.
+
+*   **The Fix:** Introduce **Gaussian Jitter**. Instead of just moving a circle to a completely new random spot, apply a tiny move ($1e-3$ or $1e-4$) to *all* centers. This helps the optimizer "hop" over small ridges in the constraint surface that SLSQP's gradient descent gets stuck on.
+
+### 3. Recommended Hybrid Approach
+The following code optimizes Trial 3_4 by:
+1.  Tightening SLSQP tolerances to $1e-12$.
+2.  Implementing a dual-mode shake: "Big Jumps" (to find new basins) and "Micro Jitters" (to refine the current basin).
+3.  Using the LP-based radii optimizer more aggressively to ensure radii are always perfectly maximized for given centers.
+
+```python
+import numpy as np
+from scipy.optimize import minimize, linprog
+import time
+
+def run_packing():
+    N = 26
+    start_time = time.time()
+    
+    # Pre-calculate for LP
+    num_overlap = N * (N - 1) // 2
+    A_ub = np.zeros((num_overlap, N))
+    row = 0
+    for i in range(N):
+        for j in range(i + 1, N):
+            A_ub[row, i] = 1
+            A_ub[row, j] = 1
+            row += 1
+
+    def get_best_radii(centers):
+        """Optimizes radii for fixed centers using Highs LP solver."""
+        c = -np.ones(N)
+        r_bounds = []
+        for i in range(N):
+            # Distance to boundaries
+            d = min(centers[i, 0], 1.0 - centers[i, 0], centers[i, 1], 1.0 - centers[i, 1])
+            r_bounds.append((0, max(0.0, d)))
+        
+        dx = centers[:, 0][:, np.newaxis] - centers[:, 0][np.newaxis, :]
+        dy = centers[:, 1][:, np.newaxis] - centers[:, 1][np.newaxis, :]
+        dist_matrix = np.sqrt(dx**2 + dy**2 + np.eye(N)) # Add eye to avoid 0 on diag
+        b_ub = dist_matrix[np.triu_indices(N, k=1)]
+        
+        res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=r_bounds, method='highs')
+        if res.success:
+            return res.x, -res.fun
+        return None, 0.0
+
+    def objective(params):
+        return -np.sum(params[2*N:])
+
+    def constraints_func(params):
+        x, y, r = params[:N], params[N:2*N], params[2*N:]
+        c_boundary = np.concatenate([x-r, 1-x-r, y-r, 1-y-r])
+        dx = x[:, None] - x[None, :]
+        dy = y[:, None] - y[None, :]
+        dist_sq = dx**2 + dy**2
+        dr_sq = (r[:, None] + r[None, :])**2
+        c_overlap = (dist_sq - dr_sq)[np.triu_indices(N, k=1)]
+        return np.concatenate([c_boundary, c_overlap])
+
+    # Tightened SLSQP Polish
+    def polish(params, maxiter=100):
+        res = minimize(
+            objective, params, method='SLSQP',
+            constraints={'type': 'ineq', 'fun': constraints_func},
+            bounds=[(0, 1)]*(2*N) + [(0, 0.5)]*N,
+            options={'maxiter': maxiter, 'ftol': 1e-12}
+        )
+        return res
+
+    # 1. Initial Seed (5x5 grid + 1)
+    x_grid, y_grid = np.meshgrid(np.linspace(0.1, 0.9, 5), np.linspace(0.1, 0.9, 5))
+    x_init = np.append(x_grid.flatten(), [0.5])
+    y_init = np.append(y_grid.flatten(), [0.5])
+    r_init = np.full(N, 0.05)
+    best_params = np.concatenate([x_init, y_init, r_init])
+    
+    res = polish(best_params, 200)
+    if res.success: best_params = res.x
+    best_sum = -objective(best_params)
+
+    # 2. Shaking Loop
+    while time.time() - start_time < 275:
+        current_params = best_params.copy()
+        
+        # Decide shake type: 80% Micro-jitter (refine), 20% Big Jump (explore)
+        if np.random.random() < 0.8:
+            # Micro-jitter: Nudge centers slightly
+            current_params[:2*N] += np.random.normal(0, 0.002, 2*N)
+        else:
+            # Big Jump: Move 2 circles entirely
+            idx = np.random.choice(N, 2, replace=False)
+            current_params[idx] = np.random.uniform(0.1, 0.9, 2)
+            current_params[idx+N] = np.random.uniform(0.1, 0.9, 2)
+
+        # Quick settle
+        res = minimize(objective, current_params, method='SLSQP',
+                       constraints={'type': 'ineq', 'fun': constraints_func},
+                       bounds=[(0,1)]*(2*N) + [(0,0.5)]*N,
+                       options={'maxiter': 50, 'ftol': 1e-9})
+        
+        if res.success and -res.fun > best_sum - 1e-5: # Accept slightly worse to explore
+            # High-precision check/refinement
+            centers = res.x[:2*N].reshape(2, N).T
+            new_radii, new_total = get_best_radii(centers)
+            
+            if new_total > best_sum + 1e-11:
+                # Polish the new find
+                polished_params = np.concatenate([centers.T.flatten(), new_radii])
+                res_p = polish(polished_params, 100)
+                if res_p.success and -res_p.fun > best_sum:
+                    best_sum = -res_p.fun
+                    best_params = res_p.x
+
+    # Final Polish with extreme precision
+    res = minimize(objective, best_params, method='SLSQP',
+                   constraints={'type': 'ineq', 'fun': constraints_func},
+                   bounds=[(0,1)]*(2*N) + [(0,0.5)]*N,
+                   options={'maxiter': 500, 'ftol': 1e-14})
+    
+    final_params = res.x if res.success else best_params
+    return final_params[:2*N].reshape(2, N).T, final_params[2*N:], -objective(final_params)
+```
+
+### Key Changes to Bridge the 2e-6 Gap:
+1.  **`ftol: 1e-14`**: This forces the optimizer to keep moving even when the gains are infinitesimal.
+2.  **`get_best_radii` (LP)**: This is used as a "correction" step. SLSQP often struggles to balance 26 radii simultaneously; the LP solver (`highs`) finds the mathematically optimal radii for any given center configuration instantly.
+3.  **Gaussian Jitter (Micro-shakes)**: By adding `np.random.normal(0, 0.002)`, you allow the circles to "vibrate" out of local sub-optimal traps.
+4.  **Soft Acceptance**: The line `if -res.fun > best_sum - 1e-5` allows the search to explore configurations that are nearly as good as the best, which often lead to better refinements after the LP/Polish step.
+## Generation 4 Strategy
+- Objective: Close the 2e-6 gap to 2.635985.
+- Core Technique: High-precision refinement of trial_3_4 using Micro-jitter and LP-based radii optimization.
+- Diversity: Explore adaptive step-sizes (1/5th rule) and different initialization seeds.
+
+## Generation 4 Analysis (Corrected)
+- Regressed in score: Best Gen 4 was 2.627 vs Gen 3's 2.63598.
+- Analysis suggests that the LP integration might be too slow or the constraints in the LP formulation (like boundary conditions) might not perfectly match the SLSQP objective, leading to sub-optimal radii for the given centers.
+- The 'highs' method in linprog is robust but might be overkill for 26 variables; perhaps a custom coordinate descent for radii is faster and allows more SLSQP iterations.
+- Strategy for Gen 5: Focus on the 'shaking' logic of trial_3_4. Use much smaller perturbations and ensure the SLSQP solver has maximum time to converge.
+
+## Generation 5 Insights
+- Best score in Gen 5: 2.635977 (trial_5_3), slightly below the all-time best 2.635983 (trial_3_4).
+- trial_5_3 used a penalty-based annealing approach followed by SLSQP. While robust, it didn't find a better basin than the one already explored.
+- trial_5_0 (2.634) attempted micro-refinement but might have used too large a jitter or insufficient iterations.
+- The gap to 2.635985 is persistent. It suggests that we are either at the global maximum for this specific configuration or the precision of the 'contacts' is not being handled optimally.
+- Strategy for Gen 6: Re-focus on 'Micro-refinement' of trial_3_4 but with a specific focus on 'contact-preserving' moves.
+
+## Generation 6 Strategy
+- Focus on trial_3_4 as the baseline.
+- Insight from analysis: The score of **2.635983** for 26 circles is exceptionally high, significantly outperforming a standard uniform 5x5 grid (which yields a sum of 2.5). This indicates that your `trial_3_4` successfully t...
+- Key technique: Micro-refinement using analytical Jacobians and high-precision SLSQP (ftol=1e-15).
+## Generation 6 Insights
+- trial_6_4 (2.635983) matched the previous best but failed to exceed it.
+- trial_6_0 (micro-jitter) failed due to a potential implementation error.
+- The 2.635985 target is extremely elusive, likely requiring a specific 'rattle' of the centers that SLSQP cannot find alone.
+- Next Strategy: Focus on 'Coordinate Descent' for centers. Perturb one circle at a time by a tiny amount and re-optimize radii using LP. This 'one-at-a-time' approach can navigate the narrow corridors of the configuration space better than global SLSQP.
+
+## Generation 7 Analysis
+- Current Best: 2.6359830849359622 (trial_6_4)
+- The gap to 2.635985 is ~2e-6. This is likely a precision and local-basin issue.
+## Generation 7 Insights
+- Gen 7 attempts at high-precision refinement (Coordinate Descent, SLP) failed to exceed trial_3_4.
+- Possible reasons: LP solver overhead reduced the number of iterations, or the 'micro-moves' were too conservative.
+- trial_3_4 (2.635983) remains the gold standard.
+- Strategy for Gen 8: Go back to the 'Shaking + SLSQP' method of trial_3_4 but optimize the 'shaking' magnitude and the SLSQP parameters (ftol, maxiter) even further.
+
+## Geometry Analysis of Best Trial
+Based on the score of **2.6359830849359622** for 26 circles, we can perform a structural analysis of the packing. 
+
+### 1. Grid vs. Irregular Packing
+This trial represents a **highly perturbed 5x5 grid that has "buckled" into a staggered, semi-irregular arrangement.**
+
+*   **The 5x5 Constraint:** A perfect 5x5 grid of equal circles in a unit square allows for a maximum radius of $r = 0.1000$, resulting in a sum of $2.50$. Since your score is **2.636**, the average radius is $\approx 0.1014$. 
+*   **The Buckling Effect:** To achieve an average radius larger than $0.1$, the circles cannot stay in a square grid (which requires $10r \leq 1$). Instead, the rows must shift and "interlock" (stagger). 
+*   **The 26th Circle:** The addition of the 26th circle acts as a wedge. In trial 6_4, the coordinates typically show that the 26th circle has forced its way into a row or the center, causing the other 25 circles to deviate from their 0.2-unit spacing. This results in a "wavy" appearance rather than a straight grid.
+
+### 2. Analysis of the Coordinates
+In a trial with this specific score, the coordinates usually reveal:
+*   **Vertical/Horizontal Compression:** One axis (often the Y-axis) maintains a semblance of 5 rows, but the X-coordinates of those rows are offset (e.g., Row 1 is shifted left, Row 2 is shifted right).
+*   **Radius Variation:** Unlike equal circle packing, the `sum(r)` objective favors making some circles larger at the expense of others. You will likely find 2-3 "dominant" circles with $r > 0.11$ and several smaller "filler" circles.
+
+### 3. The "Loose" Circles and Gaps
+In this specific optimization (SLSQP with a sum-of-radii objective), "loose" circles (rattlers) are common.
+
+*   **Identification:** Look for circles where the `get_loose_circles` function (included in your code) returns an index. These are circles with **fewer than 3 contact points** (contacts being either the square walls or other circles).
+*   **Location of Gaps:** 
+    *   **The "Corner Squeeze":** Often, one corner circle is pushed hard into the corner (2 wall contacts + 1 circle contact), while the circle diagonally adjacent to it becomes "loose" because the surrounding circles have formed a rigid arch that it cannot grow past.
+    *   **The 26th Circle Gap:** Because 26 is not a perfect square, there is usually a "void" or a "loose" circle near the center-periphery. In trial 6_4, there is typically a gap where the 5x5 structure was forced to break to accommodate the extra circle; here, one circle often has room to "jiggle" but cannot grow larger because its radius is capped by the proximity of two larger neighbors.
+
+### 4. Summary of Trial 6_4
+*   **Classification:** **Perturbed Staggered Grid.** It is not "completely irregular" because the 5-row influence is still visible in the Y-coordinates, but it is no longer a square grid.
+*   **Gaps:** There is likely a significant gap near the **top-middle or center-right** of the square. 
+*   **Loose Circles:** Usually, 1 or 2 circles in this configuration are "rattlers." They are often the circles with the smallest radii in the set, acting as ball bearings between the larger, structural circles.
+
+**Verdict:** The high score indicates the optimizer successfully broke the symmetry of the grid guess to find a more efficient staggered density, likely utilizing **radius differentiation** (making some circles bigger than others) to fill the square more effectively than equal-sized circles could.
+## Strategy for Generation 8
+1. **Coupled Optimization**: Re-emphasize simultaneous optimization of x, y, and r (78 variables).
+2. **Micro-Rattling**: Instead of large jumps, use 'Gaussian Rattling' where all centers are nudged by a tiny amount (1e-5 to 1e-7) and then re-optimized with high-precision SLSQP (ftol=1e-15).
+3. **Contact-Aware Perturbation**: Identify circles with the smallest radii or fewest contacts and perturb them more than the 'locked' circles.
+4. **Solver Tuning**: Use 'trust-constr' only for final polishing, but stick to SLSQP for the main search due to its speed.
+
+## Generation 8 Initial State
+- Best overall: trial_6_4 (Score: 2.6359830849359622)
+## Strategy Analysis
+To squeeze out an additional $2 \times 10^{-6}$ (or more) in a circle-packing problem like this, you need to address three areas: **numerical convergence limits**, **solver stalling**, and **heuristic efficiency**. SLSQP is a quasi-Newton method that often stops when the gradient becomes flat or the search direction step size falls below machine precision, even if a better local point exists.
+
+Here is the analysis and the modified strategy to achieve higher precision.
+
+### 1. Optimization Strategy Analysis
+*   **The "Stalling" Problem:** SLSQP often "stalls" near the optimum because the Hessian approximation becomes poorly conditioned as constraints become active (circles touching).
+*   **Constraint Scaling:** Your boundary constraints ($x-r$) are linear, but overlap constraints ($dx^2 + dy^2 - dr^2$) are quadratic. The optimizer handles them better if their gradients are on similar scales.
+*   **The "Rattler" Heuristic:** Your `get_loose_circles` logic is good, but the shaking is very aggressive (`r = 0.02`). For high-precision gains, you need a "Micro-shaking" phase that preserves the general structure while allowing circles to slide past each other.
+
+### 2. Suggested Improvements
+
+#### A. Iterative Polishing (The "Kick" Method)
+Instead of one final polish, run the optimizer in a loop where each success triggers a new optimization with a tighter tolerance. This "kicks" the solver out of numerical stalls.
+
+#### B. Gradient Scaling
+Normalize the overlap constraints. Instead of:
+$$(x_i - x_j)^2 + (y_i - y_j)^2 - (r_i + r_j)^2 \ge 0$$
+Use the linearized version or scale the quadratic form so the gradients don't vanish as $r$ gets small. However, for SLSQP, simply ensuring the `ftol` is extremely low and `maxiter` is high is usually more effective.
+
+#### C. Micro-Shaking
+When you are within $10^{-4}$ of a potential global optimum, large jumps lose progress. Use a Gaussian nudge with a decaying sigma.
+
+---
+
+### 3. Optimized Code Snippet
+
+Replace your **Final Polish** and **Main Loop** logic with this refined approach:
+
+```python
+def run_packing_optimized():
+    # ... [Keep your objective, constraints, and jacobian functions] ...
+
+    # 1. Refined Solver Options
+    # We use a much tighter ftol and increase maxiter.
+    # 'eps' is the step size for finite-difference if jac is None, 
+    # but some SLSQP implementations use it for internal step scaling.
+    tight_options = {'maxiter': 1000, 'ftol': 1e-12}
+
+    # 2. Improved Shaking (Micro-shaking)
+    def micro_shake(params, intensity=0.001):
+        new_params = params.copy()
+        N = 26
+        # Only nudge positions slightly, don't reset radii to 0.02
+        new_params[:2*N] += np.random.normal(0, intensity, 2*N)
+        return new_params
+
+    # 3. Main Loop with Iterative Polishing
+    # ... [Initial optimization as before] ...
+
+    while time.time() - start_time < 270:
+        # Alternating between targeted shaking and micro-nudging
+        if no_improvement > 10:
+            current_params = get_random_guess()
+            no_improvement = 0
+        elif no_improvement > 5:
+            current_params = shake_targeted(best_params)
+        else:
+            current_params = micro_shake(best_params, intensity=1e-4)
+        
+        res = minimize(objective, current_params, method='SLSQP', jac=grad_obj,
+                       constraints={'type': 'ineq', 'fun': constraints_func, 'jac': jacobian_func},
+                       bounds=bounds, options={'maxiter': 200, 'ftol': 1e-9})
+        
+        if res.success or np.all(constraints_func(res.x) >= -1e-8):
+            if -res.fun > best_sum + 1e-9: # Lower threshold for improvement
+                best_sum = -res.fun
+                best_params = res.x
+                no_improvement = 0
+            else:
+                no_improvement += 1
+        else:
+            no_improvement += 1
+
+    # 4. Final Multi-Stage Polish (The "Squeeze")
+    # We run the optimizer repeatedly on the best result until no change is detected
+    print("Entering final squeeze...")
+    for i in range(10):
+        old_sum = best_sum
+        res = minimize(objective, best_params, method='SLSQP', jac=grad_obj,
+                       constraints={'type': 'ineq', 'fun': constraints_func, 'jac': jacobian_func},
+                       bounds=bounds, options={'maxiter': 1000, 'ftol': 1e-13})
+        
+        if np.all(constraints_func(res.x) >= -1e-9):
+            best_params = res.x
+            best_sum = -res.fun
+        
+        if abs(best_sum - old_sum) < 1e-10: # Convergence reached
+            break
+            
+    # ... [Return results] ...
+```
+
+### 4. Key Adjustments to gain precision:
+
+1.  **The `1e-7` Constraint Check:** In your original code, you check `if np.all(constraints_func(res.x) >= -1e-7)`. This is actually quite strict for SLSQP. If the solver finds a better objective but violates a constraint by $2 \times 10^{-7}$, you discard it. Change this to $10^{-9}$ during the polish phase to allow the solver to "wiggle" into a valid high-precision state.
+2.  **`ftol` and `maxiter`:** Standard SLSQP `ftol` is $10^{-6}$. Setting it to $10^{-12}$ is essential for the last $2 \times 10^{-6}$ of precision.
+3.  **The "Squeeze" Loop:** The final `for i in range(10)` loop is the most effective way to handle SLSQP's tendency to stall. Every time you restart the optimizer with the previous output, it resets the BFGS approximation of the Hessian, often finding a better search direction.
+4.  **Gaussian Nudging:** In `micro_shake`, using `np.random.normal` with a very small standard deviation ($10^{-4}$) allows the circles to find local adjustments without breaking the successful "topology" of the current packing.
+
+### 5. Mathematical Note on $N=26$
+For 26 circles, the optimal sum is highly sensitive to the placement of the "extra" circle in the $5 \times 5$ grid. If you find your sum is stuck, try a guess that places the 26th circle at the boundary $(0, 0.5)$ instead of the center $(0.5, 0.5)$, as this often creates more "breathing room" for the internal grid.
+## Gen 8 Failure Analysis
+Based on the error messages provided, here is the analysis of Trials 8_0, 8_2, and 8_5:
+
+### 1. Trial 8_0: Logic Error (Boundary Constraints)
+*   **Error:** Circle 1 at (1.0, 1.0) with radius 0.5 extends outside x-bounds.
+*   **Analysis:** This is a **logic error** in the optimization constraints. In a standard packing problem (usually within a $[0, 1]$ box), the constraint for the x-coordinate of a circle with radius $r$ should be $r \leq x \leq 1-r$. 
+*   **Root Cause:** The solver placed the center of the circle exactly on the boundary ($x=1.0$). Because the circle has a non-zero radius ($0.5$), it extends to $x=1.5$, violating the container boundary. The code failed to enforce that the center must be at least one radius away from the edge.
+
+### 2. Trial 8_2: Logic Error (Precision/Boundary Constraints)
+*   **Error:** Circle 10 at (0.062914...) with radius 0.062919... extends outside x-bounds.
+*   **Analysis:** This is also a **logic error**, specifically a boundary violation. Here, $x - r \approx -0.000005$.
+*   **Root Cause:** Similar to 8_0, the constraint $x \geq r$ was violated. The center was placed at $0.062914$, but the radius was slightly larger ($0.062919$). This often happens when constraints are not strictly enforced or when there is a slight numerical drift in the optimization algorithm that the validation script does not tolerate.
+
+### 3. Trial 8_5: Logic/Library Usage Error (API Mismatch)
+*   **Error:** `TypeError: run_packing.<locals>.hessian_func() missing 1 required positional argument: 'v'`
+*   **Analysis:** This is a **logic error regarding library implementation** (specifically SciPy's `minimize` interface).
+*   **Root Cause:** When using certain optimization methods (like `trust-constr`), the solver expects the Hessian function to accept specific arguments. For example, if providing a Hessian of the Lagrangian, the signature usually requires `(x, v)` where `x` is the vector of variables and `v` is the vector of Lagrange multipliers. The code defined `hessian_func` in a way that didn't match the signature expected by the library's solver, leading to a standard Python `TypeError`.
+
+---
+
+### Summary Table
+| Trial | Category | Specific Issue |
+| :--- | :--- | :--- |
+| **8_0** | **Logic Error** | Failed to constrain circle centers within $[r, 1-r]$. |
+| **8_2** | **Logic Error** | Precision/Boundary violation (center $x$ was less than radius $r$). |
+| **8_5** | **Library/Logic Error** | Incorrect function signature for the Hessian in the optimizer. |
+
+**Note:** None of these trials failed due to **timeouts**. They all failed due to implementation errors in the geometry logic or the optimization setup.
+
+## Gen 8 Strategy Comparison
+The difference between **trial_6_4 (2.6359)** and **trial_8_3 (2.623)** provides a masterclass in the trade-offs between "clever" optimization heuristics and "brute-force" exploration in high-dimensional non-convex spaces.
+
+While the "Squeeze and Breathe" strategy in 8_3 is theoretically sound (it is a variation of the "Tunnelling" or "Elastic Net" method), it failed to beat the simpler strategy in 6_4 for three specific reasons: a **parameter mismatch**, a **computational overhead bottleneck**, and **insufficient perturbation**.
+
+---
+
+### 1. The "Squeeze" Step was too timid (Parameter Issue)
+The core of the "Squeeze and Breathe" strategy in 8_3 is this line:
+```python
+r_target = r_curr + 1e-7
+```
+**Why this failed:** 
+In circle packing, local optima are created by "jammed" configurations. To break out of a local optimum, you must force the circles to rearrange their topology (change which circles are touching which). 
+*   An increment of **$10^{-7}$** is effectively "noise" to the SLSQP solver. It is often smaller than the constraint tolerance (`ftol` or `eps`). 
+*   Because the squeeze was so small, the `penalty_obj` (L-BFGS-B) simply shifted the circles by microscopic amounts. When the "Breathe" step (SLSQP) started, the circles just settled back into the exact same local energy well they were already in.
+*   **The Fix:** A successful squeeze usually requires an expansion of 1–5%, forcing the optimizer to find a radically different way to resolve the massive overlaps.
+
+### 2. Computational "Tax" (The Efficiency Flaw)
+Optimization is a race against the clock (280 seconds). 
+*   **Trial 6_4** uses a "Lean and Mean" approach. It performs a targeted shake and immediately calls SLSQP. It maximizes the number of **global restarts** and **local descents**.
+*   **Trial 8_3** introduces an inner loop:
+    1.  Calculate `penalty_obj` gradients.
+    2.  Run an L-BFGS-B optimization.
+    3.  Run a "Breathe" SLSQP optimization.
+    4.  Repeat this twice per iteration.
+
+This extra logic acts as a "computational tax." Trial 8_3 spent significant time doing "fine-tuning" on mediocre configurations using L-BFGS-B, whereas Trial 6_4 spent that same time discarding mediocre configurations and trying entirely new "shaked" starting points. In circle packing, **exploration (breadth) usually beats refinement (depth).**
+
+### 3. Shaking Intensity (Exploration vs. Exploitation)
+Compare the "Shaking" logic of both:
+
+*   **Trial 6_4 (Aggressive):**
+    ```python
+    new_params[:2*N] += np.random.uniform(-0.005, 0.005, 2*N) # Jitter EVERYTHING
+    # ... then move loose circles aggressively ...
+    ```
+*   **Trial 8_3 (Conservative):**
+    ```python
+    # Only jitter circles that aren't loose
+    new_params[idx] += np.random.normal(0, 0.002) 
+    ```
+6_4 recognizes that even the "well-placed" circles need to be nudged to allow the "loose" circles to find better holes. 8_3 tried to preserve the "good" part of the packing too strictly. In high-dimensional optimization, this is known as getting trapped in a "high-quality" but sub-optimal basin.
+
+### 4. Penalty Function vs. Hard Constraints
+Trial 8_3 uses an unconstrained optimizer (L-BFGS-B) on a **Penalty Function** to resolve overlaps during the squeeze. 
+*   Penalty functions create "soft" boundaries. SLSQP (used in 6_4) uses **Sequential Quadratic Programming**, which builds a second-order model of the constraints themselves.
+*   For circle packing, the geometry is very "rigid." Using L-BFGS-B to resolve overlaps is like trying to push marbles into place with a sponge; SLSQP is like using a precision vice. 6_4 relies on the superior constraint-handling of SLSQP for both exploration and refinement.
+
+### Summary: Parameter Issue or Fundamental Flaw?
+
+It is a **Parameter Issue** that became a **Fundamental Flaw** in the context of a timed competition.
+
+1.  **The Parameter Issue:** The squeeze amount ($10^{-7}$) was too small to trigger a topological change.
+2.  **The Fundamental Flaw:** The "Squeeze and Breathe" approach is inherently slower per iteration. For it to be viable, the "Squeeze" must be powerful enough to find a better basin that a simple "Shake" would miss. Because the squeeze was too small, 8_3 ended up with the **slow speed** of a complex heuristic but the **low exploration power** of a simple one.
+
+**Trial 6_4 won because it prioritized "Restarts per Minute" and used a more aggressive jitter, which is the most effective way to navigate the "fractal" landscape of circle packing.**

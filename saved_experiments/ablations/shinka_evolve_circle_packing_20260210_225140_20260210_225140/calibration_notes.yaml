@@ -1,0 +1,92 @@
+# MangoEvolve Calibration Notes
+# The root LLM only sees the 'notes' section during evolution.
+# Metadata is stored for validation purposes.
+
+notes: '
+
+  ## Calibration Observations (Round 2 — Gradient implementations)
+
+
+  Summary:
+
+  - All models complied with “single code block, no prose” and produced fully vectorized
+  NumPy gradients with FD checks.
+
+  - Everyone handled boundary subgradients via hinge indicators and overlap grads
+  via masked pairwise ops; stabilization used either d+eps or sqrt(d^2+eps/eps^2).
+
+
+  Per-model notes:
+
+  - gpt5: Best reference. Uses d for penalty and d+eps only for division (no bias),
+  symmetric active mask, clean typing, central FD checks. Ideal for gradient-sensitive
+  code.
+
+  - o4-mini: Compact, correct, neat masking; stabilization via sqrt(d^2+eps). Clear
+  FD error summaries. Great for precise, format-strict utilities.
+
+  - gemini-flash: Clear structure, thorough FD harness, sqrt(d^2+eps^2) stabilization;
+  easy to read/maintain.
+
+  - gemini-pro: Correct math; uses d+eps in both penalty and division (tiny bias).
+  Strong docstring and central FD checks; production-friendly.
+
+  - sonnet: Correct; computes overlaps on upper triangle then symmetrizes via row/col
+  sums; stabilization sqrt(d^2+eps); slightly verbose but precise.
+
+  - gpt5-mini: Mirrors gpt5’s pattern (no penalty bias), cost-effective, good FD harness;
+  strong choice under budget.
+
+  - gpt5-nano: Correct, minimal; uses d+eps in penalty (small bias), succinct FD outputs;
+  fine for lightweight tasks.
+
+
+  Takeaways:
+
+  - Prefer gpt5 or o4-mini for critical gradient code; gpt5-mini for budget.
+
+  - To avoid penalty bias, apply eps only to division (gpt5/gpt5-mini style).
+
+  - All are suitable for vectorized constraint/penalty work; keep temperatures low
+  for strict format/compliance with sonnet/gemini-*.
+
+  '
+metadata:
+  child_llms:
+  - alias: gemini-pro
+    model: gemini-2.5-pro
+    provider: google
+    cost_per_million_input_tokens: 1.25
+    cost_per_million_output_tokens: 10.0
+  - alias: gemini-flash
+    model: gemini-2.5-flash
+    provider: google
+    cost_per_million_input_tokens: 0.3
+    cost_per_million_output_tokens: 2.5
+  - alias: sonnet
+    model: anthropic/claude-sonnet-4
+    provider: openrouter
+    cost_per_million_input_tokens: 3.0
+    cost_per_million_output_tokens: 15.0
+  - alias: o4-mini
+    model: openai/o4-mini
+    provider: openrouter
+    cost_per_million_input_tokens: 1.1
+    cost_per_million_output_tokens: 4.4
+  - alias: gpt5
+    model: openai/gpt-5
+    provider: openrouter
+    cost_per_million_input_tokens: 1.25
+    cost_per_million_output_tokens: 10.0
+  - alias: gpt5-mini
+    model: openai/gpt-5-mini
+    provider: openrouter
+    cost_per_million_input_tokens: 0.25
+    cost_per_million_output_tokens: 2.0
+  - alias: gpt5-nano
+    model: openai/gpt-5-nano
+    provider: openrouter
+    cost_per_million_input_tokens: 0.05
+    cost_per_million_output_tokens: 0.4
+  created_at: '2026-02-10T23:10:03.879256+00:00'
+  experiment_name: shinka_evolve_circle_packing_20260210_225140

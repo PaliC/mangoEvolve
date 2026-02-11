@@ -1,0 +1,73 @@
+{
+  "generation_num": 8,
+  "num_trials": 6,
+  "num_successful_trials": 5,
+  "best_trial_id": "trial_8_1",
+  "best_score": 2.6319368975093007,
+  "selected_trial_ids": [
+    "trial_6_0",
+    "trial_3_1",
+    "trial_8_1",
+    "trial_8_2",
+    "trial_8_3"
+  ],
+  "selection_reasoning": "The selection includes the top two historical performers (6_0 and 3_1) which are nearly identical in score, the top results from the current generation (8_1 and 8_2), and a diverse simulated annealing approach (8_3) to maintain exploration potential.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_6_0",
+      "reasoning": "Current best overall score (2.635983). Primary baseline for refinement.",
+      "category": "performance",
+      "source_generation": 6
+    },
+    {
+      "trial_id": "trial_3_1",
+      "reasoning": "Extremely high historical score (2.635977), very close to the best. Useful for alternative refinement.",
+      "category": "performance",
+      "source_generation": 3
+    },
+    {
+      "trial_id": "trial_8_1",
+      "reasoning": "Best performer from Gen 8 (2.631937). Demonstrates effective jitter/shaking logic.",
+      "category": "performance",
+      "source_generation": 8
+    },
+    {
+      "trial_id": "trial_8_2",
+      "reasoning": "Strong performance (2.629301) using Lloyd's algorithm/Voronoi initialization. Distinct approach from grid starts.",
+      "category": "diversity",
+      "source_generation": 8
+    },
+    {
+      "trial_id": "trial_8_3",
+      "reasoning": "Simulated annealing approach. Lower score (2.56) but methodology is fundamentally different and worth further tuning.",
+      "category": "diversity",
+      "source_generation": 8
+    }
+  ],
+  "parents_used": [
+    "trial_6_0"
+  ],
+  "parents_used_counts": {
+    "trial_6_0": 2
+  },
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 20.56381012883503,
+      "count": 4
+    },
+    "child_llm_call": {
+      "total_s": 736.0533453079406,
+      "count": 6
+    },
+    "evaluation": {
+      "total_s": 907.9514601801056,
+      "count": 6
+    },
+    "spawn_children": {
+      "total_s": 422.36652194405906,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-10T23:58:00.775904"
+}

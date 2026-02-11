@@ -1,0 +1,75 @@
+{
+  "generation_num": 14,
+  "num_trials": 8,
+  "num_successful_trials": 5,
+  "best_trial_id": "trial_14_3",
+  "best_score": 2.1666731131572625,
+  "selected_trial_ids": [
+    "trial_10_2",
+    "trial_10_6",
+    "trial_5_0",
+    "trial_11_7",
+    "trial_14_3"
+  ],
+  "selection_reasoning": "Carry forward elite historical performers for exploitation and two diverse formulations for exploration, plus the best of Gen14 for potential improvements. Focus on penalized center optimization with LP finalization, complemented by constrained/stochastic variants.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_10_2",
+      "reasoning": "Best overall score (2.63592); strong penalized + LP approach to exploit.",
+      "category": "performance",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_10_6",
+      "reasoning": "Near-best (2.63587) with a different constrained formulation; complements penalized methods.",
+      "category": "diversity",
+      "source_generation": 10
+    },
+    {
+      "trial_id": "trial_5_0",
+      "reasoning": "Elite annealed-penalty L-BFGS-B + LP with excellent gradients; strong base to refine.",
+      "category": "performance",
+      "source_generation": 5
+    },
+    {
+      "trial_id": "trial_11_7",
+      "reasoning": "High-performing (2.63019) budget-friendly variant; different implementation details useful for hybridization.",
+      "category": "diversity",
+      "source_generation": 11
+    },
+    {
+      "trial_id": "trial_14_3",
+      "reasoning": "Best of current generation; despite lower score, offers fresh dynamics worth refining.",
+      "category": "potential",
+      "source_generation": 14
+    }
+  ],
+  "parents_used": [
+    "trial_5_0"
+  ],
+  "parents_used_counts": {
+    "trial_5_0": 1
+  },
+  "parents_not_selected_prev_gen": [
+    "trial_5_0"
+  ],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 435.4890160589712,
+      "count": 5
+    },
+    "child_llm_call": {
+      "total_s": 746.7222010062542,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 8.196445880108513,
+      "count": 8
+    },
+    "spawn_children": {
+      "total_s": 210.97502967901528,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T03:07:43.199718"
+}

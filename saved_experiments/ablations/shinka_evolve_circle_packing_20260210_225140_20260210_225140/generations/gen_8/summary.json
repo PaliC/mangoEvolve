@@ -1,0 +1,69 @@
+{
+  "generation_num": 8,
+  "num_trials": 8,
+  "num_successful_trials": 8,
+  "best_trial_id": "trial_8_0",
+  "best_score": 2.609447993928547,
+  "selected_trial_ids": [
+    "trial_7_7",
+    "trial_5_0",
+    "trial_8_0",
+    "trial_8_4",
+    "trial_8_5"
+  ],
+  "selection_reasoning": "Carrying forward two top historical performers to exploit (trial_7_7, trial_5_0), the best Gen8 density-weighted penalized method for potential (trial_8_0), and two diverse approaches\u2014projection-based alternating (trial_8_4) and constrained trust-constr (trial_8_5)\u2014to maintain methodological breadth.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_7_7",
+      "reasoning": "Best overall performer (score=2.635868). Strong annealed penalized L-BFGS-B + LP finalization baseline to exploit further with more starts and refined seeding.",
+      "category": "performance",
+      "source_generation": 7
+    },
+    {
+      "trial_id": "trial_5_0",
+      "reasoning": "Second-best historical (score=2.635797). Independent high-quality variant likely differing in schedule/initialization, offering a strong alternative baseline.",
+      "category": "performance",
+      "source_generation": 5
+    },
+    {
+      "trial_id": "trial_8_0",
+      "reasoning": "Best of Gen8 (score=2.609448) using annealing + local-density weights + LP. Promising direction with potential gains via more starts and weight tuning.",
+      "category": "potential",
+      "source_generation": 8
+    },
+    {
+      "trial_id": "trial_8_4",
+      "reasoning": "Projection-based alternating (Dykstra-like) with LP (score=2.379378). Valuable methodological diversity; can improve with better sweep ordering and relaxation.",
+      "category": "diversity",
+      "source_generation": 8
+    },
+    {
+      "trial_id": "trial_8_5",
+      "reasoning": "Constrained trust-constr with analytic Jacobians (score=0.575631). Though low-scoring now, it adds an explicit constraint approach that can benefit from improved seeding and tolerances.",
+      "category": "diversity",
+      "source_generation": 8
+    }
+  ],
+  "parents_used": [],
+  "parents_used_counts": {},
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 1493.712819143664,
+      "count": 16
+    },
+    "child_llm_call": {
+      "total_s": 609.0918195191771,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 43.18350281496532,
+      "count": 8
+    },
+    "spawn_children": {
+      "total_s": 100.69823577394709,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T02:14:16.851697"
+}

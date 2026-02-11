@@ -1,0 +1,50 @@
+============================================================
+SCRATCHPAD FOR GENERATION 3
+============================================================
+
+# Generation 0: Initial Exploration
+Objective: Maximize sum of radii for 26 circles in a unit square.
+Best known: 2.6359850561146603
+
+Strategies to explore:
+1. Grid-based initialization (5x5 + 1) + SLSQP optimization.
+2. Random initialization + Basin-hopping global optimization.
+3. Force-directed / "Growth" simulation followed by local refinement.
+4. Multi-start SLSQP with random initial positions.
+5. Optimization where radii are explicit variables vs. derived from centers.
+6. Equal-radius packing seeds followed by radius expansion.
+
+## Generation 0 Analysis
+- Best score: 2.619210 (trial_0_4) using a two-stage approach (equal radius then variable).
+- trial_0_0 (grid + SLSQP) also performed well (2.607).
+- Failures (0_2, 0_3, 0_5) were due to:
+    - trial_0_2: 'radii' not defined/returned correctly.
+    - trial_0_3: Optimization failed to converge or returned invalid shapes.
+    - trial_0_5: trust-constr was too slow or had constraint violations.
+- Key Insight: SLSQP seems robust for this problem size. Two-stage initialization is superior to simple grid/random.
+
+## Generation 1 Strategy
+- Focused on refining trial_0_4 (two-stage optimization).
+- Introduced Basin-hopping and 'shaking' to escape local optima.
+- Diversified initializations with hexagonal grids and force-directed seeds.
+- Experimenting with greedy growth and specialized constraint handling.
+
+## Generation 1 Analysis
+- trial_1_1 (2.629): Hexagonal grid variations + SLSQP. Very effective.
+- trial_1_2 (2.624): Force-directed seeding. Good diversity.
+- trial_1_3/1_4: Failed due to boundary constraints (r > x or r > 1-x).
+- trial_1_0: Returned 0.0. Likely a logic error in the Basin-hopping implementation.
+- Insight: Boundary constraints (r <= x, r <= 1-x, etc.) must be handled carefully in SLSQP.
+- Strategy: Use trial_1_1 as the new baseline. Try to perturb its best result or use more dense hexagonal seeds.
+
+## Generation 2 Analysis
+- Best score improved to 2.629964 (trial_2_2) using refined force-directed seeding + SLSQP.
+- trial_2_5 (dense packing library approach) reached 2.628, confirming that equal-circle packings are strong seeds.
+- trial_2_0 (hexagonal multi-start) reached 2.6277.
+- LP-based approach (trial_2_1) was slightly lower (2.609) but provides a mathematically rigorous way to handle radii; it might be better as a refinement step rather than a global search tool.
+- Insight: The force-directed approach (trial_2_2) is currently the most effective at finding high-quality configurations.
+
+## Generation 3 Progress
+- Current Best: 2.6299638172389597
+- Focused on refining the force-directed (trial_2_2) and hexagonal (trial_1_1) approaches.
+- Introduced multi-start perturbations and adaptive forces.

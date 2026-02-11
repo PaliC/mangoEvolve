@@ -1,0 +1,59 @@
+{
+  "generation_num": 9,
+  "num_trials": 6,
+  "num_successful_trials": 5,
+  "best_trial_id": "trial_9_5",
+  "best_score": 2.628553897704184,
+  "selected_trial_ids": [
+    "trial_6_4",
+    "trial_3_4",
+    "trial_9_5"
+  ],
+  "selection_reasoning": "The strategy for the final generation shifts from exploration back to intense exploitation. We are abandoning the 'from-scratch' multi-start approach of Gen 9 and focusing all computational resources on 'polishing' the trial_6_4 configuration using micro-jitters, Hessian resets, and LP-based radii maximization.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_6_4",
+      "reasoning": "The all-time best score (2.635983). It is the most promising starting point for any final refinement.",
+      "category": "performance",
+      "source_generation": 6
+    },
+    {
+      "trial_id": "trial_3_4",
+      "reasoning": "Tied for the best score. Its code structure is clean and serves as a robust alternative for the shaking heuristic.",
+      "category": "performance",
+      "source_generation": 3
+    },
+    {
+      "trial_id": "trial_9_5",
+      "reasoning": "The best from the most recent generation. While lower in score, its multi-start logic might be useful if combined with the high-precision shaking of 6_4.",
+      "category": "diversity",
+      "source_generation": 9
+    }
+  ],
+  "parents_used": [
+    "trial_6_4"
+  ],
+  "parents_used_counts": {
+    "trial_6_4": 6
+  },
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 38.05585821589921,
+      "count": 4
+    },
+    "child_llm_call": {
+      "total_s": 826.5705868391087,
+      "count": 6
+    },
+    "evaluation": {
+      "total_s": 28.760485533857718,
+      "count": 6
+    },
+    "spawn_children": {
+      "total_s": 154.55223111005034,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T00:12:59.890508"
+}

@@ -1,0 +1,73 @@
+{
+  "generation_num": 11,
+  "num_trials": 8,
+  "num_successful_trials": 7,
+  "best_trial_id": "trial_11_7",
+  "best_score": 2.6301918355665412,
+  "selected_trial_ids": [
+    "trial_7_7",
+    "trial_11_7",
+    "trial_11_0",
+    "trial_11_2",
+    "trial_11_3"
+  ],
+  "selection_reasoning": "Selected the historical best (trial_7_7) and top two Gen11 performers (11_7, 11_0) for performance-focused exploitation, plus two diverse approaches (11_2 alternating LP/gradient and 11_3 constrained trust-constr) to preserve methodological breadth and hybridization potential.",
+  "trial_selections": [
+    {
+      "trial_id": "trial_7_7",
+      "reasoning": "Best overall performer (~2.635868) and a proven penalized L-BFGS-B + LP baseline; strong anchor for further refinement and seeding.",
+      "category": "performance",
+      "source_generation": 7
+    },
+    {
+      "trial_id": "trial_11_7",
+      "reasoning": "Top of Generation 11 (2.630192); likely incorporates recent enhancements (multi-starts, density/edge tweaks); prime candidate for exploitation.",
+      "category": "performance",
+      "source_generation": 11
+    },
+    {
+      "trial_id": "trial_11_0",
+      "reasoning": "Second-best in Gen11 (2.624003); similar family with potentially different annealing/initialization; good for elite restarts and hybridization.",
+      "category": "performance",
+      "source_generation": 11
+    },
+    {
+      "trial_id": "trial_11_2",
+      "reasoning": "Alternating LP <-> center-gradient scheme (2.614179); methodologically distinct and stable; promising to combine with density-weighted penalties and elite LP finalization.",
+      "category": "diversity",
+      "source_generation": 11
+    },
+    {
+      "trial_id": "trial_11_3",
+      "reasoning": "Explicit constrained (trust-constr/SLSQP) formulation (~2.599346); valuable diversity with potential gains via warm-starts from best LP radii and refined Jacobians.",
+      "category": "diversity",
+      "source_generation": 11
+    }
+  ],
+  "parents_used": [
+    "trial_7_7"
+  ],
+  "parents_used_counts": {
+    "trial_7_7": 2
+  },
+  "parents_not_selected_prev_gen": [],
+  "timing": {
+    "root_llm_call": {
+      "total_s": 206.54250257799868,
+      "count": 3
+    },
+    "child_llm_call": {
+      "total_s": 631.1400180591736,
+      "count": 8
+    },
+    "evaluation": {
+      "total_s": 15.964357956079766,
+      "count": 8
+    },
+    "spawn_children": {
+      "total_s": 175.07705295004416,
+      "count": 1
+    }
+  },
+  "timestamp": "2026-02-11T02:43:19.924040"
+}

@@ -1,0 +1,22 @@
+============================================================
+LINEAGE MAP FOR GENERATION 0
+============================================================
+
+### All-Time Top 5 (cross-generation selection candidates)
+  1. trial_0_1 [Gen 0] = 2.6158668606
+  2. trial_0_4 [Gen 0] = 2.6068408380
+  3. trial_0_3 [Gen 0] = 2.3826866560
+
+### Full Lineage Tree
+
+trial_0_1 (2.6158668606080528) ← best
+
+trial_0_4 (2.6068408380270851)
+
+trial_0_3 (2.3826866559516460)
+
+trial_0_0 (INVALID)
+
+trial_0_2 (INVALID)
+
+trial_0_5 (INVALID)
