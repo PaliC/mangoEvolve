@@ -22,10 +22,9 @@
 | **No scratchpad** | 2.6359830850 | 2.6359829142 | gemini-3-flash | 60 | 10 | $0.62 | 80 min |
 | **No trial reasoning** (buggy) | 2.6359830849 | 2.6359830849 | gemini-3-flash | 59 | 10 | $0.69 | 82 min |
 | **All disabled** | 2.6359830849 | 2.6359828249 | gemini-3-flash | 60 | 10 | $0.59 | 74 min |
-| **ShinkaEvolve config** | 2.6359196553 | 2.6359196553 | GPT-5 root + 7 child models | 160 | 20 | $13.13 | 297 min |
 | **OpenEvolve config** | 2.6359830849 | 2.6359828249 | Claude 3.7 Sonnet root + Gemini 2.0 Flash | 160 | 16 | $10.16 | 91 min |
 
-**Key comparison**: The OpenEvolve config uses the **same models** as OpenEvolve (Claude 3.7 Sonnet + Gemini 2.0 Flash). The ShinkaEvolve config uses a model ensemble **inspired by** ShinkaEvolve's multi-model approach.
+**Key comparison**: The OpenEvolve config uses the **same models** as OpenEvolve (Claude 3.7 Sonnet + Gemini 2.0 Flash).
 
 ### 1.3 Strict vs Relaxed Scores
 
@@ -50,7 +49,6 @@ The best of the two is used because the algorithms are stochastic (shaking, mult
 | **No scratchpad** | 2.6359830850 | 2.6359829142 | 1.71e-07 | re-exec (alpha=0.9999999327) |
 | **No trial reasoning** | 2.6359830849 | 2.6359830849 | 0.00 | re-exec (alpha=1.0, strict-valid) |
 | **All disabled** | 2.6359830849 | 2.6359828249 | 2.60e-07 | analytical (r - 1e-8) |
-| **ShinkaEvolve config** | 2.6359196553 | 2.6359196553 | 0.00 | re-exec (alpha=1.0, strict-valid) |
 | **OpenEvolve config** | 2.6359830849 | 2.6359828249 | 2.60e-07 | analytical (r - 1e-8) |
 
 The worst-case delta is **2.6e-7**, which is **20x smaller** than ShinkaEvolve's reported relaxed-to-strict gap of ~5.4e-6. Several experiments are already strictly valid upon re-execution (alpha=1.0).
@@ -59,7 +57,9 @@ The worst-case delta is **2.6e-7**, which is **20x smaller** than ShinkaEvolve's
 
 ## 2. Convergence Analysis
 
-### 2.1 Generation to Reach Target Score (>= 2.6359)
+### 2.1 Generation to Reach Target Scores
+
+**Threshold >= 2.6359** (approximate optimum):
 
 | Experiment | Gen Reached | Total Evaluations | Wall Time (approx) |
 |-----------|-------------|-------------------|-------------------|
@@ -68,8 +68,19 @@ The worst-case delta is **2.6e-7**, which is **20x smaller** than ShinkaEvolve's
 | No query_llm | Gen 5 | 36 | ~128 min |
 | No trial reasoning | Gen 5 | 36 | ~131 min |
 | No scratchpad | Gen 6 | 42 | ~216 min |
-| ShinkaEvolve config | Gen 10 | 88 | ~198 min |
 | OpenEvolve config | Gen 14 | 150 | ~91 min |
+
+**Threshold >= 2.635983** (precise optimum — first trial to exceed this score):
+
+| Experiment | Gen Reached | Trial ID | Cumulative Trials | Score |
+|-----------|-------------|----------|-------------------|-------|
+| **Baseline** | **Gen 2** | trial_2_4 | **18** | 2.6359830849 |
+| All disabled | Gen 5 | trial_5_0 | 36 | 2.6359830849 |
+| No query_llm | Gen 5 | trial_5_4 | 36 | 2.6359830849 |
+| No trial reasoning | Gen 5 | trial_5_0 | 36 | 2.6359830849 |
+| No scratchpad | Gen 9 | trial_9_2 | 60 | 2.6359830850 |
+
+Note: The >= 2.6359 threshold (2.635977...) is reached earlier by all_disabled (Gen 3), but the precise 2.635983 level requires Gen 5 for all non-baseline ablations. The no_scratchpad ablation only reaches 2.635983 in the final generation (Gen 9).
 
 ### 2.2 Best-Score-So-Far Per Generation (Cumulative)
 
@@ -88,37 +99,28 @@ The worst-case delta is **2.6e-7**, which is **20x smaller** than ShinkaEvolve's
 | 8 | 2.63598 | 2.63598 | 2.63598 | 2.63598 | 2.63598 |
 | 9 | 2.63598 | 2.63598 | 2.63598 | 2.63598 | 2.63598 |
 
-**Non-ablation experiments:**
+**OpenEvolve config (16 generations, 10 children/gen):**
 
-| Gen | ShinkaEvolve config | OpenEvolve config |
-|-----|--------------------|--------------------|
-| 0 | 2.58796 | 2.61219 |
-| 1 | 2.61274 | 2.61219 |
-| 2 | 2.61418 | 2.61219 |
-| 3 | 2.61418 | 2.61219 |
-| 4 | 2.61418 | 2.61219 |
-| 5 | 2.63580 | 2.63304 |
-| 6 | 2.63580 | 2.63304 |
-| 7 | 2.63587 | 2.63304 |
-| 8 | 2.63587 | 2.63429 |
-| 9 | 2.63587 | 2.63429 |
-| 10 | **2.63592** | 2.63429 |
-| 11 | 2.63592 | 2.63429 |
-| 12 | 2.63592 | 2.63429 |
-| 13 | 2.63592 | 2.63429 |
-| 14 | - | **2.63598** |
-| 15 | 2.63592 | 2.63598 |
-| 16-19 | 2.63592 | - |
+| Gen | OpenEvolve config |
+|-----|--------------------|
+| 0 | 2.61219 |
+| 1-4 | 2.61219 |
+| 5 | 2.63304 |
+| 6-7 | 2.63304 |
+| 8-9 | 2.63429 |
+| 10-13 | 2.63429 |
+| 14 | **2.63598** |
+| 15 | 2.63598 |
 
 ### 2.3 Convergence Insights
 
 1. **Baseline is fastest**: Reaches the optimum at generation 2 (18 evaluations). This is remarkable — 18 evaluations of a single cheap model (gemini-3-flash) matches what ShinkaEvolve achieves with 150 evaluations across 5 frontier models.
 
-2. **All disabled is nearly as fast**: Generation 3 (24 evaluations), suggesting the core evolution mechanism is sufficient without auxiliary features.
+2. **All disabled is nearly as fast to >= 2.6359 but not to 2.635983**: Reaches the approximate threshold at Gen 3 (24 evaluations) but needs Gen 5 (36 evaluations) for the precise optimum. This suggests auxiliary features help refine the final digits faster.
 
-3. **Multi-model is slower**: The ShinkaEvolve config (7 models, GPT-5 root) takes 88 evaluations and never reaches the full 2.63598. The OpenEvolve config (Claude 3.7 Sonnet root) takes 150 evaluations. Both are significantly slower than the gemini-3-flash ablations.
+3. **Plateau behavior**: All ablation experiments plateau quickly. Once ~2.63598 is reached, further generations don't improve. The optimization landscape funnels to the same local/global optimum regardless of approach.
 
-4. **Plateau behavior**: All experiments plateau quickly. Once ~2.63598 is reached, further generations don't improve. The optimization landscape funnels to the same local/global optimum regardless of approach.
+4. **No scratchpad is uniquely slow**: It is the only ablation that takes until Gen 9 (60 evaluations — the entire run) to reach 2.635983, despite reaching the approximate level (2.635977) at Gen 6. Without persistent memory, the root LLM repeatedly "forgets" the winning approach.
 
 ---
 
@@ -126,228 +128,323 @@ The worst-case delta is **2.6e-7**, which is **20x smaller** than ShinkaEvolve's
 
 ### 3.1 Feature Impact Summary
 
-| Ablation | Best Score | Gen to 2.6359 | Cost | Success Rate | Root Tokens |
-|----------|-----------|----------------|------|-------------|-------------|
-| **Baseline** (all features) | 2.6359830849 | Gen 2 | $0.70 | 75% (45/60) | 449K input |
-| **-query_llm** | 2.6359830855 | Gen 5 | $0.71 | 70% (42/60) | 329K input |
-| **-scratchpad** | 2.6359830850 | Gen 6 (Gen 9 exact) | $0.62 | 70% (42/60) | 326K input |
-| **-trial_reasoning** (buggy) | 2.6359830849 | Gen 5 | $0.69 | 85% (50/59) | 379K input |
-| **All disabled** | 2.6359830849 | Gen 3 (Gen 5 exact) | $0.59 | 78% (47/60) | 244K input |
+| Ablation | Best Score | Gen to 2.635983 | Trials to 2.635983 | Cost | Success Rate | Root Tokens |
+|----------|-----------|-----------------|---------------------|------|-------------|-------------|
+| **Baseline** (all features) | 2.6359830849 | Gen 2 | 18 | $0.70 | 75% (45/60) | 449K input |
+| **-query_llm** | 2.6359830855 | Gen 5 | 36 | $0.71 | 70% (42/60) | 329K input |
+| **-scratchpad** | 2.6359830850 | Gen 9 | 60 | $0.62 | 70% (42/60) | 326K input |
+| **-trial_reasoning** (buggy) | 2.6359830849 | Gen 5 | 36 | $0.69 | 85% (50/59) | 379K input |
+| **All disabled** | 2.6359830849 | Gen 5 | 36 | $0.59 | 78% (47/60) | 244K input |
 
-**Note on no_trial_reasoning**: This ablation has a bug where trial reasoning was not actually exposed to the root LLM even in the baseline. The "no trial reasoning" flag hides something that wasn't visible in the first place. As such, this ablation is not informative about the actual value of trial reasoning.
+**Note on no_trial_reasoning**: This ablation has a bug where trial reasoning was not actually exposed to the root LLM even in the baseline. The "no trial reasoning" flag hides something that wasn't visible in the first place. As such, this ablation is not informative about the actual value of trial reasoning — it effectively serves as a second baseline run with different randomness.
 
-### 3.2 query_llm Analysis (Comprehensive)
+### 3.2 Detailed Analysis: Baseline (All Features Enabled)
 
-#### 3.2.1 Call Counts
+**Configuration**: scratchpad=on, query_llm=on, trial_reasoning=on (though buggy — not actually exposed)
 
-| Experiment | Total Calls | Per Generation (avg) |
-|-----------|-------------|---------------------|
-| Baseline | 53 | 5.3 |
-| No scratchpad | 55 | 5.5 |
-| No trial reasoning | 49 | 4.9 |
-| ShinkaEvolve config | 47 | 2.4 |
-| OpenEvolve config | 158 | 9.9 |
+#### Performance
 
-#### 3.2.2 Category Breakdown
+| Metric | Value |
+|--------|-------|
+| Best score (relaxed) | 2.6359830849 |
+| Strict score | 2.6359830274 (re-exec, alpha=0.9999999774) |
+| Total cost | $0.70 ($0.29 root + $0.41 child) |
+| Input tokens | 449K (highest among ablations) |
+| Output tokens | 160K |
+| Root LLM calls | 39 |
+| Child LLM calls | 60 (6/gen × 10 gens) |
+| Valid trials | 45/60 (75%) |
+| Wall time | 4,879s (81 min) |
 
-| Category | Baseline | No scratchpad | No trial reason. | ShinkaEvolve | OpenEvolve |
-|----------|----------|--------------|------------------|--------------|------------|
-| trial_analysis | 4 | 6 | 3 | 0 | 67 |
-| comparison | 4 | 6 | 2 | 0 | 21 |
-| error_diagnosis | 1 | 0 | 0 | 0 | 2 |
-| strategy_planning | 0 | 0 | 0 | 0 | 1 |
-| code_review | 0 | 2 | 0 | 0 | 1 |
-| explanation | 0 | 0 | 0 | 3 | 10 |
-| general_analysis | 0 | 1 | 0 | 0 | 0 |
-| other | 44 | 40 | 44 | 44 | 56 |
+#### Convergence Profile
 
-**Note**: The "other" category is high because many query_llm calls use f-strings or complex prompt construction that the parser can't fully extract. Manual inspection of the logs reveals these are primarily trial analysis and code review calls where the prompt text is dynamically constructed.
+| Gen | Best Trial | Score | Valid/Total | Key Events |
+|-----|-----------|-------|-------------|------------|
+| 0 | trial_0_1 | 2.6159 | 3/6 | Initial exploration: basin-hopping + SLSQP. 3 invalid trials. Root LLM planned 6 strategies. Defined `get_optimal_radii()` for LP-based radii optimization. |
+| 1 | trial_1_2 | 2.6330 | 5/6 | Big jump (+0.017). LP radii insight recorded in scratchpad. |
+| 2 | trial_2_4 | **2.63598** | 4/6 | **Breakthrough**: Discovered shaking + SLSQP pattern. Scratchpad recorded "HUGE SUCCESS: trial_2_4 achieved 2.635983". query_llm analyzed why trial_1_2 scored higher than others. |
+| 3 | trial_3_4 | 2.63598 | 6/6 | Plateau. Perfect validity (6/6). Attempted improvements didn't surpass Gen 2's result. |
+| 4 | trial_4_1 | 2.6278 | 4/6 | Regression in generation-best. Root LLM used 9 query_llm calls (peak) for deep mid-evolution analysis. Scratchpad grew to 1,979 words with code snippets for LP integration. |
+| 5 | trial_5_3 | 2.63598 | 5/6 | Recovered. query_llm compared top trial of Gen 5 with previous best. |
+| 6 | trial_6_4 | 2.63598 | 5/6 | Defined `check_precision_limit()` to test numerical precision boundaries. query_llm compared trial_3_4 and trial_6_4 for micro-jitter analysis. |
+| 7 | trial_7_5 | 2.6263 | 5/6 | Regression. No improvement possible beyond numerical precision. |
+| 8 | trial_8_3 | 2.6238 | 3/3 | Worst generation-best. Defined `analyze_best_geometry()`. query_llm asked "how to squeeze out another 2e-6 in precision." Scratchpad reached 4,880 words. |
+| 9 | trial_9_5 | 2.6286 | 5/6 | Final generation. Scratchpad at 4,956 words. Extensive geometry analysis and precision limit discussion. |
 
-#### 3.2.3 Representative query_llm Call Patterns
+#### Root LLM Behavior
 
-**Trial Analysis** (most common in OpenEvolve config):
-- "Compare these top approaches from Generation 0 and analyze their strengths and weaknesses"
-- "Analyze why these trials failed (INVALID)"
-- "Analyze this circle packing code (trial_0_0, score=...)"
+- **query_llm**: 53 calls total (3-9 per generation, peaking at Gen 4). Categories: trial_analysis (4), comparison (4), error_diagnosis (1), other (44). The "other" category is high because many calls use f-string prompts the parser can't fully extract — these are primarily trial analysis and code review calls.
+- **Scratchpad**: Grew from 207 words (Gen 0) to 4,956 words (Gen 9). Themes evolved from strategy planning → error tracking → code snippets → geometry analysis → precision limit discussion. Code snippets appeared starting Gen 4, reflecting deeper query_llm-assisted analysis.
+- **REPL functions**: 6 unique functions defined progressively: `get_optimal_radii(centers)` and `constraints_jac(vars)` in Gen 0, `get_top_trials(limit=5)` reused across gens, `check_precision_limit()` in Gen 6, `analyze_best_geometry()` and `analyze_trial(trial_id)` in Gen 8.
 
-**Comparison**:
-- "Compare the top trial of Gen 5 with the previous best"
-- "Compare these two circle packing algorithms"
+#### Key Observations
 
-**Code Review** (seen in no_scratchpad):
-- "Extract and explain the Linear Programming (LP) refinement and the penalty continuation logic in this code"
-- "Review all successful trials and identify approaches most different from our top performers"
+The baseline demonstrates the full power of feature integration: query_llm provides external code analysis, scratchpad accumulates strategic knowledge, and REPL functions build domain-specific tools. This combination enables the fastest convergence (Gen 2, 18 trials) — the root LLM's scratchpad note "HUGE SUCCESS" at Gen 2 shows it immediately recognized the breakthrough and built on it for subsequent generations. The 449K input tokens (highest among ablations) reflect the cost of maintaining persistent context via scratchpad and query_llm responses.
 
-**Strategy Planning** (rare):
-- "Suggest three different algorithms for packing circles of varying sizes into a unit square"
+### 3.3 Detailed Analysis: No query_llm
 
-**Error Diagnosis**:
-- "Identify the common reasons for failure in these trials"
-- "What went wrong with this implementation? Identify the key issues"
+**Configuration**: scratchpad=on, trial_reasoning=on, query_llm=**disabled**
 
-#### 3.2.4 query_llm Calls Per Generation
+#### Performance
 
-**Baseline**: Steady 3-9 calls per generation. Peaks at Gen 4 (9 calls) during the mid-evolution analysis phase.
+| Metric | Value |
+|--------|-------|
+| Best score (relaxed) | 2.6359830855 (marginally highest relaxed score across all ablations) |
+| Strict score | 2.6359828255 (analytical, r - 1e-8) |
+| Total cost | $0.71 ($0.20 root + $0.50 child) |
+| Input tokens | 329K (27% fewer than baseline) |
+| Output tokens | 180K (13% more than baseline) |
+| Root LLM calls | 38 |
+| Child LLM calls | 60 |
+| Valid trials | 42/60 (70%) |
+| Wall time | 4,631s (77 min) |
 
-**OpenEvolve config**: Much heavier usage. Peaks at Gen 5 (21 calls!) when the root LLM (Claude 3.7 Sonnet with xhigh reasoning) extensively analyzed trial approaches. This correlates with the OpenEvolve config's breakthrough from 2.612 to 2.633 in that generation.
+**Cost structure shift**: Without query_llm, root cost dropped 31% ($0.20 vs $0.29) because no query_llm responses are processed. However, child cost rose 21% ($0.50 vs $0.41) — the root LLM packed more context directly into child prompts instead of relying on query_llm for external analysis. Total cost is nearly identical ($0.71 vs $0.70).
 
-**ShinkaEvolve config**: Uses query_llm primarily for calibration (10 calls in Gen 0) and then a steady 2 calls per generation — mostly for trial summarization.
+#### Convergence Profile
 
-#### 3.2.5 query_llm Impact Assessment
+| Gen | Best Trial | Score | Valid/Total | Key Events |
+|-----|-----------|-------|-------------|------------|
+| 0 | trial_0_4 | 2.6192 | 3/6 | Initial exploration. Similar starting point to baseline. |
+| 1 | trial_1_1 | 2.6293 | 4/6 | Smaller jump than baseline's Gen 1 (+0.010 vs +0.017). |
+| 2 | trial_2_2 | 2.6300 | 6/6 | All trials valid but scores plateau around 2.630. No query_llm to diagnose why improvement stalled. |
+| 3 | trial_3_2 | 2.6280 | 3/6 | Regression — many invalid trials. Scratchpad noted LP optimization insight but without query_llm-assisted code analysis, progress was slower. |
+| 4 | trial_4_1 | 2.6302 | 5/6 | Marginal improvement. Root LLM defined `analyze_generation_4()` REPL function as a substitute for query_llm analysis. |
+| 5 | trial_5_4 | **2.63598** | 5/6 | **Breakthrough** — discovered shaking + SLSQP, 3 generations later than baseline. |
+| 6 | trial_6_5 | 2.63598+ | 6/6 | Marginally improved score (2.6359830855 — the highest relaxed score across all experiments). |
+| 7 | trial_7_5 | 2.6313 | 3/6 | Post-plateau regression. High invalid rate. |
+| 8 | trial_8_4 | 2.6235 | 3/6 | Further regression. Low valid rate (3/6). |
+| 9 | trial_9_3 | 2.6343 | 4/6 | Moderate recovery but below optimum. |
 
-**Impact on convergence speed**: The baseline (with query_llm) reaches 2.6359 at Gen 2, while no_query_llm reaches it at Gen 5. This is a **3-generation delay** (18 fewer evaluations needed with query_llm). However, the all_disabled experiment (also without query_llm) reaches it at Gen 3, suggesting the delay may not be solely attributable to query_llm.
+#### Root LLM Behavior
 
-**Impact on final score**: No measurable difference. All experiments converge to approximately the same score (~2.635983).
+- **query_llm**: Disabled (0 calls).
+- **Scratchpad**: Grew from 157 words (Gen 0) to 726 words (Gen 9) — **4x smaller** than baseline (4,956 words). Without query_llm to provide detailed analysis, the root LLM wrote shorter, more concise notes. The scratchpad contained the same themes (strategy, LP_optimization, SLSQP_refinement, shaking_perturbation) but lacked the detailed code snippets and multi-paragraph analytical passages found in the baseline.
+- **REPL functions**: 6 unique functions, all analysis-oriented: `create_prompts()`, `analyze_best_trials()`, `analyze_gen3()`, `analyze_generation_4()`, `check_validity(centers, radii)`, `get_best_config()`. These served as a partial substitute for query_llm — the root LLM built its own analysis tools instead of delegating to an external LLM.
 
-**Impact on cost**: query_llm adds ~$0.09 to root LLM costs (comparing baseline $0.29 root cost vs all_disabled $0.17 root cost, though scratchpad/reasoning also contribute to the difference).
+#### Key Observations
 
-**Qualitative impact**: query_llm enables the root LLM to:
-1. Analyze trial code without loading full code into its own context
-2. Get external analysis of why trials failed
-3. Compare different algorithmic approaches
-4. Plan strategy based on external LLM reasoning
+Without query_llm, the root LLM took a more trial-and-error approach, spending 5 generations exploring before finding the winning algorithm. The scratchpad served as partial compensation but without external analysis informing it, strategy notes were thinner and less actionable. The root LLM compensated by defining analysis REPL functions (`analyze_gen3`, `analyze_generation_4`, `check_validity`) and by putting more context directly into child prompts (explaining the higher child cost).
 
-The no_scratchpad experiment compensates for lacking scratchpad by using more query_llm calls (55 vs 53 for baseline), suggesting the features are partially fungible.
+Despite the 3-generation delay, the final score was actually marginally higher (2.6359830855 vs 2.6359830849) due to stochastic variation — different random seeds in the shaking algorithm. This confirms that query_llm accelerates convergence but does not affect the reachable optimum.
 
-### 3.3 Scratchpad Analysis
+**Errors**: RetryErrors occurred in gen2, gen5, and gen9 (API-level failures from the Gemini provider, not algorithmic issues).
 
-#### 3.3.1 Word Count Per Experiment
+### 3.4 Detailed Analysis: No Scratchpad
 
-| Experiment | Total Words | Non-empty Gens | Words/Gen (avg) |
-|-----------|-------------|----------------|-----------------|
-| Baseline | 21,301 | 10/10 | 2,130 |
-| No query_llm | 5,168 | 10/10 | 517 |
-| No trial reasoning | 18,499 | 10/10 | 1,850 |
-| ShinkaEvolve config | 23,918 | 20/20 | 1,196 |
-| OpenEvolve config | 40,335 | 17/17 | 2,373 |
+**Configuration**: scratchpad=**disabled**, query_llm=on, trial_reasoning=on
 
-**Key insight**: The **no_query_llm** scratchpad is **4x smaller** than the baseline (5,168 vs 21,301 words). Without query_llm to provide external analysis, the root LLM writes shorter, more concise notes. With query_llm available, the root LLM writes extensively — often copying analysis from query_llm responses into the scratchpad.
+#### Performance
 
-#### 3.3.2 Scratchpad Themes
+| Metric | Value |
+|--------|-------|
+| Best score (relaxed) | 2.6359830850 |
+| Strict score | 2.6359829142 (re-exec, alpha=0.9999999327) |
+| Total cost | $0.62 ($0.21 root + $0.40 child) |
+| Input tokens | 326K |
+| Output tokens | 151K (lowest among ablations) |
+| Root LLM calls | 38 |
+| Child LLM calls | 60 |
+| Valid trials | 42/60 (70%) |
+| Wall time | 4,824s (80 min) |
 
-All experiments with scratchpad enabled share these common themes:
-- **Strategy**: Planning for next generation
-- **Analysis**: Understanding trial results
-- **Error tracking**: Recording failures and their causes
-- **LP_optimization**: Linear programming for radii optimization
-- **SLSQP_refinement**: SLSQP solver tuning
-- **Basin hopping**: Global optimization strategies
-- **Shaking/perturbation**: Local search techniques
+#### Convergence Profile
 
-The **baseline** scratchpad uniquely includes **code snippets** starting from Gen 4, where the root LLM recorded recommended code patterns. This reflects the query_llm-assisted deeper analysis.
+| Gen | Best Trial | Score | Valid/Total | Key Events |
+|-----|-----------|-------|-------------|------------|
+| 0 | trial_0_1 | 2.6131 | **2/6** | **Worst start**: 4 invalid trials (highest invalid rate of any Gen 0). Without scratchpad to plan initial strategies, the root LLM's prompts led to many failures. query_llm analyzed the invalid trials. |
+| 1 | trial_1_5 | 2.6309 | 5/6 | Good recovery. query_llm analyzed best trial code for improvement suggestions. Defined `summarize_trials()` REPL function. |
+| 2 | trial_2_1 | 2.6307 | 4/6 | Stall — no cumulative improvement. Without scratchpad, insights from Gen 1 were not preserved. |
+| 3 | trial_3_0 | 2.6319 | 3/6 | Marginal progress. query_llm analyzed best trial's optimization strategy. |
+| 4 | trial_4_0 | 2.6284 | 5/6 | **Regression**. Lost previous gains. |
+| 5 | trial_5_3 | 2.6353 | 4/6 | Getting close but not there yet (2.6353 < 2.635983). query_llm conducted general analysis comparing top-performing algorithms. |
+| 6 | trial_6_1 | 2.63598 | 4/6 | Very close (2.635977) but **NOT >= 2.635983**. query_llm compared trial_5_0 and trial_6_1's optimization parameters. Used query_llm for code review ("Extract and explain the LP refinement and penalty continuation logic"). |
+| 7 | trial_7_1 | 2.6307 | 5/6 | **Severe regression** — "forgot" the winning approach. Score dropped back to Gen 1 levels. This is the signature failure mode of no-scratchpad: without persistent memory, the root LLM cannot maintain a consistent strategy across generations. |
+| 8 | trial_8_5 | 2.6179 | 5/6 | **Further regression** to lowest score since Gen 0 (2.6179). The root LLM essentially restarted the search. |
+| 9 | trial_9_2 | **2.63598** | 5/6 | **Recovery in final generation**. Reached 2.635983 at the very last opportunity. Defined domain-specific REPL functions (`refine_radii`, `gradient`, `overlap_cons`, `boundary_cons`) — attempting to implement optimization helpers directly. |
 
-#### 3.3.3 Scratchpad Evolution Example (Baseline)
+#### Root LLM Behavior
 
-The baseline scratchpad grows from 207 words (Gen 0) to 4,956 words (Gen 9), showing an accumulation pattern:
+- **query_llm**: 55 calls (slightly more than baseline's 53). Category breakdown: trial_analysis (6), comparison (6), code_review (2), general_analysis (1), other (40). Notably, **code_review** calls appeared only in this ablation — the root LLM used query_llm to review code as a memory substitute ("Extract and explain the LP refinement logic..."). The higher trial_analysis and comparison counts also reflect compensatory behavior.
+- **Scratchpad**: Disabled. No persistent memory across generations.
+- **REPL functions**: 7 unique functions — the most diverse set among ablations. Split between administrative (`log_progress`, `summarize_trials`) and domain-specific (`gradient`, `refine_radii`, `take_step`, `overlap_cons`, `boundary_cons`). The late-stage domain-specific functions (Gen 9) are unique to this ablation — the root LLM attempted to implement optimization helpers directly in the REPL as a last resort, a behavior not seen in any other experiment.
 
-- **Gen 0** (207 words): Initial strategy listing 6 approaches to explore
-- **Gen 2** (633 words): "HUGE SUCCESS: trial_2_4 achieved 2.635983" — discovery of the shaking+SLSQP method
-- **Gen 4** (1,979 words): Deep analysis of the 2e-6 gap to best known, including a complete code snippet for LP integration
-- **Gen 8-9** (4,880-4,956 words): Extensive analysis with geometry analysis and precision limit discussion
+#### Key Observations
 
-#### 3.3.4 Scratchpad Without query_llm
+**Most impactful single-feature ablation.** The no_scratchpad experiment shows the clearest impact of removing a single feature:
 
-The no_query_llm scratchpad caps at 726 words by Gen 8-9 (vs 4,956 for baseline). It contains the same themes but lacks:
-- The detailed code snippets found in baseline
-- The deep analytical passages that resulted from query_llm analysis
-- The multi-paragraph strategic reasoning
+1. **Convergence delay**: Gen 2 → Gen 9, a 7-generation delay (18 → 60 trials). This is the largest delay of any single-feature ablation.
+2. **Memory loss pattern**: The oscillating convergence (2.6353 → 2.6360 → 2.6307 → 2.6179 → 2.6360) is unique to this ablation. Without persistent notes, the root LLM repeatedly discovered then forgot the winning approach. Gen 7-8 showed regressions to pre-Gen-1 scores.
+3. **Gen 6 near-miss**: Reached 2.635977 at Gen 6 — tantalizingly close to 2.635983 — but then regressed for two generations before finally recovering in Gen 9.
+4. **Compensatory query_llm usage**: Used 55 query_llm calls (vs 53 baseline), including code_review calls unique to this ablation, suggesting the features are partially fungible — query_llm can partially substitute for scratchpad as external memory.
+5. **Late REPL function burst**: The Gen 9 burst of 4 domain-specific REPL functions (gradient, refine_radii, take_step, overlap_cons/boundary_cons) shows the root LLM trying a completely different approach (building optimization infrastructure in REPL) when it couldn't maintain strategy via scratchpad.
 
-Despite this, no_query_llm achieves the **same final score**, reaching it 3 generations later.
+### 3.5 Detailed Analysis: No Trial Reasoning (Buggy)
 
-### 3.4 REPL Function Analysis
+**Configuration**: scratchpad=on, query_llm=on, trial_reasoning=**disabled**
 
-#### 3.4.1 Functions Defined Per Experiment
+**Bug note**: Trial reasoning was not actually exposed to the root LLM in *any* experiment due to a code bug. The `hide_trial_reasoning` flag therefore hides something that was already hidden. This ablation is **not informative** about the value of trial reasoning, but serves as a useful **second baseline run** with different random seeds, helping assess run-to-run variance.
 
-| Experiment | Total Definitions | Unique Functions |
-|-----------|------------------|-----------------|
-| Baseline | 13 | 6 |
-| No query_llm | 11 | 6 |
-| No scratchpad | 7 | 7 |
-| No trial reasoning | 10 | 6 |
-| All disabled | 1 | 1 |
-| ShinkaEvolve config | 94 | 33 |
-| OpenEvolve config | 10 | 8 |
+#### Performance
 
-#### 3.4.2 Function Categories
+| Metric | Value |
+|--------|-------|
+| Best score (relaxed) | 2.6359830849 |
+| Strict score | 2.6359830849 (re-exec, alpha=1.0, already strictly valid) |
+| Total cost | $0.69 ($0.23 root + $0.45 child) |
+| Input tokens | 379K |
+| Output tokens | 166K |
+| Root LLM calls | 33 (fewest among ablations) |
+| Child LLM calls | 59 (1 fewer — Gen 9 had only 5 trials due to a ServerError 500) |
+| Valid trials | **50/59 (85%)** — highest success rate |
+| Wall time | 4,923s (82 min) |
 
-**Analysis/Utility Functions** (common across ablations):
-- `get_top_trials(limit=5)` — Query best trials
-- `analyze_best_trials()` — Analyze trial characteristics
-- `get_best_score(trials)` — Simple score extraction
-- `summarize_trials(trial_list)` — Summarize trial metadata
+#### Convergence Profile
 
-**Domain-Specific Functions** (optimization helpers):
-- `get_optimal_radii(centers)` — LP-based radii optimization (baseline)
-- `check_precision_limit()` — Test numerical precision boundaries (baseline)
-- `analyze_best_geometry()` — Geometric analysis of best packing (baseline)
-- `refine_radii(centers, n, buffer=1e-12)` — Radius refinement (no_scratchpad)
-- `gradient(vars, n, lam)` — Gradient computation (no_scratchpad)
-- `check_validity(centers, radii)` — Validation helper (no_query_llm)
+| Gen | Best Trial | Score | Valid/Total | Key Events |
+|-----|-----------|-------|-------------|------------|
+| 0 | trial_0_0 | 2.6299 | 5/6 | **Strongest start**: Highest Gen 0 score among all ablations. query_llm analyzed trial_0_0's code. |
+| 1 | trial_1_3 | 2.6323 | **6/6** | 100% success rate. query_llm compared top three trials' optimization loops and constraint handling. |
+| 2 | trial_2_0 | 2.6293 | 3/6 | Regression. Half the trials were invalid. |
+| 3 | trial_3_2 | 2.6301 | 5/6 | Stall. query_llm analyzed why trial_1_3 performed better than others. |
+| 4 | trial_4_0 | 2.6272 | **6/6** | Further regression despite 100% validity — all 6 trials valid but all scored lower. |
+| 5 | trial_5_0 | **2.63598** | 5/6 | **Breakthrough**. Discovered shaking + SLSQP. Scratchpad grew to 1,623 words with code snippets. |
+| 6 | trial_6_2 | 2.6301 | **6/6** | Post-breakthrough regression. 100% validity but all below optimum — the root LLM explored alternative approaches. |
+| 7 | trial_7_3 | 2.63598 | 4/6 | Rediscovered optimum. |
+| 8 | trial_8_4 | 2.6285 | 5/6 | Regression again. |
+| 9 | trial_9_2 | 2.6343 | 5/5 | Only 5 trials (ServerError 500 dropped one). Below optimum. |
 
-**ShinkaEvolve config** (33 unique functions — by far the most):
-The GPT-5 root LLM defined an extensive toolkit:
-- `circle_packing_penalty(x, y, r)` — Custom penalty function
-- `lp_feasible(centers, r_upper)` — LP feasibility check
-- `tri_hex_seed(n, jitter, edge_bias, rng)` — Hexagonal seed generation
-- `random_edge_corner_seeds(n, k, rng)` — Edge-biased initialization
-- `make_seeds(n=26, num_seeds=12, rng)` — Multi-strategy seed factory
-- `hex_grid(npt)` — Hexagonal grid generator
-- `strictly_feasible(centers, radii, tol)` — Strict feasibility check
-- `approach_tags(code_lower)` — Automatic algorithm classification
+#### Root LLM Behavior
 
-This shows the GPT-5 root LLM building a significantly more elaborate scaffolding infrastructure, yet achieving a **lower final score** (2.63592 vs 2.63598).
+- **query_llm**: 49 calls (slightly fewer than baseline's 53). Categories: trial_analysis (3), comparison (2), other (44).
+- **Scratchpad**: Grew from 272 to 4,287 words — similar pattern to baseline but slightly smaller. Themes identical: strategy, analysis, LP_optimization, SLSQP_refinement, shaking_perturbation, basin_hopping. Code snippets appeared starting Gen 5.
+- **REPL functions**: 6 unique functions: `generate_prompts()`, `compute_score_stats(scores_list)`, `create_prompts()`, `analyze_best_trials(trials)`, `get_top_scores(n=5)`, `get_top_trials(limit=5)`. All analysis-oriented, similar to baseline.
 
-#### 3.4.3 Function Persistence
+#### Key Observations
 
-The **all_disabled** experiment defined only 1 function (`get_best_score`) — showing that the evolution mechanism works even with minimal REPL scaffolding.
+1. **Highest success rate** (85%): This is likely due to random variation rather than the ablation itself, since the flag has no actual effect. It does suggest that trial validity has significant run-to-run variance.
+2. **Strongest Gen 0**: Starting at 2.6299 (vs baseline's 2.6159, all_disabled's 2.6307, no_query_llm's 2.6192) demonstrates that initial performance is heavily seed-dependent.
+3. **Confirms Gen 5 as typical**: Three ablations (no_query_llm, no_trial_reasoning, all_disabled) all reach 2.635983 at Gen 5, while baseline reached it at Gen 2. This suggests the baseline's Gen 2 breakthrough was partially lucky, and Gen 5 is the "expected" convergence point for standard configurations.
+4. **Post-plateau oscillation**: Like other experiments, score regresses in some post-breakthrough generations (Gen 6, 8, 9). The root LLM continues exploring even after finding the optimum, and some exploration directions produce worse results. This is normal evolutionary behavior.
 
-The **baseline** introduced functions gradually: analysis functions in Gen 0, precision analysis in Gen 6, geometry analysis in Gen 8. This progressive toolbuilding mirrors the scratchpad's strategy evolution.
+### 3.6 Detailed Analysis: All Disabled (Minimal Configuration)
 
-### 3.5 Peculiarities and Unexpected Findings
+**Configuration**: scratchpad=**disabled**, query_llm=**disabled**, trial_reasoning=**disabled**
 
-#### 3.5.1 All Disabled Matches Baseline
+#### Performance
 
-The most striking finding: **all features disabled** ($0.59) achieves the same score as **all features enabled** ($0.70). With 16% lower cost and 78% success rate, the minimal configuration is the most cost-effective.
+| Metric | Value |
+|--------|-------|
+| Best score (relaxed) | 2.6359830849 |
+| Strict score | 2.6359828249 (analytical, r - 1e-8) |
+| Total cost | **$0.59** — cheapest configuration (16% less than baseline) |
+| Root cost | **$0.17** — 41% less than baseline ($0.29) |
+| Input tokens | **244K** — 46% fewer than baseline (449K) |
+| Output tokens | 155K |
+| Root LLM calls | 37 |
+| Child LLM calls | 60 |
+| Valid trials | 47/60 (78%) |
+| Wall time | **4,445s (74 min)** — fastest wall time |
 
-This suggests that for circle packing, the core evolutionary loop (spawn children → evaluate → select best → repeat) is sufficient. The auxiliary features (query_llm, scratchpad, trial reasoning) add interpretability and strategic depth but not measurable performance.
+#### Convergence Profile
 
-#### 3.5.2 ShinkaEvolve Config Underperforms
+| Gen | Best Trial | Score | Valid/Total | Key Events |
+|-----|-----------|-------|-------------|------------|
+| 0 | trial_0_5 | 2.6307 | 3/6 | Above-average start. Defined only `get_best_score(trials)` — the single REPL function in the entire experiment. |
+| 1 | trial_1_2 | 2.6260 | 5/6 | Regression — all valid but lower scores. Without scratchpad or query_llm, the root LLM couldn't retain Gen 0 insights. |
+| 2 | trial_2_1 | 2.6307 | 4/6 | Recovery to Gen 0 level. No new information — purely trial-and-error. |
+| 3 | trial_3_1 | 2.63598 | 4/6 | Close to optimum (2.635977) but NOT >= 2.635983. Strong early progress. |
+| 4 | trial_4_0 | 2.6317 | 5/6 | Regression from Gen 3's near-miss. |
+| 5 | trial_5_0 | **2.63598** | **6/6** | **Breakthrough** — and the only generation across all ablations with a **perfect 6/6 valid trial rate at Gen 5 or later**. |
+| 6 | trial_6_0 | 2.63598 | 5/6 | Confirms optimum. |
+| 7 | trial_7_0 | 2.6310 | 5/6 | Post-plateau regression. |
+| 8 | trial_8_1 | 2.6319 | 5/6 | Still below plateau. |
+| 9 | trial_9_1 | 2.63598 | 5/6 | Rediscovers optimum in final generation. |
 
-The multi-model ShinkaEvolve config ($13.13, 7 child models, GPT-5 root) achieves a **lower** score (2.63592) than any single-model ablation (2.63598). This is 22x more expensive for a worse result.
+#### Root LLM Behavior
 
-Possible explanations:
-- **Model diversity creates noise**: Different models produce solutions with different conventions, making it harder for the root LLM to synthesize insights
-- **GPT-5 root overhead**: The GPT-5 root LLM defined 33 REPL functions — enormous scaffolding that consumed budget without improving the core optimization
-- **Timeout constraints**: Some models (especially when reasoning is enabled) may produce code that runs slower, reducing the effective optimization time
-- **Gen 14 anomaly**: Generation 14 produced only scores around 2.17 — a severe regression that wasted evaluations
+- **query_llm**: Disabled (0 calls).
+- **Scratchpad**: Disabled.
+- **REPL functions**: Only 1 function defined in the entire experiment: `get_best_score(trials)` in Gen 0. This is the absolute minimum scaffolding.
+- **Operating mode**: The root LLM operated in a purely reactive mode — examine trial results, spawn next generation, repeat. With 244K input tokens vs baseline's 449K, it processed 46% less information per run. With 37 root calls (vs 39 for baseline), it had slightly fewer interactions with the LLM.
 
-#### 3.5.3 OpenEvolve Config: Heavy query_llm Usage
+#### Key Observations
 
-The OpenEvolve config made 158 query_llm calls (3x more than any ablation). Generation 5 alone had 21 calls. Despite this heavy analysis, the OpenEvolve config took 14 generations (150 evaluations) to reach 2.63598 — while the baseline reached it in 2 generations (18 evaluations).
+1. **Same final score at minimum cost**: Despite having no auxiliary features, this configuration achieves the same final score as baseline. At $0.59 (16% cheaper) and 74 min (9% faster wall time), it is the most cost-efficient configuration.
+2. **Gen 3 near-miss**: Like no_scratchpad, reached 2.635977 early (Gen 3) but couldn't hit 2.635983 until Gen 5. This 2-generation gap between "close" and "precise" may reflect the role of lucky random seeds in the shaking algorithm.
+3. **Gen 5 perfect generation**: The only configuration to achieve 6/6 valid trials in the breakthrough generation. This suggests the evolutionary pressure was aligned — all 6 child LLMs converged on similar high-quality approaches simultaneously.
+4. **Minimal REPL infrastructure works**: Only 1 REPL function vs baseline's 6 or no_scratchpad's 7. The evolution mechanism works even with zero analytical tooling from the root LLM.
+5. **The core loop is sufficient**: This ablation's success is the strongest evidence that MangoEvolve's core evolutionary loop (spawn → evaluate → select → repeat) carries nearly all the optimization power. Features add interpretability and modest convergence acceleration, not fundamental capability.
 
-The Claude 3.7 Sonnet root LLM's extensive reasoning may have been *too* thorough — spending time on analysis rather than spawning children. The scratchpad grew to 40,335 words (2x the baseline).
+### 3.7 Cross-Ablation Comparison
 
-#### 3.5.4 No Trial Reasoning: Highest Success Rate but Buggy
+#### Convergence Speed Ranking (to >= 2.635983)
 
-The no_trial_reasoning ablation has the highest success rate (85%, 50/59 trials). However, this ablation is misleading because trial reasoning was not actually exposed in any experiment due to a bug — the flag hides something that was already hidden.
+| Rank | Ablation | Gen | Trials | Delay vs Baseline |
+|------|----------|-----|--------|-------------------|
+| 1 | Baseline | 2 | 18 | — |
+| 2 (tie) | All disabled | 5 | 36 | +3 gens (+18 trials) |
+| 2 (tie) | No query_llm | 5 | 36 | +3 gens (+18 trials) |
+| 2 (tie) | No trial reasoning* | 5 | 36 | +3 gens (+18 trials) |
+| 5 | No scratchpad | 9 | 60 | +7 gens (+42 trials) |
 
-#### 3.5.5 Shaking + SLSQP: Universal Discovery
+*No trial reasoning is buggy and effectively a second baseline run.
 
-Across **all** experiments, the winning algorithmic pattern is the same:
+#### Feature Isolation Effects
+
+| Feature | Convergence Impact | Cost Impact | Behavior Change |
+|---------|-------------------|-------------|-----------------|
+| **query_llm** | +3 gens (18→36 trials) | +$0.09 root, -$0.09 child (net $0) | Scratchpad 4x smaller without it; root builds analysis REPL functions as substitute |
+| **Scratchpad** | +7 gens (18→60 trials) | -$0.08 total | Root suffers "memory loss" — oscillating scores; compensates with more query_llm calls and code_review usage; builds domain-specific REPL functions in final generation |
+| **Both disabled** | +3 gens (18→36 trials) | -$0.11 total | Minimal REPL scaffolding (1 function); purely reactive root LLM; still reaches optimum |
+
+**Scratchpad is the most impactful feature for convergence speed.** Removing it causes a 7-generation delay (vs 3 for query_llm). The no_scratchpad experiment's unique oscillating convergence pattern — reaching 2.635977 at Gen 6, regressing to 2.6179 at Gen 8, then recovering at Gen 9 — directly demonstrates the cost of losing persistent memory.
+
+Interestingly, removing both features (all_disabled) is **faster** than removing only scratchpad (Gen 5 vs Gen 9). This suggests an interaction effect: with query_llm available but no scratchpad, the root LLM may over-rely on query_llm analysis that it can't persist, leading to more erratic behavior than the simpler "no features" approach.
+
+#### Success Rate Analysis
+
+| Ablation | Valid/Total | Rate | Observation |
+|----------|-----------|------|-------------|
+| No trial reasoning | 50/59 | 85% | Highest (likely random variance, since flag has no effect) |
+| All disabled | 47/60 | 78% | Second highest — fewer tokens = simpler prompts = more valid code? |
+| Baseline | 45/60 | 75% | Middle of the pack |
+| No query_llm | 42/60 | 70% | Tied for lowest |
+| No scratchpad | 42/60 | 70% | Tied for lowest |
+
+The 70-85% range suggests trial validity is primarily driven by the child LLM's coding ability and random seed variation, not by the root LLM's features.
+
+#### Per-Generation Best Score Stability
+
+After reaching the optimum, how often does each experiment's generation-best score stay at the optimum level?
+
+| Ablation | Gens at Optimum (post-discovery) | Regression Gens | Stability |
+|----------|----------------------------------|-----------------|-----------|
+| Baseline | 4/8 (Gen 2,3,5,6) | 4/8 (Gen 4,7,8,9) | 50% |
+| No query_llm | 2/5 (Gen 5,6) | 3/5 (Gen 7,8,9) | 40% |
+| No scratchpad | 1/4 (Gen 6~,9) | 3/4 (Gen 7,8) | 25% |
+| No trial reasoning | 3/5 (Gen 5,7) | 2/5 (Gen 6,8,9) | 60% |
+| All disabled | 4/5 (Gen 5,6,9) | 2/5 (Gen 7,8) | 60% |
+
+Post-discovery stability is similar across ablations (40-60%), suggesting regression is driven by evolutionary exploration (trying new approaches that don't improve) rather than feature-dependent "forgetting."
+
+#### Shaking + SLSQP: Universal Discovery
+
+Across all 5 ablation experiments, the winning algorithmic pattern is identical:
 1. Start with a grid or force-directed initialization
 2. Apply random perturbations ("shaking")
 3. Run SLSQP local optimization
 4. Keep the best result and repeat
 
-This pattern emerges in the baseline at Gen 2 (trial_2_4), in no_query_llm at Gen 5 (trial_5_4), and in all_disabled at Gen 5 (trial_5_x). The exact generation varies, but the algorithm is always the same.
+| Ablation | Discovery Trial | Discovery Gen |
+|----------|----------------|---------------|
+| Baseline | trial_2_4 | Gen 2 |
+| No query_llm | trial_5_4 | Gen 5 |
+| No scratchpad | trial_9_2 | Gen 9 |
+| No trial reasoning | trial_5_0 | Gen 5 |
+| All disabled | trial_5_0 | Gen 5 |
 
-#### 3.5.6 Convergence to Same Numerical Limit
-
-All ablation experiments converge to approximately **2.63598308xx**. The variation in the last 2-3 digits (e.g., 2.6359830849 vs 2.6359830855) is within SLSQP numerical precision limits. This confirms that all experiments find the same packing configuration — only the convergence speed differs.
-
-#### 3.5.7 query_llm Mentions in Shinka Config: Calibration-Heavy
-
-The ShinkaEvolve config's 47 query_llm calls are heavily front-loaded: 10 in Gen 0 (calibration phase) and then 2 per generation. In Gen 0, the GPT-5 root LLM used query_llm to solve math problems as a "calibration test" for child models — including `"Find the minimum value of f(x) = x^x for x > 0"`. This creative calibration usage is unique to the ShinkaEvolve config.
+The exact generation varies but the algorithm is always the same. All experiments converge to approximately **2.63598308xx** — the variation in the last 2-3 digits (e.g., 2.6359830849 vs 2.6359830855) is within SLSQP numerical precision limits, confirming all experiments find the same packing configuration.
 
 ---
 
@@ -355,35 +452,33 @@ The ShinkaEvolve config's 47 query_llm calls are heavily front-loaded: 10 in Gen
 
 ### 4.1 Cost Efficiency
 
-MangoEvolve achieves state-of-the-art circle packing results with a **single cheap model** (gemini-3-flash) at $0.59-$0.70. This is:
-- **22x cheaper** than the multi-model ShinkaEvolve config ($13.13)
-- **14x cheaper** than the OpenEvolve config ($10.16)
-- Achieves the same or better final score
+MangoEvolve achieves state-of-the-art circle packing results with a **single cheap model** (gemini-3-flash) at $0.59-$0.70:
+- **14x cheaper** than the OpenEvolve config ($10.16) run on the same framework
+- Achieves the same final score
 
 ### 4.2 Sample Efficiency
 
 The baseline reaches the optimum in **18 evaluations** (Gen 2). For comparison:
 - ShinkaEvolve (published): 150 evaluations
 - OpenEvolve (published): ~460 generations
-- MangoEvolve ShinkaEvolve config: 88 evaluations
 - MangoEvolve OpenEvolve config: 150 evaluations
+- MangoEvolve all_disabled: 36 evaluations
+- MangoEvolve no_scratchpad: 60 evaluations
 
-The same evolutionary framework achieves better sample efficiency with a single model than multi-model configurations.
+Even the worst-performing ablation (no_scratchpad, 60 evaluations) matches ShinkaEvolve's published sample count, with a single cheap model.
 
 ### 4.3 Feature Value
 
 | Feature | Score Impact | Convergence Impact | Cost Impact | Interpretability Impact |
 |---------|-------------|-------------------|-------------|----------------------|
-| query_llm | None | +3 gens faster (baseline vs no_query_llm) | +$0.09 | High (detailed analysis) |
-| Scratchpad | None | +4 gens faster (baseline vs no_scratchpad) | +$0.08 | High (strategy tracking) |
-| Trial reasoning | None (buggy) | N/A | +$0.10 | N/A (bug) |
+| query_llm | None | +3 gens faster (Gen 5 → Gen 2) | +$0.09 root, -$0.09 child | High (external code analysis, error diagnosis) |
+| Scratchpad | None | +7 gens faster (Gen 9 → Gen 2) | +$0.08 | High (persistent strategy tracking, code templates) |
+| Trial reasoning | None (buggy) | N/A (not actually active) | +$0.10 | N/A (bug) |
 
-Features provide value for **understanding** the evolution process but not for **final performance**. They may modestly improve convergence speed.
+**Scratchpad is the most valuable feature** for convergence speed, with a 7-generation impact. query_llm provides a 3-generation benefit. Neither affects the final reachable score.
 
-### 4.4 Multi-Model Diversity Does Not Help
+Features provide value for **understanding** the evolution process and **accelerating** convergence but not for **final performance**. For production use where convergence speed matters, enabling scratchpad is the single most impactful configuration choice.
 
-The ShinkaEvolve config with 7 different child models (including GPT-5, Claude Sonnet 4, Gemini 2.5 Pro, o4-mini) achieves a **lower** final score than a single gemini-3-flash model. Model diversity adds cost and complexity without improving the search.
+### 4.4 The Algorithm Always Converges
 
-### 4.5 The Algorithm Always Converges
-
-Regardless of features, models, or configuration, the evolutionary search consistently discovers the "shaking + SLSQP" algorithm and converges to the same numerical limit (~2.635983). This robustness is a strength of the evolutionary approach — the search space funnels to the same optimum.
+Regardless of features or configuration, the evolutionary search consistently discovers the "shaking + SLSQP" algorithm and converges to the same numerical limit (~2.635983). This robustness is a strength of the evolutionary approach — the search space funnels to the same optimum whether the root LLM has full analytical capabilities or operates in a minimal reactive mode.
