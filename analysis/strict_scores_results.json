@@ -1,0 +1,65 @@
+[
+  {
+    "experiment": "ablation_all_disabled",
+    "recorded_score": 2.635983084917586,
+    "relaxed_score": 2.6342924020713494,
+    "strict_score": 2.6342924020713494,
+    "alpha": 1.0,
+    "worst_violation": null,
+    "error": null
+  },
+  {
+    "experiment": "ablation_baseline",
+    "recorded_score": 2.6359830849359622,
+    "relaxed_score": 2.635983086903697,
+    "strict_score": 2.6359830274204916,
+    "alpha": 0.9999999774341475,
+    "worst_violation": "overlap",
+    "error": null
+  },
+  {
+    "experiment": "ablation_no_query_llm",
+    "recorded_score": 2.6359830855348263,
+    "relaxed_score": 2.6309722695375117,
+    "strict_score": 2.630972055424166,
+    "alpha": 0.9999999186181671,
+    "worst_violation": "overlap",
+    "error": null
+  },
+  {
+    "experiment": "ablation_no_scratchpad",
+    "recorded_score": 2.6359830849618215,
+    "relaxed_score": 2.635983091676233,
+    "strict_score": 2.6359829142331686,
+    "alpha": 0.9999999326842934,
+    "worst_violation": "overlap",
+    "error": null
+  },
+  {
+    "experiment": "ablation_no_trial_reasoning",
+    "recorded_score": 2.635983084917561,
+    "relaxed_score": 2.6359830849174837,
+    "strict_score": 2.6359830849174837,
+    "alpha": 1.0,
+    "worst_violation": null,
+    "error": null
+  },
+  {
+    "experiment": "openevolve_config_gemini_flash",
+    "recorded_score": 2.6359830849177386,
+    "relaxed_score": 2.6304187088622646,
+    "strict_score": 2.6304187088617517,
+    "alpha": 0.999999999999805,
+    "worst_violation": "boundary",
+    "error": null
+  },
+  {
+    "experiment": "shinka_evolve_circle_packing",
+    "recorded_score": 2.635919655314255,
+    "relaxed_score": 2.635919655314255,
+    "strict_score": 2.635919655314255,
+    "alpha": 1.0,
+    "worst_violation": null,
+    "error": null
+  }
+]
