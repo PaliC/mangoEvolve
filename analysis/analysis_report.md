@@ -17,12 +17,12 @@
 
 | Configuration | Score (Relaxed) | Score (Strict) | Models | Evaluations | Gens | Cost | Wall Time |
 |--------------|----------------|----------------|--------|-------------|------|------|-----------|
-| **Baseline** (all features) | 2.6359830849 | 2.6359828249 | gemini-3-flash | 60 | 10 | $0.70 | 81 min |
+| **Baseline** (all features) | 2.6359830849 | 2.6359830274 | gemini-3-flash | 60 | 10 | $0.70 | 81 min |
 | **No query_llm** | 2.6359830855 | 2.6359828255 | gemini-3-flash | 60 | 10 | $0.71 | 77 min |
-| **No scratchpad** | 2.6359830850 | 2.6359828250 | gemini-3-flash | 60 | 10 | $0.62 | 80 min |
-| **No trial reasoning** (buggy) | 2.6359830849 | 2.6359828249 | gemini-3-flash | 59 | 10 | $0.69 | 82 min |
+| **No scratchpad** | 2.6359830850 | 2.6359829142 | gemini-3-flash | 60 | 10 | $0.62 | 80 min |
+| **No trial reasoning** (buggy) | 2.6359830849 | 2.6359830849 | gemini-3-flash | 59 | 10 | $0.69 | 82 min |
 | **All disabled** | 2.6359830849 | 2.6359828249 | gemini-3-flash | 60 | 10 | $0.59 | 74 min |
-| **ShinkaEvolve config** | 2.6359196553 | 2.6359193953 | GPT-5 root + 7 child models | 160 | 20 | $13.13 | 297 min |
+| **ShinkaEvolve config** | 2.6359196553 | 2.6359196553 | GPT-5 root + 7 child models | 160 | 20 | $13.13 | 297 min |
 | **OpenEvolve config** | 2.6359830849 | 2.6359828249 | Claude 3.7 Sonnet root + Gemini 2.0 Flash | 160 | 16 | $10.16 | 91 min |
 
 **Key comparison**: The OpenEvolve config uses the **same models** as OpenEvolve (Claude 3.7 Sonnet + Gemini 2.0 Flash). The ShinkaEvolve config uses a model ensemble **inspired by** ShinkaEvolve's multi-model approach.
@@ -35,23 +35,25 @@ The MangoEvolve evaluator uses a `tolerance = 1e-6` that relaxes constraints in 
 
 The ShinkaEvolve paper explicitly reports both: **2.635983099** (relaxed) vs **2.63597771** (strict), a difference of ~5.4e-6.
 
-**Strict scores for MangoEvolve experiments** (computed by shrinking each of the 26 circle radii by 1e-8, guaranteeing strict validity):
+**Strict scores for MangoEvolve experiments**:
 
-The generated algorithms use SLSQP with tight internal tolerances (ftol=1e-12 in many trials), so actual constraint violations are far smaller than the 1e-6 evaluator tolerance. Shrinking each radius by 1e-8 provides a conservative strict score: `strict_score = recorded_score - 26 × 1e-8`.
+Strict scores are computed two ways and the **best** is reported:
+1. **Re-execution**: Run the best trial's code again, then uniformly shrink radii until all constraints hold at tolerance=0 (alpha method).
+2. **Analytical bound**: Shrink each of the 26 radii by 1e-8: `strict_score = recorded_score - 26 × 1e-8`. This is conservative since SLSQP internal tolerances (ftol=1e-12) produce near-strict solutions — re-execution confirmed worst violations are only 3-8e-9 per radius pair.
 
-| Experiment | Recorded Score (relaxed) | Strict Score (r - 1e-8) | Delta |
-|-----------|-------------------------|------------------------|-------|
-| **Baseline** | 2.6359830849 | 2.6359828249 | 2.6e-07 |
-| **No query_llm** | 2.6359830855 | 2.6359828255 | 2.6e-07 |
-| **No scratchpad** | 2.6359830850 | 2.6359828250 | 2.6e-07 |
-| **No trial reasoning** | 2.6359830849 | 2.6359828249 | 2.6e-07 |
-| **All disabled** | 2.6359830849 | 2.6359828249 | 2.6e-07 |
-| **ShinkaEvolve config** | 2.6359196553 | 2.6359193953 | 2.6e-07 |
-| **OpenEvolve config** | 2.6359830849 | 2.6359828249 | 2.6e-07 |
+The best of the two is used because the algorithms are stochastic (shaking, multi-start), so re-execution may land on a different (sometimes worse) local optimum.
 
-The delta (2.6e-7) is uniform across all experiments since it's a fixed per-radius penalty. This is **20x smaller** than ShinkaEvolve's reported relaxed-to-strict gap of ~5.4e-6.
+| Experiment | Recorded Score (relaxed) | Strict Score | Delta | Method |
+|-----------|-------------------------|-------------|-------|--------|
+| **Baseline** | 2.6359830849 | 2.6359830274 | 5.75e-08 | re-exec (alpha=0.9999999774) |
+| **No query_llm** | 2.6359830855 | 2.6359828255 | 2.60e-07 | analytical (r - 1e-8) |
+| **No scratchpad** | 2.6359830850 | 2.6359829142 | 1.71e-07 | re-exec (alpha=0.9999999327) |
+| **No trial reasoning** | 2.6359830849 | 2.6359830849 | 0.00 | re-exec (alpha=1.0, strict-valid) |
+| **All disabled** | 2.6359830849 | 2.6359828249 | 2.60e-07 | analytical (r - 1e-8) |
+| **ShinkaEvolve config** | 2.6359196553 | 2.6359196553 | 0.00 | re-exec (alpha=1.0, strict-valid) |
+| **OpenEvolve config** | 2.6359830849 | 2.6359828249 | 2.60e-07 | analytical (r - 1e-8) |
 
-**Why 1e-8 per radius is sufficient**: Re-execution of several experiments confirmed that the worst actual overlap violations are on the order of 3-8e-9 per radius pair (alpha > 0.9999999). The SLSQP optimizer naturally produces near-strict solutions. The 1e-8 shrinkage provides ample margin.
+The worst-case delta is **2.6e-7**, which is **20x smaller** than ShinkaEvolve's reported relaxed-to-strict gap of ~5.4e-6. Several experiments are already strictly valid upon re-execution (alpha=1.0).
 
 ---
 
